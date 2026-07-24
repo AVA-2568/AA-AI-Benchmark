@@ -24,6 +24,7 @@
     "cache_hit_rate": 0.50
   },
   "score_threshold": 70,
-  "ridge_alpha": 1.0,
-  "imputation_min_samples": 50
+  "ridge_alpha": 0.1,
+  "imputation_min_samples": 50,
+  "standardize_features": true
 }
