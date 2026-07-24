@@ -4,11 +4,9 @@ on:
   schedule:
     - cron: "0 6 1 * *"
   workflow_dispatch: {}
-
 permissions:
   contents: write
   issues: write
-
 jobs:
   update:
     runs-on: ubuntu-22.04
@@ -34,9 +32,9 @@ jobs:
           file_pattern: "results/aa_providers_scored.csv README.md results/validation.json"
           commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
 
-      - name: Alert on failure
+      - name: Alert on failure (dedup by label)
         if: failure()
-        uses: dacbd/create-issue-action@v2
+        uses: peter-evans/create-or-update-issue-action@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           title: "⚠ 月度排名更新失败"
@@ -44,3 +42,4 @@ jobs:
             自动排名流水线失败。
             可能原因：AA 页面结构变更、数据源异常、网络超时。
             请检查 Actions 日志。
+          labels: monthly-update-failure
