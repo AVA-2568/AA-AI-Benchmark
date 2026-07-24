@@ -1,0 +1,29 @@
+{
+  "categories": [
+    {"name": "智能体 Agentic", "weight": 0.20, "metrics": [
+      {"name": "GDPval-AA", "sub_weight": 1.00}
+    ]},
+    {"name": "编程 Coding", "weight": 0.20, "metrics": [
+      {"name": "Terminal-Bench Hard", "sub_weight": 0.50},
+      {"name": "Terminal-Bench v2.1", "sub_weight": 0.30},
+      {"name": "SciCode", "sub_weight": 0.20}
+    ]},
+    {"name": "通用 General", "weight": 0.40, "metrics": [
+      {"name": "LCR", "sub_weight": 0.30},
+      {"name": "Omniscience Index", "sub_weight": 0.30},
+      {"name": "IFBench", "sub_weight": 0.40}
+    ]},
+    {"name": "知识 Knowledge", "weight": 0.20, "metrics": [
+      {"name": "GPQA Diamond", "sub_weight": 0.40},
+      {"name": "HLE", "sub_weight": 0.60}
+    ]}
+  ],
+  "cost": {
+    "input_share": 0.70,
+    "output_share": 0.30,
+    "cache_hit_rate": 0.50
+  },
+  "score_threshold": 70,
+  "ridge_alpha": 1.0,
+  "imputation_min_samples": 50
+}
