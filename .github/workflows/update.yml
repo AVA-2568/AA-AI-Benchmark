@@ -2,8 +2,8 @@ name: Update AA leaderboard ranking
 
 on:
   schedule:
-    # 每周一 06:00 UTC 自动跑
-    - cron: "0 6 * * 1"
+    # 每月 1 号 06:00 UTC 自动跑
+    - cron: "0 6 1 * *"
   workflow_dispatch: {}   # 允许在 Actions 页面手动触发
 
 permissions:
@@ -25,11 +25,11 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Fetch, score, export, refresh README
-        run: python build.py
+        run: python scripts/build.py
 
       - name: Commit & push if changed
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: auto-update leaderboard ranking"
-          file_pattern: "aa_providers_scored.csv aa_providers_scored.xlsx README.md"
+          file_pattern: "results/aa_providers_scored.csv results/aa_providers_scored.xlsx README.md"
           commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
