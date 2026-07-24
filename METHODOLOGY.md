@@ -190,21 +190,23 @@ def to_X(arr_9, target_m):
 ### 成本口径
 
 假设典型 API 调用模式：
-- **70% 输入 token + 30% 输出 token**
-- **50% 的输入 token 命中提示缓存**（适用于多轮对话场景）
+- **70% 输入 token + 30% 输出 token** — `cost.input_share` / `cost.output_share`
+- **50% 的输入 token 命中提示缓存** — `cost.cache_hit_rate`
 
 ### 成本公式
 
 ```
-Total $/1M = (1 - cache_rate) × input_share × 输入价
-            + cache_rate × input_share × 缓存命中价
+Total $/1M = (1 - cache_hit_rate) × input_share × 输入价
+            + cache_hit_rate × input_share × 缓存命中价
             + output_share × 输出价
 ```
 
-- 输入价、输出价来自服务商在榜单中标注的 API 定价
-- **缓存命中价缺失时，回退为输入价的 0.1×**（业界惯例：Anthropic 0.1×、OpenAI 0.5×、DeepSeek 0.1× input）
+- `输入价` / `输出价`：来自服务商在 AA leaderboard 标注的 API 定价
+- `缓存命中价`：优先从 leaderboard 的 `cacheHitPrice` 字段读取（多数 provider 没公布）
+- **`缓存命中价` 缺失时，代码层硬编码 fallback 为 `输入价 × 0.1`**——**不是 config 项**（`config.json` 里没有这个开关）。0.1× 是业界惯例下限：Anthropic 0.1×、OpenAI 0.5×、DeepSeek 0.1× input。如果场景偏 OpenAI，fallback 略**高估**；偏 Anthropic/DeepSeek 则**刚好**。
 - 单位：USD / 百万 token
-- 参数（input_share、cache_rate 等）可在 `config.json` 中调整
+- **可调参数**（在 `config.json`）：`input_share` / `output_share` / `cache_hit_rate`
+- **不可调**（在 `score_aa.py` 硬编码）：`pin * 0.1` 这个 fallback——改需要改代码
 
 ### 参考意义
 
