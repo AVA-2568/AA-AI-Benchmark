@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""一键构建：抓取 AA leaderboard → 解析 → 去重 → 评分 → 刷新 README。
+"""一键构建：抓取 AA leaderboard -> 解析 -> 去重 -> 评分 -> 刷新 README。
 
 可在本地运行，也可由 GitHub Actions 调用。
 """
@@ -52,54 +52,19 @@ def _count(path):
         return sum(1 for _ in csv.reader(f)) - 1
 
 
-def parse_md_table(path):
-    """解析 ranking.md 的 Markdown 表格，返回行列表。
-
-    每行 dict: {Rank, Model, Creator, Score, $/1M, Imputed}
-    """
-    with open(path, encoding="utf-8") as f:
-        lines = f.readlines()
-    rows = []
-    in_table = False
-    for line in lines:
-        line = line.strip()
-        if line.startswith("| # |") or line.startswith("|#|"):
-            in_table = True
-            continue
-        if in_table and line.startswith("|---"):
-            continue
-        if in_table and line.startswith("|"):
-            cells = [c.strip() for c in line.split("|")[1:-1]]
-            if len(cells) >= 6:
-                rows.append({
-                    "Rank": cells[0],
-                    "Model": cells[1],
-                    "Creator": cells[2],
-                    "Weighted Total": cells[3],
-                    "Total $/1M": cells[4],
-                    "Imputed": cells[-1],
-                })
-        elif in_table and not line.startswith("|"):
-            break
-    return rows
-
-
 def update_readme():
-    """从 ranking.md 解析 Top 15，刷新 README。"""
-    ranking_md = os.path.join(REPO_ROOT, "results", "ranking.md")
-    meta_json = os.path.join(REPO_ROOT, "results", "meta.json")
+    """用最新 scored CSV 刷新 README 的快照行与 Top15 表。"""
+    scored = os.path.join(REPO_ROOT, "results", "aa_providers_scored.csv")
     val_json = os.path.join(REPO_ROOT, "results", "validation.json")
     raw_csv = os.path.join(BASE, "aa_providers.csv")
     dedup_csv = os.path.join(BASE, "aa_providers_dedup.csv")
     today = datetime.date.today().isoformat()
     n_raw = _count(raw_csv)
     n_dedup = _count(dedup_csv)
+    n_out = _count(scored)
 
-    # 从 ranking.md 取数据
-    rows = parse_md_table(ranking_md)
-    n_out = len(rows)
-
-    # Top 15
+    with open(scored, encoding="utf-8-sig", newline="") as f:
+        rows = list(csv.DictReader(f))
     top = rows[:15]
     lines = [
         "| # | Model | Creator | Score | $/1M | Imputed |",
@@ -107,20 +72,20 @@ def update_readme():
     ]
     for r in top:
         imp = (r["Imputed"] or "").strip()
-        score_val = r.get("Weighted Total", "")
-        cost_val = r.get("Total $/1M", "")
+        score_val = r.get("Weighted Total") or ""
+        cost_val = r.get("Total $/1M") or ""
         lines.append("| {} | {} | {} | {} | {} | {} |".format(
             r["Rank"], r["Model"], r["Creator"],
             score_val, cost_val,
-            imp or "\u2014",
+            imp or "-",
         ))
     top15_md = "\n".join(lines)
 
     # 快照行
     snapshot_parts = [
         f"> {today} 抓取"
-        f"（{n_raw} 模型\u00d7服务商 \u2192 去重 {n_dedup}"
-        f" \u2192 \u226570 分 {n_out} 行）。"
+        f"（{n_raw} 模型 x 服务商 -> 去重 {n_dedup}"
+        f" -> >=70 分 {n_out} 行）。"
     ]
 
     if os.path.exists(val_json):
@@ -133,11 +98,11 @@ def update_readme():
                 v = val[m]
                 val_lines.append(
                     f"{m} MAE={v['mae']:.2f}"
-                    f" (\u003e10%: {v['pct_over10']}%/{v['n']})"
+                    f" (>10%: {v['pct_over10']}%/{v['n']})"
                 )
         if val_lines:
             snapshot_parts.append(
-                f"> 填补验证：{'；'.join(val_lines)}"
+                f"> 填补验证：{' ; '.join(val_lines)}"
             )
 
     snapshot_md = "\n".join(snapshot_parts)
