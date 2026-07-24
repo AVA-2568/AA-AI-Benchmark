@@ -56,14 +56,6 @@
 | 14 | GPT-5.6 Terra (xhigh) | OpenAI | 82.9 | 5.46 | — |
 | 15 | GPT-5.6 Luna (max) | OpenAI | 82.8 | 2.19 | TB-Hard, IFBench |
 
-## 如何复现
-
-```bash
-pip install openpyxl numpy
-python parse_aa.py      # 抓取原始表（需联网）
-python dedup_aa.py      # 去重
-python score_aa.py      # 评分 + 填补 + 成本 → 生成 xlsx
-```
 
 ## 注意事项
 
@@ -73,4 +65,4 @@ python score_aa.py      # 评分 + 填补 + 成本 → 生成 xlsx
 
 ## License
 
-数据 © Artificial Analysis，按原站条款使用；本仓库的评分脚本与整理结果以 MIT 许可发布（按需调整）。
+数据 © Artificial Analysis，按原站条款使用；本仓库的整理结果以 MIT 许可发布
