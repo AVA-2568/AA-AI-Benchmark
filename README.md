@@ -1,10 +1,21 @@
 # 🏆 AI Model Provider Rankings - AI 模型供应商综合排名
 
 [![Monthly Update](https://img.shields.io/badge/update-monthly-blue)](https://github.com/AVA-2568/AA-AI-Benchmark/actions)
+[![Last data update](https://img.shields.io/github/last-commit/AVA-2568/AA-AI-Benchmark?label=last+data+update&style=flat)](https://github.com/AVA-2568/AA-AI-Benchmark/commits/main)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue)](https://www.python.org/)
 [![MIT License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 基于 [Artificial Analysis](https://artificialanalysis.ai/leaderboards/providers) 的公开基准测试数据，按自定义权重重算综合能力总分。每月自动更新。
+
+## 这是什么
+
+[Artificial Analysis](https://artificialanalysis.ai/leaderboards/providers) 给每个模型一个综合分，但权重是它自己的。这个仓库做的是**同一份公开数据 + 自定义权重**——你看到的是**作者认为更贴近实际使用**的排名（编程 / 通用 / 智能体各 20-40%、知识 20%）。如果你想换权重，[`config.json`](config.json) 改几行数字就行，不用碰代码。
+
+**和原始榜单的区别**：
+- **不依赖 AA 的合成 Intelligence Index**——9 个评分指标交叉预测自己填缺失值
+- **权重可调**——见 [METHODOLOGY.md](METHODOLOGY.md#指标选取与权重)
+- **填补值有迹可循**——CSV 里 `*` 列标注每个被预测的字段
+- **开源、可复现**——流水线 5 分钟本地跑通
 
 <!--SNAPSHOT_START-->
 > 2026-07-24 抓取（1068 模型 x 服务商 -> 去重 391 -> >=70 分 53 行）。
@@ -33,11 +44,13 @@
 | 15 | Claude Sonnet 5 (max) | Anthropic | 82.8 | 5.655 | Terminal-Bench Hard(reg), IFBench(reg) |
 <!--TOP15_END-->
 
+> Imputed 列说明：`-` 表示该模型所有 9 个指标都有真实值；`指标名(reg)` 表示该指标是岭回归预测值；`指标名(reg,low)` 表示预测可信度低（训练样本 < 50）。
+
 👉 [查看完整排名（CSV）](results/aa_providers_scored.csv)
 
 ## 怎么算的
 
-**总分 = 指标得分 x 权重**，满分 100 分。仅收录 >=70 分的模型。
+**总分 = 指标得分 × 权重**，满分 100 分。仅收录 ≥70 分的模型（绝对门槛，不随池子大小变化）。
 
 | 大类 | 权重 | 主要指标 |
 |---|---|---|
@@ -46,13 +59,16 @@
 | General - 通用 | 40% | LCR / Omniscience / IFBench |
 | Knowledge - 知识 | 20% | GPQA Diamond / HLE |
 
-- 各指标按全量样本 **min-max 归一化** 到 0-100 分
-- 缺失值用**多变量岭回归**填补（仅用评分指标交叉预测，不含 Intelligence Index）；CSV 中填补值标注 `*`（常规）或 `**`（低可信，训练样本 < 50）
-- 成本按 70% 输入 + 30% 输出，50% 输入命中缓存估算
-- 权重与参数可在 [`config.json`](config.json) 中自定义
-- 每次运行自动输出留一验证结果与 R2
+### 关键步骤
 
-[完整方法论](METHODOLOGY.md)
+- **min-max 归一化**：各指标按全量样本缩放到 0-100 分
+- **缺失值填补**：9 个评分指标交叉岭回归预测（**α=0.1**，z-score 空间统一）
+- **特征标准化**：岭回归输入先 z-score 处理，避免 Omniscience Index（量纲 -12~100）压过其他 7 个 0-1 指标——见 [METHODOLOGY 特征标准化](METHODOLOGY.md#特征标准化岭回归输入)
+- **成本估算**：70% 输入 + 30% 输出，**50% 输入 token 命中缓存**；缓存命中价缺失时按 input 价的 0.1× 兜底（Anthropic/DeepSeek 行业下限，OpenAI 偏贵会略高估）
+- **权重与参数可在 [`config.json`](config.json) 中自定义**，无需改源码
+- **每次运行自动输出留一验证结果与 R²**——见 [validation.json](results/validation.json)
+
+[完整方法论 →](METHODOLOGY.md)
 
 ## 一键复现
 
@@ -61,28 +77,37 @@ pip install -r requirements.txt
 python scripts/build.py
 ```
 
-## 自动��
+## 自动化
 
-由 GitHub Actions 驱动，每月 1 号自动抓取、重算排名并推送更新。Actions 页面也可手动触发。失败自动开 Issue。
+由 GitHub Actions 驱动，**每月 1 号**自动抓取、重算排名并推送更新（UTC 6:00 / 北京时间 14:00）。Actions 页面可手动触发。失败自动开 Issue（`monthly-update-failure` label 去重，CI retry 不重复开）。
 
 ## 仓库结构
 
 ```
-├── config.json       # 评分权重与参数
-├── scripts/          # 数据流水线
-├── results/          # CSV 排名 + 验证数据
-├── .github/          # CI 自动化
+├── config.json             # 评分权重与参数
+├── requirements.txt        # numpy / pandas / scikit-learn
+├── METHODOLOGY.md          # 完整方法论
+├── scripts/                # 数据流水线
+│   ├── build.py            # 一键入口（fetch -> parse -> dedup -> score -> README）
+│   ├── parse_aa.py         # AA HTML -> CSV
+│   ├── dedup_aa.py         # Model Slug 去重
+│   └── score_aa.py         # 标准化 + 岭回归填补 + 评分
+├── results/                # CSV 排名 + validation
+│   ├── aa_providers_scored.csv
+│   └── validation.json     # 留一验证 + R²
+├── .github/                # CI 自动化
 └── README.md
 ```
 
 ## 注意事项
 
-- 分数代表在当前样本中相对靠前，非理论能力满分
-- CSV 中 `*` 表示回归预测填补，`**` 表示低可信填补
-- 价格为抓取时快照，随服务商调价变动
-- 原始数据版权归 Artificial Analysis 所有
+- 分数代表在当前样本中相对靠前，**非理论能力满分**
+- CSV 中 `*` 表示回归预测填补，`**` 表示低可信填补（训练样本 < 50）
+- **价格是抓取时快照**，随服务商调价变动
+- **原始数据版权归 Artificial Analysis 所有**，按原站条款使用
+- 排名每月刷新，标准化 / α / 阈值变更会引入 4-10 位的 ±2 互调
 
 ## License
 
-评分脚本与整理结果：MIT License
+评分脚本与整理结果：MIT License  
 原始数据：(c) Artificial Analysis，按原站条款使用
