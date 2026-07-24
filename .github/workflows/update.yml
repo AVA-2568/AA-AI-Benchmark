@@ -39,7 +39,8 @@ jobs:
         if: failure()
         uses: dacbd/create-issue-action@v2
         with:
-          title: "⚠ 月度排名更新失败 — $(date +%Y-%m)"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: "⚠ 月度排名更新失败 — ${{ github.run_date }}"
           body: |
             自动排名流水线失败。
             可能原因：AA 页面结构变更、数据源异常、网络超时。
