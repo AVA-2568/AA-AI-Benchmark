@@ -1,4 +1,4 @@
-# AI 模型供应商排名 · 自定义加权评分
+# AI 模型供应商排名 · 专注于通用Agent领域
 
 基于 [Artificial Analysis](https://artificialanalysis.ai/leaderboards/providers) 的 providers leaderboard，按自定义分层权重重算综合能力总分，并给出每 1M token 的成本预估。
 
