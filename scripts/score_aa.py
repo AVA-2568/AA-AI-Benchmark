@@ -17,8 +17,8 @@ OUT_VAL = os.path.join(REPO_ROOT, "results", "validation.json")
 # ---- 加载配置 ----
 config_path = os.path.join(REPO_ROOT, "config.json")
 if os.path.exists(config_path):
-    with open(config_path, encoding="utf-8") as f:
-        cfg = json.load(f)
+    with open(config_path, encoding="utf-8") as fh:
+        cfg = json.load(fh)
     print("loaded config.json")
 else:
     # 回退硬编码（与 config.json 保持一致）
@@ -62,7 +62,7 @@ MIN_SAMPLES = cfg["imputation_min_samples"]
 
 
 # ---- 数据加载 ----
-def f(v):
+def to_float(v):
     v = (v or "").strip()
     if v in ("", "None", "null"):
         return None
@@ -79,7 +79,7 @@ print("loaded rows:", len(rows))
 # ---- 每指标统计 ----
 stats = {}  # m → (lo, hi, top50mean, p90, p95)
 for m in METRICS:
-    vals = [f(r.get(m)) for r in rows]
+    vals = [to_float(r.get(m)) for r in rows]
     vals = [v for v in vals if v is not None]
     if len(vals) < 2:
         print(f"FATAL: {m} 有效样本数 {len(vals)} < 2")
@@ -95,12 +95,12 @@ for m in METRICS:
 
 
 # ---- 岭回归填补（仅用 8-1 交叉特征，不含 Intelligence Index）----
-raw = {m: [f(r.get(m)) for r in rows] for m in METRICS}
+raw = {m: [to_float(r.get(m)) for r in rows] for m in METRICS}
 cur = {m: [(v if v is not None else stats[m][2]) for v in raw[m]] for m in METRICS}
 
 
 def feat(i, target):
-    """交叉特征：除 target 外的其他 7 个评分指标（共 8 个，-1）。"""
+    """交叉特征：除 target 外的其他评分指标。"""
     return [cur[mm][i] for mm in METRICS if mm != target]
 
 
@@ -137,8 +137,7 @@ for it in range(30):
         for i in range(len(rows)):
             if raw[m][i] is None:
                 if n_train < MIN_SAMPLES:
-                    # 训练样本不足 → 不填补，保留 top50 均值初始值，标记低可信度
-                    pass
+                    pass  # 训练样本不足 → 保留 top50 均值初始值
                 else:
                     xi = np.array([1.0] + feat(i, m))
                     pred = float(xi @ beta)
@@ -174,7 +173,6 @@ for target_m in METRICS:
         validation[target_m] = {"mae": None, "pct_over10": None, "n": n}
         continue
 
-    # 如果样本很多，随机抽 min(60, n) 个做留一
     sample_indices = has_true
     if n > 60:
         rng = np.random.RandomState(42)
@@ -184,7 +182,6 @@ for target_m in METRICS:
     true_vals = []
     for skip_i in sample_indices:
         true_val = raw[target_m][skip_i]
-        # 用其他有真值的样本重新训练岭回归
         Xtr, ytr = [], []
         for j in range(len(rows)):
             if j != skip_i and raw[target_m][j] is not None:
@@ -230,8 +227,8 @@ for target_m in METRICS:
 
 # ---- 保存验证结果供 build.py 使用 ----
 os.makedirs(os.path.dirname(OUT_VAL), exist_ok=True)
-with open(OUT_VAL, "w", encoding="utf-8") as f:
-    json.dump(validation, f, ensure_ascii=False, indent=2)
+with open(OUT_VAL, "w", encoding="utf-8") as fh:
+    json.dump(validation, fh, ensure_ascii=False, indent=2)
 print("Saved validation ->", OUT_VAL)
 
 
@@ -257,7 +254,6 @@ for i, r in enumerate(rows):
         else:
             n_train = imputation_quality[m]["n_train"]
             if n_train < MIN_SAMPLES:
-                # 样本不足未填补 → 标记低可信度
                 eff[m] = cur[m][i]
                 imputed.append(m + "(low)")
             else:
@@ -266,9 +262,9 @@ for i, r in enumerate(rows):
     nrm = {m: norm(m, eff[m]) for m in METRICS}
     total = sum(GLOBAL[m] * nrm[m] for m in METRICS)
 
-    pin = f(r.get("Price 1M Input"))
-    pout = f(r.get("Price 1M Output"))
-    pcache = f(r.get("Cache Hit Price"))
+    pin = to_float(r.get("Price 1M Input"))
+    pout = to_float(r.get("Price 1M Output"))
+    pcache = to_float(r.get("Cache Hit Price"))
     pcache_eff = pcache if pcache is not None else pin
     if None in (pin, pout):
         cost_total = None
@@ -282,7 +278,7 @@ for i, r in enumerate(rows):
         "Model": r.get("Model"),
         "Creator": r.get("Creator"),
         "Reasoning": r.get("Reasoning Model"),
-        "Orig Intelligence Index": f(r.get("Intelligence Index")),
+        "Orig Intelligence Index": to_float(r.get("Intelligence Index")),
         **{m: (round(eff[m], 3) if m in imputed else raw[m][i])
            for m in METRICS},
         **{m + " (norm)": round(nrm[m], 1) for m in METRICS},
@@ -323,8 +319,8 @@ for _, _, subs in CATS:
 headers += ["Price 1M In", "Price 1M Out", "Cache Hit", "Imputed"]
 
 os.makedirs(os.path.dirname(OUT_CSV), exist_ok=True)
-with open(OUT_CSV, "w", newline="", encoding="utf-8-sig") as f:
-    w = csv.DictWriter(f, fieldnames=headers, extrasaction="ignore")
+with open(OUT_CSV, "w", newline="", encoding="utf-8-sig") as fh:
+    w = csv.DictWriter(fh, fieldnames=headers, extrasaction="ignore")
     w.writeheader()
     w.writerows(out)
 print("Saved", OUT_CSV)
