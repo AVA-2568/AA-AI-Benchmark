@@ -111,7 +111,12 @@ def update_readme():
     txt = open(readme, encoding="utf-8").read()
     txt = _replace_block(txt, "SNAPSHOT", snapshot_md)
     txt = _replace_block(txt, "TOP15", top15_md)
-    open(readme, "w", encoding="utf-8").write(txt)
+    # Atomic write: stage to .tmp, then os.replace, so a crash mid-write
+    # never leaves the repo with a half-written README.
+    tmp = readme + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        f.write(txt)
+    os.replace(tmp, readme)
     print("README updated: raw=%d dedup=%d out=%d" % (n_raw, n_dedup, n_out))
 
 
