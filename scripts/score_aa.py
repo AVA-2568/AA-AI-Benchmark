@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """评分引擎：去重后的模型按自定义权重重算综合分。
 
-读取 config.json 获取权重与参数；缺失值用多变量岭回归填补（交叉特征、不含 II）。
-输出 CSV（程序用）+ Markdown（人看），填补值带 * 标记。
+读取 config.json；缺失值用多变量岭回归填补（交叉特征、不含 II）。
+输出 results/ranking.md（��整 Markdown 表格，填补值带 *）+ results/meta.json。
 """
 import csv, json, math, os, sys, datetime
 
@@ -11,8 +11,8 @@ import numpy as np
 _BASE = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(_BASE)
 SRC = os.path.join(_BASE, "aa_providers_dedup.csv")
-OUT_CSV = os.path.join(REPO_ROOT, "results", "aa_providers_scored.csv")
 OUT_MD = os.path.join(REPO_ROOT, "results", "ranking.md")
+OUT_META = os.path.join(REPO_ROOT, "results", "meta.json")
 OUT_VAL = os.path.join(REPO_ROOT, "results", "validation.json")
 
 
@@ -238,7 +238,6 @@ CACHE_SHARE = COST["cache_hit_rate"]
 
 
 def fmt_val(val, is_imputed, is_low):
-    """填补值加 *（低可信加 **），真实值不加标记。"""
     s = str(round(val, 3))
     if is_low:
         return s + "**"
@@ -283,16 +282,12 @@ for i, r in enumerate(rows):
     out.append({
         "Model": r.get("Model"),
         "Creator": r.get("Creator"),
-        "Reasoning": r.get("Reasoning Model"),
-        "Orig Intelligence Index": to_float(r.get("Intelligence Index")),
-        **{m: fmt_val(eff[m], m in imputed_set, m in low_set)
-           for m in METRICS},
-        **{m + " (norm)": round(nrm[m], 1) for m in METRICS},
-        "Weighted Total": round(total, 1),
-        "Price 1M In": pin,
-        "Price 1M Out": pout,
-        "Cache Hit": pcache_eff,
-        "Total $/1M": cost_total,
+        "Total": round(total, 1),
+        "Cost": cost_total,
+        "Agent": fmt_val(eff["GDPval-AA"], "GDPval-AA" in imputed_set, "GDPval-AA" in low_set),
+        "Coding": fmt_val(eff["Terminal-Bench Hard"], "Terminal-Bench Hard" in imputed_set, "Terminal-Bench Hard" in low_set),
+        "General": fmt_val(eff["LCR"], "LCR" in imputed_set, "LCR" in low_set),
+        "Knowledge": fmt_val(eff["HLE"], "HLE" in imputed_set, "HLE" in low_set),
         "Imputed": ", ".join(
             f"{m}(reg)" if not m.endswith("(low)")
             else f"{m[:-5]}(reg,low)"
@@ -300,35 +295,13 @@ for i, r in enumerate(rows):
         ) if imputed else "",
     })
 
-out.sort(key=lambda x: (
-    x["Weighted Total"] if x["Weighted Total"] is not None else -1
-), reverse=True)
-
-out = [r for r in out
-       if r["Weighted Total"] is not None
-       and r["Weighted Total"] >= SCORE_THRESHOLD]
+out.sort(key=lambda x: x["Total"], reverse=True)
+out = [r for r in out if r["Total"] >= SCORE_THRESHOLD]
 
 print(f">={SCORE_THRESHOLD} 分共 {len(out)} 行")
 
 for idx, row in enumerate(out, 1):
     row["Rank"] = idx
-
-
-# ---- 写入 CSV ----
-headers = ["Rank", "Model", "Weighted Total", "Total $/1M", "Creator",
-           "Reasoning", "Orig Intelligence Index"]
-for _, _, subs in CATS:
-    for m, _ in subs:
-        headers.append(m)
-        headers.append(m + " (norm)")
-headers += ["Price 1M In", "Price 1M Out", "Cache Hit", "Imputed"]
-
-os.makedirs(os.path.dirname(OUT_CSV), exist_ok=True)
-with open(OUT_CSV, "w", newline="", encoding="utf-8-sig") as fh:
-    w = csv.DictWriter(fh, fieldnames=headers, extrasaction="ignore")
-    w.writeheader()
-    w.writerows(out)
-print("Saved", OUT_CSV)
 
 
 # ---- 写入 Markdown ----
@@ -339,30 +312,20 @@ md_lines = [
     f"* 表示回归预测填补  |  ** 表示低可信填补（训练样本 < {MIN_SAMPLES}）",
     "",
 ]
-# 紧凑表头
-md_cols = ["#", "Model", "Score", "$/1M",
+md_cols = ["#", "Model", "Creator", "Score", "$/1M",
            "Agent", "Coding", "General", "Knowledge", "Imputed"]
 md_lines.append("| " + " | ".join(md_cols) + " |")
 md_lines.append("|" + "|".join(["---"] * len(md_cols)) + "|")
 
 for r in out:
-    # Agent: GDPval-AA 的原始值
-    agent_val = r.get("GDPval-AA", "")
-    # Coding: Terminal-Bench Hard
-    coding_val = r.get("Terminal-Bench Hard", "")
-    # General: LCR
-    general_val = r.get("LCR", "")
-    # Knowledge: HLE
-    knowledge_val = r.get("HLE", "")
-    imp = (r.get("Imputed") or "").strip()
-    cost = r.get("Total $/1M")
-    cost_str = str(cost) if cost is not None else "—"
-
+    cost_str = str(r["Cost"]) if r["Cost"] is not None else "\u2014"
+    imp = (r["Imputed"] or "").strip()
     md_lines.append(
-        f"| {r['Rank']} | {r['Model']} | {r['Weighted Total']} | "
-        f"{cost_str} | {agent_val} | {coding_val} | "
-        f"{general_val} | {knowledge_val} | "
-        f"{imp or '—'} |"
+        f"| {r['Rank']} | {r['Model']} | {r['Creator']} | "
+        f"{r['Total']} | {cost_str} | "
+        f"{r['Agent']} | {r['Coding']} | "
+        f"{r['General']} | {r['Knowledge']} | "
+        f"{imp or '\u2014'} |"
     )
 
 with open(OUT_MD, "w", encoding="utf-8") as fh:
@@ -370,9 +333,18 @@ with open(OUT_MD, "w", encoding="utf-8") as fh:
 print("Saved", OUT_MD)
 
 
+# ---- 写入 meta.json（供 build.py 用）----
+meta = {
+    "date": datetime.date.today().isoformat(),
+    "total": len(out),
+}
+with open(OUT_META, "w", encoding="utf-8") as fh:
+    json.dump(meta, fh, ensure_ascii=False)
+print("Saved", OUT_META)
+
+
 # ---- R\u00b2 日志 ----
-today_str = datetime.date.today().isoformat()
-print(f"\nData snapshot: {today_str}, {len(out)} rows")
+print(f"\nData snapshot: {datetime.date.today().isoformat()}, {len(out)} rows")
 print("训练集 R\u00b2 (不含 II，仅 8\u21921 交叉预测):")
 for m in METRICS:
     Xtr, ytr = [], []
