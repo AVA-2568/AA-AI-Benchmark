@@ -7,6 +7,7 @@ Reads config.json; imputes missing values via multi-variate ridge regression
 import csv, json, math, os, sys, datetime
 
 import numpy as np
+from sklearn.preprocessing import StandardScaler
 
 _BASE = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(_BASE)
@@ -40,8 +41,9 @@ else:
         ],
         "cost": {"input_share": 0.70, "output_share": 0.30, "cache_hit_rate": 0.50},
         "score_threshold": 70,
-        "ridge_alpha": 1.0,
+        "ridge_alpha": 0.1,
         "imputation_min_samples": 50,
+        "standardize_features": True,
     }
     print("config.json not found, using built-in defaults")
 
@@ -59,6 +61,7 @@ COST = cfg["cost"]
 ALPHA = cfg["ridge_alpha"]
 SCORE_THRESHOLD = cfg["score_threshold"]
 MIN_SAMPLES = cfg["imputation_min_samples"]
+STANDARDIZE = cfg.get("standardize_features", True)
 
 
 # ---- config sanity checks (fail fast on bad config) ----
@@ -118,6 +121,35 @@ def feat(i, target):
     return [cur[mm][i] for mm in METRICS if mm != target]
 
 
+# Fit one StandardScaler on the raw 8 cross-feature matrix (n x 8, all 9
+# metrics included) and apply through all 30 iterations. The point is to
+# put the 8 cross-features in z-score space so the L2 penalty (alpha)
+# treats them equally; without this, Omniscience Index (range -12..100)
+# dominates the 7 0-1 metrics by ~12000x in X^T X and the ridge fit is
+# effectively one-feature.
+if STANDARDIZE:
+    X_raw_real = np.array([
+        [raw[m][i] if raw[m][i] is not None else stats[m][2]
+         for i in range(len(rows))]
+        for m in METRICS
+    ], dtype=float)  # shape: 9 x n
+    scaler = StandardScaler()
+    scaler.fit(X_raw_real.T)  # fit on n x 9 (one row per model, one col per metric)
+    print(f"standardized features: per-metric mean={scaler.mean_.round(2).tolist()}, "
+          f"std={scaler.scale_.round(2).tolist()}")
+else:
+    scaler = None
+    print("standardize_features=false (using raw X for ridge)")
+
+
+def to_X(arr_2d):
+    """arr_2d: n x 8 (the 8 cross-features for a target metric).
+    Returns the X matrix fed to ridge: [1 | standardized(arr_2d)]."""
+    if scaler is not None:
+        arr_2d = scaler.transform(arr_2d)
+    return np.hstack([np.ones((len(arr_2d), 1)), arr_2d])
+
+
 imputation_quality = {}
 for m in METRICS:
     n_train = sum(1 for i in range(len(rows)) if raw[m][i] is not None)
@@ -139,7 +171,7 @@ for it in range(30):
             continue
         Xtr_arr = np.array(Xtr, dtype=float)
         ytr_arr = np.array(ytr, dtype=float)
-        X1 = np.hstack([np.ones((len(Xtr_arr), 1)), Xtr_arr])
+        X1 = to_X(Xtr_arr)
         A = X1.T @ X1 + ALPHA * np.eye(X1.shape[1])
         try:
             beta = np.linalg.solve(A, X1.T @ ytr_arr)
@@ -150,7 +182,7 @@ for it in range(30):
         for i in range(len(rows)):
             if raw[m][i] is None:
                 if n_train >= MIN_SAMPLES:
-                    xi = np.array([1.0] + feat(i, m))
+                    xi = to_X(np.array([feat(i, m)], dtype=float))[0]
                     pred = float(xi @ beta)
                     cur[m][i] = max(lo, min(p95, pred))
 
@@ -200,13 +232,13 @@ for target_m in METRICS:
             continue
         Xtr_arr = np.array(Xtr, dtype=float)
         ytr_arr = np.array(ytr, dtype=float)
-        X1 = np.hstack([np.ones((len(Xtr_arr), 1)), Xtr_arr])
+        X1 = to_X(Xtr_arr)
         A = X1.T @ X1 + ALPHA * np.eye(X1.shape[1])
         try:
             beta = np.linalg.solve(A, X1.T @ ytr_arr)
         except np.linalg.LinAlgError:
             beta = np.linalg.lstsq(X1, ytr_arr, rcond=None)[0]
-        xi = np.array([1.0] + feat(skip_i, target_m))
+        xi = to_X(np.array([feat(skip_i, target_m)], dtype=float))[0]
         pred = float(xi @ beta)
         lo, hi, _, _, p95 = stats[target_m]
         pred = max(lo, min(p95, pred))
@@ -359,7 +391,7 @@ for m in METRICS:
         continue
     Xtr_arr = np.array(Xtr, dtype=float)
     ytr_arr = np.array(ytr, dtype=float)
-    X1 = np.hstack([np.ones((len(Xtr_arr), 1)), Xtr_arr])
+    X1 = to_X(Xtr_arr)
     beta = np.linalg.lstsq(X1, ytr_arr, rcond=None)[0]
     pred = X1 @ beta
     ybar = ytr_arr.mean()
