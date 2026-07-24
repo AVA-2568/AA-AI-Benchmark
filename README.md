@@ -9,13 +9,13 @@
 
 ## 这是什么
 
-[Artificial Analysis](https://artificialanalysis.ai/leaderboards/providers) 给每个模型一个综合分，但权重是它自己的。这个仓库做的是**同一份公开数据 + 自定义权重**——你看到的是**作者认为更贴近实际使用**的排名（编程 / 通用 / 智能体各 20-40%、知识 20%）。如果你想换权重，[`config.json`](config.json) 改几行数字就行，不用碰代码。
+本仓库使用 [Artificial Analysis](https://artificialanalysis.ai/leaderboards/providers) 的公开基准数据，**按自定义权重**计算综合分，而非沿用 AA 的合成 Intelligence Index。权重设计偏重实际使用场景（编程 / 通用 / 智能体各 20-40%、知识 20%），详见 [`config.json`](config.json) 与 [METHODOLOGY.md](METHODOLOGY.md)。
 
-**和原始榜单的区别**：
-- **不依赖 AA 的合成 Intelligence Index**——9 个评分指标交叉预测自己填缺失值
-- **权重可调**——见 [METHODOLOGY.md](METHODOLOGY.md#指标选取与权重)
-- **填补值有迹可循**——CSV 里 `*` 列标注每个被预测的字段
-- **开源、可复现**——流水线 5 分钟本地跑通
+**与原始榜单的差异**：
+- 9 个评分指标交叉岭回归预测，处理缺失值
+- 权重完全可自定义——见 [METHODOLOGY.md](METHODOLOGY.md#指标选取与权重)
+- 填补字段在 CSV `Imputed` 列标注
+- 流水线开源可本地复现——见下方"一键复现"
 
 <!--SNAPSHOT_START-->
 > 2026-07-24 抓取（1068 模型 x 服务商 -> 去重 391 -> >=70 分 53 行）。
@@ -44,7 +44,7 @@
 | 15 | Claude Sonnet 5 (max) | Anthropic | 82.8 | 5.655 | Terminal-Bench Hard(reg), IFBench(reg) |
 <!--TOP15_END-->
 
-> Imputed 列说明：`-` 表示该模型所有 9 个指标都有真实值；`指标名(reg)` 表示该指标是岭回归预测值；`指标名(reg,low)` 表示预测可信度低（训练样本 < 50）。
+> Imputed 列说明：`-` 表示该模型所有 9 个指标均有真实值；`指标名(reg)` 表示该指标为岭回归预测值；`指标名(reg,low)` 表示预测可信度低（训练样本 < 50）。
 
 👉 [查看完整排名（CSV）](results/aa_providers_scored.csv)
 
@@ -62,11 +62,11 @@
 ### 关键步骤
 
 - **min-max 归一化**：各指标按全量样本缩放到 0-100 分
-- **缺失值填补**：9 个评分指标交叉岭回归预测（**α=0.1**，z-score 空间统一）
-- **特征标准化**：岭回归输入先 z-score 处理，避免 Omniscience Index（量纲 -12~100）压过其他 7 个 0-1 指标——见 [METHODOLOGY 特征标准化](METHODOLOGY.md#特征标准化岭回归输入)
-- **成本估算**：70% 输入 + 30% 输出，**50% 输入 token 命中缓存**；缓存命中价缺失时按 input 价的 0.1× 兜底（Anthropic/DeepSeek 行业下限，OpenAI 偏贵会略高估）
-- **权重与参数可在 [`config.json`](config.json) 中自定义**，无需改源码
-- **每次运行自动输出留一验证结果与 R²**——见 [validation.json](results/validation.json)
+- **缺失值填补**：9 个评分指标交叉岭回归预测，α=0.1（z-score 空间）
+- **特征标准化**：岭回归输入先 z-score 处理，避免 Omniscience Index（量纲 -12~100）主导其他 7 个 0-1 指标——见 [METHODOLOGY 特征标准化](METHODOLOGY.md#特征标准化岭回归输入)
+- **成本估算**：70% 输入 + 30% 输出，50% 输入 token 命中缓存；缓存命中价缺失时按 input 价的 0.1× 回退（Anthropic / DeepSeek 行业下限，对 OpenAI 偏高）
+- **权重与参数在 [`config.json`](config.json) 中自定义**，无需修改源码
+- **每次运行输出留一验证结果与 R²**——见 [validation.json](results/validation.json)
 
 [完整方法论 →](METHODOLOGY.md)
 
@@ -105,7 +105,7 @@ python scripts/build.py
 - CSV 中 `*` 表示回归预测填补，`**` 表示低可信填补（训练样本 < 50）
 - **价格是抓取时快照**，随服务商调价变动
 - **原始数据版权归 Artificial Analysis 所有**，按原站条款使用
-- 排名每月刷新，标准化 / α / 阈值变更会引入 4-10 位的 ±2 互调
+- 排名每月刷新；标准化 / α / 阈值变更可能引入 4-10 位的 ±2 互调
 
 ## License
 
