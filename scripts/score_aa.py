@@ -2,6 +2,7 @@
 """评分引擎：去重后的模型按自定义权重重算综合分。
 
 读取 config.json 获取权重与参数；缺失值用多变量岭回归填补（交叉特征、不含 II）。
+输出 CSV（程序用）+ Markdown（人看），填补值带 * 标记。
 """
 import csv, json, math, os, sys, datetime
 
@@ -11,6 +12,7 @@ _BASE = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(_BASE)
 SRC = os.path.join(_BASE, "aa_providers_dedup.csv")
 OUT_CSV = os.path.join(REPO_ROOT, "results", "aa_providers_scored.csv")
+OUT_MD = os.path.join(REPO_ROOT, "results", "ranking.md")
 OUT_VAL = os.path.join(REPO_ROOT, "results", "validation.json")
 
 
@@ -21,7 +23,6 @@ if os.path.exists(config_path):
         cfg = json.load(fh)
     print("loaded config.json")
 else:
-    # 回退硬编码（与 config.json 保持一致）
     cfg = {
         "categories": [
             {"name": "智能体 Agentic", "weight": 0.20,
@@ -77,7 +78,7 @@ print("loaded rows:", len(rows))
 
 
 # ---- 每指标统计 ----
-stats = {}  # m → (lo, hi, top50mean, p90, p95)
+stats = {}
 for m in METRICS:
     vals = [to_float(r.get(m)) for r in rows]
     vals = [v for v in vals if v is not None]
@@ -94,17 +95,15 @@ for m in METRICS:
     print(f"  {m:20} min={lo:.3f} max={hi:.3f} P95={p95:.3f} n={len(vals)}")
 
 
-# ---- 岭回归填补（仅用 8-1 交叉特征，不含 Intelligence Index）----
+# ---- 岭回归填补 ----
 raw = {m: [to_float(r.get(m)) for r in rows] for m in METRICS}
 cur = {m: [(v if v is not None else stats[m][2]) for v in raw[m]] for m in METRICS}
 
 
 def feat(i, target):
-    """交叉特征：除 target 外的其他评分指标。"""
     return [cur[mm][i] for mm in METRICS if mm != target]
 
 
-# 统计每个指标的有效训练样本数
 imputation_quality = {}
 for m in METRICS:
     n_train = sum(1 for i in range(len(rows)) if raw[m][i] is not None)
@@ -113,7 +112,6 @@ for m in METRICS:
 print("\n--- 迭代填补 ---")
 prev = {m: list(cur[m]) for m in METRICS}
 stable_count = 0
-converged_at = None
 
 for it in range(30):
     for m in METRICS:
@@ -136,14 +134,11 @@ for it in range(30):
         n_train = imputation_quality[m]["n_train"]
         for i in range(len(rows)):
             if raw[m][i] is None:
-                if n_train < MIN_SAMPLES:
-                    pass  # 训练样本不足 → 保留 top50 均值初始值
-                else:
+                if n_train >= MIN_SAMPLES:
                     xi = np.array([1.0] + feat(i, m))
                     pred = float(xi @ beta)
                     cur[m][i] = max(lo, min(p95, pred))
 
-    # 收敛检测
     max_delta = 0.0
     for m in METRICS:
         for i in range(len(rows)):
@@ -152,8 +147,7 @@ for it in range(30):
     if max_delta < 0.001:
         stable_count += 1
         if stable_count >= 3:
-            converged_at = it - 1
-            print(f"  收敛于第 {converged_at} 轮，max_delta={max_delta:.6f}")
+            print(f"  收敛于第 {it - 1} 轮，max_delta={max_delta:.6f}")
             break
     else:
         stable_count = 0
@@ -162,7 +156,7 @@ else:
     print(f"  ⚠ 警告：30 轮未收敛，max_delta={max_delta:.4f}")
 
 
-# ---- 留一验证（对每个有效样本多的指标）----
+# ---- 留一验证 ----
 print("\n--- 留一验证 ---")
 validation = {}
 for target_m in METRICS:
@@ -224,8 +218,6 @@ for target_m in METRICS:
         f"误差>10%: {over10}/{len(errors)} ({over10/len(errors)*100:.0f}%)"
     )
 
-
-# ---- 保存验证结果供 build.py 使用 ----
 os.makedirs(os.path.dirname(OUT_VAL), exist_ok=True)
 with open(OUT_VAL, "w", encoding="utf-8") as fh:
     json.dump(validation, fh, ensure_ascii=False, indent=2)
@@ -236,13 +228,24 @@ print("Saved validation ->", OUT_VAL)
 def norm(m, v):
     lo, hi, _, _, _ = stats[m]
     if hi == lo:
-        return 50.0  # 所有值相同时取中间分
+        return 50.0
     return (v - lo) / (hi - lo) * 100.0
 
 
 INPUT_SHARE = COST["input_share"]
 OUTPUT_SHARE = COST["output_share"]
 CACHE_SHARE = COST["cache_hit_rate"]
+
+
+def fmt_val(val, is_imputed, is_low):
+    """填补值加 *（低可信加 **），真实值不加标记。"""
+    s = str(round(val, 3))
+    if is_low:
+        return s + "**"
+    if is_imputed:
+        return s + "*"
+    return s
+
 
 out = []
 for i, r in enumerate(rows):
@@ -253,12 +256,12 @@ for i, r in enumerate(rows):
             eff[m] = raw[m][i]
         else:
             n_train = imputation_quality[m]["n_train"]
+            eff[m] = cur[m][i]
             if n_train < MIN_SAMPLES:
-                eff[m] = cur[m][i]
                 imputed.append(m + "(low)")
             else:
-                eff[m] = cur[m][i]
                 imputed.append(m)
+
     nrm = {m: norm(m, eff[m]) for m in METRICS}
     total = sum(GLOBAL[m] * nrm[m] for m in METRICS)
 
@@ -274,12 +277,15 @@ for i, r in enumerate(rows):
         cost_out = OUTPUT_SHARE * pout
         cost_total = round(cost_in + cost_cache + cost_out, 3)
 
+    imputed_set = {m.split("(low)")[0] for m in imputed}
+    low_set = {m.split("(low)")[0] for m in imputed if m.endswith("(low)")}
+
     out.append({
         "Model": r.get("Model"),
         "Creator": r.get("Creator"),
         "Reasoning": r.get("Reasoning Model"),
         "Orig Intelligence Index": to_float(r.get("Intelligence Index")),
-        **{m: (round(eff[m], 3) if m in imputed else raw[m][i])
+        **{m: fmt_val(eff[m], m in imputed_set, m in low_set)
            for m in METRICS},
         **{m + " (norm)": round(nrm[m], 1) for m in METRICS},
         "Weighted Total": round(total, 1),
@@ -288,9 +294,9 @@ for i, r in enumerate(rows):
         "Cache Hit": pcache_eff,
         "Total $/1M": cost_total,
         "Imputed": ", ".join(
-            f"{m_clean}(reg)" if not m_clean.endswith("(low)")
-            else f"{m_clean[:-5]}(reg,low)"
-            for m_clean in imputed
+            f"{m}(reg)" if not m.endswith("(low)")
+            else f"{m[:-5]}(reg,low)"
+            for m in imputed
         ) if imputed else "",
     })
 
@@ -298,7 +304,6 @@ out.sort(key=lambda x: (
     x["Weighted Total"] if x["Weighted Total"] is not None else -1
 ), reverse=True)
 
-# 70 分以上截断
 out = [r for r in out
        if r["Weighted Total"] is not None
        and r["Weighted Total"] >= SCORE_THRESHOLD]
@@ -326,10 +331,49 @@ with open(OUT_CSV, "w", newline="", encoding="utf-8-sig") as fh:
 print("Saved", OUT_CSV)
 
 
-# ---- R² 日志 ----
+# ---- 写入 Markdown ----
+md_lines = [
+    f"# AI 模型综合排名（\u2265{SCORE_THRESHOLD} 分）",
+    "",
+    f"> {datetime.date.today().isoformat()} 更新  |  "
+    f"* 表示回归预测填补  |  ** 表示低可信填补（训练样本 < {MIN_SAMPLES}）",
+    "",
+]
+# 紧凑表头
+md_cols = ["#", "Model", "Score", "$/1M",
+           "Agent", "Coding", "General", "Knowledge", "Imputed"]
+md_lines.append("| " + " | ".join(md_cols) + " |")
+md_lines.append("|" + "|".join(["---"] * len(md_cols)) + "|")
+
+for r in out:
+    # Agent: GDPval-AA 的原始值
+    agent_val = r.get("GDPval-AA", "")
+    # Coding: Terminal-Bench Hard
+    coding_val = r.get("Terminal-Bench Hard", "")
+    # General: LCR
+    general_val = r.get("LCR", "")
+    # Knowledge: HLE
+    knowledge_val = r.get("HLE", "")
+    imp = (r.get("Imputed") or "").strip()
+    cost = r.get("Total $/1M")
+    cost_str = str(cost) if cost is not None else "—"
+
+    md_lines.append(
+        f"| {r['Rank']} | {r['Model']} | {r['Weighted Total']} | "
+        f"{cost_str} | {agent_val} | {coding_val} | "
+        f"{general_val} | {knowledge_val} | "
+        f"{imp or '—'} |"
+    )
+
+with open(OUT_MD, "w", encoding="utf-8") as fh:
+    fh.write("\n".join(md_lines) + "\n")
+print("Saved", OUT_MD)
+
+
+# ---- R\u00b2 日志 ----
 today_str = datetime.date.today().isoformat()
 print(f"\nData snapshot: {today_str}, {len(out)} rows")
-print("训练集 R² (不含 II，仅 8→1 交叉预测):")
+print("训练集 R\u00b2 (不含 II，仅 8\u21921 交叉预测):")
 for m in METRICS:
     Xtr, ytr = [], []
     for i in range(len(rows)):
@@ -348,6 +392,6 @@ for m in METRICS:
     ss_tot = ((ytr_arr - ybar) ** 2).sum() or 1e-12
     ss_res = ((ytr_arr - pred) ** 2).sum()
     r2 = max(0.0, 1 - ss_res / ss_tot)
-    print(f"  {m:25} R²={r2:.3f}")
+    print(f"  {m:25} R\u00b2={r2:.3f}")
 
 print("\nDONE")
