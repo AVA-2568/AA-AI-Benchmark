@@ -8,10 +8,11 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   update:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -31,5 +32,15 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: auto-update leaderboard ranking"
-          file_pattern: "results/aa_providers_scored.csv README.md"
+          file_pattern: "results/aa_providers_scored.csv README.md results/validation.json"
           commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+
+      - name: Alert on failure
+        if: failure()
+        uses: dacbd/create-issue-action@v2
+        with:
+          title: "⚠ 月度排名更新失败 — $(date +%Y-%m)"
+          body: |
+            自动排名流水线失败。
+            可能原因：AA 页面结构变更、数据源异常、网络超时。
+            请检查 [Actions 日志](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})。
