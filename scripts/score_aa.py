@@ -61,6 +61,21 @@ SCORE_THRESHOLD = cfg["score_threshold"]
 MIN_SAMPLES = cfg["imputation_min_samples"]
 
 
+# ---- config sanity checks (fail fast on bad config) ----
+assert abs(COST["input_share"] + COST["output_share"] - 1.0) < 1e-6, (
+    f"cost.input_share + cost.output_share must equal 1, "
+    f"got {COST['input_share'] + COST['output_share']}"
+)
+assert 0 <= COST["cache_hit_rate"] <= 1, (
+    f"cost.cache_hit_rate must be in [0, 1], got {COST['cache_hit_rate']}"
+)
+for name, _, subs in CATS:
+    s = sum(sw for _, sw in subs)
+    assert abs(s - 1.0) < 1e-6, (
+        f"category {name} sub_weight sum={s}, must be 1.0"
+    )
+
+
 # ---- data loading ----
 def to_float(v):
     v = (v or "").strip()
