@@ -50,6 +50,7 @@ else:
 CATS = [(c["name"], c["weight"], [(m["name"], m["sub_weight"]) for m in c["metrics"]])
         for c in cfg["categories"]]
 METRICS = [m for _, _, subs in CATS for m, _ in subs]
+N_METRICS = len(METRICS)
 GLOBAL = {}
 for _, cw, subs in CATS:
     for m, sw in subs:
@@ -117,16 +118,18 @@ raw = {m: [to_float(r.get(m)) for r in rows] for m in METRICS}
 cur = {m: [(v if v is not None else stats[m][2]) for v in raw[m]] for m in METRICS}
 
 
-def feat(i, target):
-    return [cur[mm][i] for mm in METRICS if mm != target]
+def all_feat_row(i):
+    """Return the full 9-feature row for model i (all METRICS, in order)."""
+    return [cur[mm][i] for mm in METRICS]
 
 
-# Fit one StandardScaler on the raw 8 cross-feature matrix (n x 8, all 9
-# metrics included) and apply through all 30 iterations. The point is to
-# put the 8 cross-features in z-score space so the L2 penalty (alpha)
-# treats them equally; without this, Omniscience Index (range -12..100)
-# dominates the 7 0-1 metrics by ~12000x in X^T X and the ridge fit is
-# effectively one-feature.
+# Fit one StandardScaler on the n x 9 raw matrix and apply it consistently
+# across the 30 imputation rounds. The point is to put all 9 scoring
+# metrics in z-score space; without this, Omniscience Index (range
+# -12..100) dominates the 7 0-1 metrics by ~12000x in X^T X and the ridge
+# fit is effectively one-feature. We fit on 9 features (not 8) so that
+# to_X() can standardize the full row and then drop the target column
+# inside it - this keeps fit/transform dimensions consistent.
 if STANDARDIZE:
     X_raw_real = np.array([
         [raw[m][i] if raw[m][i] is not None else stats[m][2]
@@ -134,7 +137,7 @@ if STANDARDIZE:
         for m in METRICS
     ], dtype=float)  # shape: 9 x n
     scaler = StandardScaler()
-    scaler.fit(X_raw_real.T)  # fit on n x 9 (one row per model, one col per metric)
+    scaler.fit(X_raw_real.T)  # fit on n x 9
     print(f"standardized features: per-metric mean={scaler.mean_.round(2).tolist()}, "
           f"std={scaler.scale_.round(2).tolist()}")
 else:
@@ -142,12 +145,14 @@ else:
     print("standardize_features=false (using raw X for ridge)")
 
 
-def to_X(arr_2d):
-    """arr_2d: n x 8 (the 8 cross-features for a target metric).
-    Returns the X matrix fed to ridge: [1 | standardized(arr_2d)]."""
+def to_X(arr_9, target_m):
+    """arr_9: n x 9 (all 9 metrics, possibly including target_m).
+    Returns the ridge design matrix: [1, standardized 8 features excluding target_m]."""
     if scaler is not None:
-        arr_2d = scaler.transform(arr_2d)
-    return np.hstack([np.ones((len(arr_2d), 1)), arr_2d])
+        arr_9 = scaler.transform(arr_9)
+    target_idx = METRICS.index(target_m)
+    keep = np.r_[:target_idx, target_idx + 1:N_METRICS]  # 8 column indices
+    return np.hstack([np.ones((len(arr_9), 1)), arr_9[:, keep]])
 
 
 imputation_quality = {}
@@ -165,13 +170,13 @@ for it in range(30):
         Xtr, ytr = [], []
         for i in range(len(rows)):
             if raw[m][i] is not None:
-                Xtr.append(feat(i, m))
+                Xtr.append(all_feat_row(i))  # 9 columns
                 ytr.append(raw[m][i])
         if len(Xtr) < 3:
             continue
         Xtr_arr = np.array(Xtr, dtype=float)
         ytr_arr = np.array(ytr, dtype=float)
-        X1 = to_X(Xtr_arr)
+        X1 = to_X(Xtr_arr, m)  # n x 9 (after dropping target + adding bias)
         A = X1.T @ X1 + ALPHA * np.eye(X1.shape[1])
         try:
             beta = np.linalg.solve(A, X1.T @ ytr_arr)
@@ -182,7 +187,7 @@ for it in range(30):
         for i in range(len(rows)):
             if raw[m][i] is None:
                 if n_train >= MIN_SAMPLES:
-                    xi = to_X(np.array([feat(i, m)], dtype=float))[0]
+                    xi = to_X(np.array([all_feat_row(i)], dtype=float), m)[0]
                     pred = float(xi @ beta)
                     cur[m][i] = max(lo, min(p95, pred))
 
@@ -226,19 +231,19 @@ for target_m in METRICS:
         Xtr, ytr = [], []
         for j in range(len(rows)):
             if j != skip_i and raw[target_m][j] is not None:
-                Xtr.append(feat(j, target_m))
+                Xtr.append(all_feat_row(j))  # 9 columns
                 ytr.append(raw[target_m][j])
         if len(Xtr) < 3:
             continue
         Xtr_arr = np.array(Xtr, dtype=float)
         ytr_arr = np.array(ytr, dtype=float)
-        X1 = to_X(Xtr_arr)
+        X1 = to_X(Xtr_arr, target_m)
         A = X1.T @ X1 + ALPHA * np.eye(X1.shape[1])
         try:
             beta = np.linalg.solve(A, X1.T @ ytr_arr)
         except np.linalg.LinAlgError:
             beta = np.linalg.lstsq(X1, ytr_arr, rcond=None)[0]
-        xi = to_X(np.array([feat(skip_i, target_m)], dtype=float))[0]
+        xi = to_X(np.array([all_feat_row(skip_i)], dtype=float), target_m)[0]
         pred = float(xi @ beta)
         lo, hi, _, _, p95 = stats[target_m]
         pred = max(lo, min(p95, pred))
@@ -384,14 +389,14 @@ for m in METRICS:
     Xtr, ytr = [], []
     for i in range(len(rows)):
         if raw[m][i] is not None:
-            Xtr.append(feat(i, m))
+            Xtr.append(all_feat_row(i))
             ytr.append(raw[m][i])
     if len(Xtr) < 3:
         print(f"  {m}: too few samples, skip")
         continue
     Xtr_arr = np.array(Xtr, dtype=float)
     ytr_arr = np.array(ytr, dtype=float)
-    X1 = to_X(Xtr_arr)
+    X1 = to_X(Xtr_arr, m)
     beta = np.linalg.lstsq(X1, ytr_arr, rcond=None)[0]
     pred = X1 @ beta
     ybar = ytr_arr.mean()
