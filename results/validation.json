@@ -1,0 +1,47 @@
+{
+  "GDPval-AA": {
+    "mae": 0.0406,
+    "pct_over10": 43.3,
+    "n": 152
+  },
+  "Terminal-Bench Hard": {
+    "mae": 0.0347,
+    "pct_over10": 60.0,
+    "n": 323
+  },
+  "Terminal-Bench v2.1": {
+    "mae": 0.0533,
+    "pct_over10": 55.0,
+    "n": 150
+  },
+  "SciCode": {
+    "mae": 0.0385,
+    "pct_over10": 45.0,
+    "n": 378
+  },
+  "LCR": {
+    "mae": 0.0745,
+    "pct_over10": 51.7,
+    "n": 352
+  },
+  "Omniscience Index": {
+    "mae": 10.7501,
+    "pct_over10": 78.3,
+    "n": 344
+  },
+  "IFBench": {
+    "mae": 0.0725,
+    "pct_over10": 58.3,
+    "n": 331
+  },
+  "GPQA Diamond": {
+    "mae": 0.0537,
+    "pct_over10": 31.7,
+    "n": 379
+  },
+  "HLE": {
+    "mae": 0.0427,
+    "pct_over10": 75.0,
+    "n": 378
+  }
+}

@@ -7,7 +7,8 @@
 基于 [Artificial Analysis](https://artificialanalysis.ai/leaderboards/providers) 的公开基准测试数据，按自定义权重重算综合能力总分。每月自动更新，帮你一眼看清「哪个 AI 模型最值得用」。
 
 <!--SNAPSHOT_START-->
-> 2026-07-24 抓取（1068 模型×服务商 → 去重 391 → ≥70 分 59 行）。
+> 2026-07-24 抓取（1068 模型×服务商 → 去重 391 → ≥70 分 55 行）。
+> 填补验证：IFBench MAE=0.07 (>10%: 58.3%/331)；Terminal-Bench Hard MAE=0.03 (>10%: 60.0%/323)；Terminal-Bench v2.1 MAE=0.05 (>10%: 55.0%/150)；HLE MAE=0.04 (>10%: 75.0%/378)；GPQA Diamond MAE=0.05 (>10%: 31.7%/379)
 <!--SNAPSHOT_END-->
 
 ## 📊 Top 15 排名
@@ -17,19 +18,19 @@
 |---|---|---|---|---|---|
 | 1 | GPT-5.6 Sol (max) | OpenAI | 93.2 | 10.925 | — |
 | 2 | Claude Fable 5 (with fallback) | Anthropic | 93.1 | 18.85 | — |
-| 3 | Kimi K3 | Kimi | 90.7 | 5.655 | Terminal-Bench Hard(reg), IFBench(reg) |
-| 4 | GPT-5.6 Sol (xhigh) | OpenAI | 90.2 | 10.925 | — |
+| 3 | GPT-5.6 Sol (xhigh) | OpenAI | 90.2 | 10.925 | — |
+| 4 | Kimi K3 | Kimi | 89.7 | 5.655 | Terminal-Bench Hard(reg), IFBench(reg) |
 | 5 | GPT-5.5 (xhigh) | OpenAI | 88.2 | 12.018 | — |
 | 6 | GPT-5.6 Sol (high) | OpenAI | 88.1 | 10.925 | — |
 | 7 | GPT-5.6 Sol (medium) | OpenAI | 86.0 | 10.925 | — |
 | 8 | Claude Opus 4.8 (max) | Anthropic | 85.8 | 9.425 | — |
 | 9 | GPT-5.5 (high) | OpenAI | 85.7 | 12.018 | — |
 | 10 | GPT-5.6 Terra (max) | OpenAI | 85.5 | 5.463 | — |
-| 11 | Claude Sonnet 5 (max) | Anthropic | 85.5 | 5.655 | Terminal-Bench Hard(reg), IFBench(reg) |
-| 12 | Grok 4.5 (high) | SpaceXAI | 85.3 | 2.675 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 11 | Claude Sonnet 5 (max) | Anthropic | 84.6 | 5.655 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 12 | Grok 4.5 (high) | SpaceXAI | 84.5 | 2.675 | Terminal-Bench Hard(reg), IFBench(reg) |
 | 13 | GPT-5.4 (xhigh) | OpenAI | 83.1 | 6.009 | — |
 | 14 | GPT-5.6 Terra (xhigh) | OpenAI | 82.9 | 5.463 | — |
-| 15 | GPT-5.6 Luna (max) | OpenAI | 82.8 | 2.185 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 15 | GPT-5.5 (medium) | OpenAI | 82.7 | 12.018 | — |
 <!--TOP15_END-->
 
 👉 [查看完整排名（CSV）](results/aa_providers_scored.csv)
