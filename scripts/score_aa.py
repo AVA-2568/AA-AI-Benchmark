@@ -2,7 +2,7 @@
 """评分引擎：去重后的模型按自定义权重重算综合分。
 
 读取 config.json；缺失值用多变量岭回归填补（交叉特征、不含 II）。
-输出 results/ranking.md（完整 Markdown 表格，填补值带 *）+ results/meta.json。
+输出 CSV（填补值带 * 标记）。
 """
 import csv, json, math, os, sys, datetime
 
@@ -11,8 +11,7 @@ import numpy as np
 _BASE = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(_BASE)
 SRC = os.path.join(_BASE, "aa_providers_dedup.csv")
-OUT_MD = os.path.join(REPO_ROOT, "results", "ranking.md")
-OUT_META = os.path.join(REPO_ROOT, "results", "meta.json")
+OUT_CSV = os.path.join(REPO_ROOT, "results", "aa_providers_scored.csv")
 OUT_VAL = os.path.join(REPO_ROOT, "results", "validation.json")
 
 
@@ -25,17 +24,17 @@ if os.path.exists(config_path):
 else:
     cfg = {
         "categories": [
-            {"name": "智能体 Agentic", "weight": 0.20,
+            {"name": "\u667a\u80fd\u4f53 Agentic", "weight": 0.20,
              "metrics": [{"name": "GDPval-AA", "sub_weight": 1.00}]},
-            {"name": "编程 Coding", "weight": 0.20, "metrics": [
+            {"name": "\u7f16\u7a0b Coding", "weight": 0.20, "metrics": [
                 {"name": "Terminal-Bench Hard", "sub_weight": 0.50},
                 {"name": "Terminal-Bench v2.1", "sub_weight": 0.30},
                 {"name": "SciCode", "sub_weight": 0.20}]},
-            {"name": "通用 General", "weight": 0.40, "metrics": [
+            {"name": "\u901a\u7528 General", "weight": 0.40, "metrics": [
                 {"name": "LCR", "sub_weight": 0.30},
                 {"name": "Omniscience Index", "sub_weight": 0.30},
                 {"name": "IFBench", "sub_weight": 0.40}]},
-            {"name": "知识 Knowledge", "weight": 0.20, "metrics": [
+            {"name": "\u77e5\u8bc6 Knowledge", "weight": 0.20, "metrics": [
                 {"name": "GPQA Diamond", "sub_weight": 0.40},
                 {"name": "HLE", "sub_weight": 0.60}]},
         ],
@@ -83,7 +82,7 @@ for m in METRICS:
     vals = [to_float(r.get(m)) for r in rows]
     vals = [v for v in vals if v is not None]
     if len(vals) < 2:
-        print(f"FATAL: {m} 有效样本数 {len(vals)} < 2")
+        print(f"FATAL: {m} \u6709\u6548\u6837\u672c\u6570 {len(vals)} < 2")
         sys.exit(1)
     lo, hi = min(vals), max(vals)
     sv = sorted(vals)
@@ -109,7 +108,7 @@ for m in METRICS:
     n_train = sum(1 for i in range(len(rows)) if raw[m][i] is not None)
     imputation_quality[m] = {"n_train": n_train}
 
-print("\n--- 迭代填补 ---")
+print("\n--- \u8fed\u4ee3\u586b\u8865 ---")
 prev = {m: list(cur[m]) for m in METRICS}
 stable_count = 0
 
@@ -147,23 +146,23 @@ for it in range(30):
     if max_delta < 0.001:
         stable_count += 1
         if stable_count >= 3:
-            print(f"  收敛于第 {it - 1} 轮，max_delta={max_delta:.6f}")
+            print(f"  \u6536\u655b\u4e8e\u7b2c {it - 1} \u8f6e\uff0cmax_delta={max_delta:.6f}")
             break
     else:
         stable_count = 0
     prev = {m: list(cur[m]) for m in METRICS}
 else:
-    print(f"  ⚠ 警告：30 轮未收敛，max_delta={max_delta:.4f}")
+    print(f"  !! \u8b66\u544a\uff1a30 \u8f6e\u672a\u6536\u655b\uff0cmax_delta={max_delta:.4f}")
 
 
 # ---- 留一验证 ----
-print("\n--- 留一验证 ---")
+print("\n--- \u7559\u4e00\u9a8c\u8bc1 ---")
 validation = {}
 for target_m in METRICS:
     has_true = [j for j in range(len(rows)) if raw[target_m][j] is not None]
     n = len(has_true)
     if n < 10:
-        print(f"  {target_m}: 样本不足 ({n})，跳过验证")
+        print(f"  {target_m}: \u6837\u672c\u4e0d\u8db3 ({n})\uff0c\u8df3\u8fc7\u9a8c\u8bc1")
         validation[target_m] = {"mae": None, "pct_over10": None, "n": n}
         continue
 
@@ -199,7 +198,7 @@ for target_m in METRICS:
         true_vals.append(true_val)
 
     if not errors:
-        print(f"  {target_m}: 无法完成验证")
+        print(f"  {target_m}: \u65e0\u6cd5\u5b8c\u6210\u9a8c\u8bc1")
         validation[target_m] = {"mae": None, "pct_over10": None, "n": n}
         continue
 
@@ -215,7 +214,7 @@ for target_m in METRICS:
     }
     print(
         f"  {target_m:25} MAE={mae:.3f}  "
-        f"误差>10%: {over10}/{len(errors)} ({over10/len(errors)*100:.0f}%)"
+        f"\u8bef\u5dee>10%: {over10}/{len(errors)} ({over10/len(errors)*100:.0f}%)"
     )
 
 os.makedirs(os.path.dirname(OUT_VAL), exist_ok=True)
@@ -282,12 +281,16 @@ for i, r in enumerate(rows):
     out.append({
         "Model": r.get("Model"),
         "Creator": r.get("Creator"),
-        "Total": round(total, 1),
-        "Cost": cost_total,
-        "Agent": fmt_val(eff["GDPval-AA"], "GDPval-AA" in imputed_set, "GDPval-AA" in low_set),
-        "Coding": fmt_val(eff["Terminal-Bench Hard"], "Terminal-Bench Hard" in imputed_set, "Terminal-Bench Hard" in low_set),
-        "General": fmt_val(eff["LCR"], "LCR" in imputed_set, "LCR" in low_set),
-        "Knowledge": fmt_val(eff["HLE"], "HLE" in imputed_set, "HLE" in low_set),
+        "Reasoning": r.get("Reasoning Model"),
+        "Orig Intelligence Index": to_float(r.get("Intelligence Index")),
+        **{m: fmt_val(eff[m], m in imputed_set, m in low_set)
+           for m in METRICS},
+        **{m + " (norm)": round(nrm[m], 1) for m in METRICS},
+        "Weighted Total": round(total, 1),
+        "Price 1M In": pin,
+        "Price 1M Out": pout,
+        "Cache Hit": pcache_eff,
+        "Total $/1M": cost_total,
         "Imputed": ", ".join(
             f"{m}(reg)" if not m.endswith("(low)")
             else f"{m[:-5]}(reg,low)"
@@ -295,53 +298,35 @@ for i, r in enumerate(rows):
         ) if imputed else "",
     })
 
-out.sort(key=lambda x: x["Total"], reverse=True)
-out = [r for r in out if r["Total"] >= SCORE_THRESHOLD]
+out.sort(key=lambda x: (
+    x["Weighted Total"] if x["Weighted Total"] is not None else -1
+), reverse=True)
 
-print(f">={SCORE_THRESHOLD} 分共 {len(out)} 行")
+out = [r for r in out
+       if r["Weighted Total"] is not None
+       and r["Weighted Total"] >= SCORE_THRESHOLD]
+
+print(f">={SCORE_THRESHOLD} \u5206\u5171 {len(out)} \u884c")
 
 for idx, row in enumerate(out, 1):
     row["Rank"] = idx
 
 
-# ---- 写入 Markdown ----
-GE = chr(8805)  # ≥
-md_lines = [
-    f"# AI 模型综合排名（{GE}{SCORE_THRESHOLD} 分）",
-    "",
-    f"> {datetime.date.today().isoformat()} 更��  |  "
-    f"* 表示回归预测填补  |  ** 表示低可信填补（训练样本 < {MIN_SAMPLES}）",
-    "",
-]
-md_cols = ["#", "Model", "Creator", "Score", "$/1M",
-           "Agent", "Coding", "General", "Knowledge", "Imputed"]
-md_lines.append("| " + " | ".join(md_cols) + " |")
-md_lines.append("|" + "|".join(["---"] * len(md_cols)) + "|")
+# ---- 写入 CSV ----
+headers = ["Rank", "Model", "Weighted Total", "Total $/1M", "Creator",
+           "Reasoning", "Orig Intelligence Index"]
+for _, _, subs in CATS:
+    for m, _ in subs:
+        headers.append(m)
+        headers.append(m + " (norm)")
+headers += ["Price 1M In", "Price 1M Out", "Cache Hit", "Imputed"]
 
-for r in out:
-    cost_str = str(r["Cost"]) if r["Cost"] is not None else "—"
-    imp = (r["Imputed"] or "").strip()
-    md_lines.append(
-        f"| {r['Rank']} | {r['Model']} | {r['Creator']} | "
-        f"{r['Total']} | {cost_str} | "
-        f"{r['Agent']} | {r['Coding']} | "
-        f"{r['General']} | {r['Knowledge']} | "
-        f"{imp or '—'} |"
-    )
-
-with open(OUT_MD, "w", encoding="utf-8") as fh:
-    fh.write("\n".join(md_lines) + "\n")
-print("Saved", OUT_MD)
-
-
-# ---- 写入 meta.json（供 build.py 用）----
-meta = {
-    "date": datetime.date.today().isoformat(),
-    "total": len(out),
-}
-with open(OUT_META, "w", encoding="utf-8") as fh:
-    json.dump(meta, fh, ensure_ascii=False)
-print("Saved", OUT_META)
+os.makedirs(os.path.dirname(OUT_CSV), exist_ok=True)
+with open(OUT_CSV, "w", newline="", encoding="utf-8-sig") as fh:
+    w = csv.DictWriter(fh, fieldnames=headers, extrasaction="ignore")
+    w.writeheader()
+    w.writerows(out)
+print("Saved", OUT_CSV)
 
 
 # ---- R2 日志 ----
