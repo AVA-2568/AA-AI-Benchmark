@@ -1,9 +1,11 @@
 import csv, os
-from openpyxl import Workbook
 
 OUT = os.path.dirname(os.path.abspath(__file__))
-rows = list(csv.DictReader(open(os.path.join(OUT, "aa_providers.csv"), encoding="utf-8-sig")))
+SRC = os.path.join(OUT, "aa_providers.csv")
+
+rows = list(csv.DictReader(open(SRC, encoding="utf-8-sig")))
 cols = list(rows[0].keys())
+
 
 def score(r):
     v = r.get("Intelligence Index") or ""
@@ -11,6 +13,7 @@ def score(r):
         return float(v)
     except ValueError:
         return float("-inf")
+
 
 # dedup by Model Slug, keep row with highest Intelligence Index
 best = {}
@@ -28,13 +31,3 @@ with open(csv_path, "w", newline="", encoding="utf-8-sig") as f:
     w.writeheader()
     w.writerows(dedup)
 print("CSV ->", csv_path)
-
-wb = Workbook()
-ws = wb.active
-ws.title = "Providers (dedup)"
-ws.append(cols)
-for r in dedup:
-    ws.append([r[c] for c in cols])
-xlsx_path = os.path.join(OUT, "aa_providers_dedup.xlsx")
-wb.save(xlsx_path)
-print("XLSX ->", xlsx_path)
