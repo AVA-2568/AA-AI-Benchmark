@@ -3,6 +3,7 @@
 
 可在本地运行，也可由 GitHub Actions 调用。
 """
+import json
 import os
 import sys
 import csv
@@ -15,7 +16,7 @@ REPO_ROOT = os.path.dirname(BASE)
 HTML = os.path.join(BASE, "aa_providers.html")
 URL = "https://artificialanalysis.ai/leaderboards/providers"
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-      "(KHTML, like Gecko) Chrome/124.0 Safari/537.36")
+      "(KHTML, like Gecko) Chrome/131.0 Safari/537.36")
 
 
 def fetch_html():
@@ -46,6 +47,8 @@ def run(script):
 
 
 def _count(path):
+    if not os.path.exists(path):
+        return 0
     with open(path, encoding="utf-8-sig", newline="") as f:
         return sum(1 for _ in csv.reader(f)) - 1
 
@@ -53,6 +56,7 @@ def _count(path):
 def update_readme():
     """用最新 scored.csv 刷新 README 的快照行与 Top15 表。"""
     scored = os.path.join(REPO_ROOT, "results", "aa_providers_scored.csv")
+    val_json = os.path.join(REPO_ROOT, "results", "validation.json")
     raw = os.path.join(BASE, "aa_providers.csv")
     dedup = os.path.join(BASE, "aa_providers_dedup.csv")
     today = datetime.date.today().isoformat()
@@ -64,19 +68,46 @@ def update_readme():
         rows = list(csv.DictReader(f))
     top = rows[:15]
     lines = [
-        f"| # | Model | Creator | Score | $/1M | Imputed |",
+        "| # | Model | Creator | Score | $/1M | Imputed |",
         "|---|---|---|---|---|---|",
     ]
     for r in top:
         imp = (r["Imputed"] or "").strip()
+        score_val = r.get("Weighted Total") or ""
+        cost_val = r.get("Total $/1M") or ""
         lines.append("| {} | {} | {} | {} | {} | {} |".format(
             r["Rank"], r["Model"], r["Creator"],
-            r["Weighted Total"], r["Total $/1M"],
-            imp or "—",
+            score_val, cost_val,
+            imp or "\u2014",
         ))
     top15_md = "\n".join(lines)
 
-    snapshot_md = f"> {today} 抓取（{n_raw} 模型×服务商 → 去重 {n_dedup} → 取前 15% = {n_out} 行）。"
+    # 构建快照行
+    snapshot_parts = [
+        f"> {today} 抓取"
+        f"（{n_raw} 模型\u00d7服务商 \u2192 去重 {n_dedup}"
+        f" \u2192 \u226570 分 {n_out} 行）。"
+    ]
+
+    # 附加月度填补验证摘要
+    if os.path.exists(val_json):
+        with open(val_json, encoding="utf-8") as f:
+            val = json.load(f)
+        val_lines = []
+        for m in ["IFBench", "Terminal-Bench Hard", "Terminal-Bench v2.1",
+                   "HLE", "GPQA Diamond"]:
+            if m in val and val[m].get("mae") is not None:
+                v = val[m]
+                val_lines.append(
+                    f"{m} MAE={v['mae']:.2f}"
+                    f" (\u003e10%: {v['pct_over10']}%/{v['n']})"
+                )
+        if val_lines:
+            snapshot_parts.append(
+                f"> 填补验证：{'；'.join(val_lines)}"
+            )
+
+    snapshot_md = "\n".join(snapshot_parts)
 
     readme = os.path.join(REPO_ROOT, "README.md")
     txt = open(readme, encoding="utf-8").read()
@@ -91,6 +122,7 @@ def _replace_block(txt, name, content):
     end = f"<!--{name}_END-->"
     s, e = txt.find(start), txt.find(end)
     if s == -1 or e == -1:
+        print(f"WARNING: marker {name} not found in README")
         return txt
     return txt[:s + len(start)] + "\n" + content + "\n" + txt[e:]
 
