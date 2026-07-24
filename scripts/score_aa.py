@@ -2,7 +2,7 @@
 """评分引擎：去重后的模型按自定义权重重算综合分。
 
 读取 config.json；缺失值用多变量岭回归填补（交叉特征、不含 II）。
-输出 results/ranking.md（��整 Markdown 表格，填补值带 *）+ results/meta.json。
+输出 results/ranking.md（完整 Markdown 表格，填补值带 *）+ results/meta.json。
 """
 import csv, json, math, os, sys, datetime
 
@@ -305,10 +305,11 @@ for idx, row in enumerate(out, 1):
 
 
 # ---- 写入 Markdown ----
+GE = chr(8805)  # ≥
 md_lines = [
-    f"# AI 模型综合排名（\u2265{SCORE_THRESHOLD} 分）",
+    f"# AI 模型综合排名（{GE}{SCORE_THRESHOLD} 分）",
     "",
-    f"> {datetime.date.today().isoformat()} 更新  |  "
+    f"> {datetime.date.today().isoformat()} 更��  |  "
     f"* 表示回归预测填补  |  ** 表示低可信填补（训练样本 < {MIN_SAMPLES}）",
     "",
 ]
@@ -318,14 +319,14 @@ md_lines.append("| " + " | ".join(md_cols) + " |")
 md_lines.append("|" + "|".join(["---"] * len(md_cols)) + "|")
 
 for r in out:
-    cost_str = str(r["Cost"]) if r["Cost"] is not None else "\u2014"
+    cost_str = str(r["Cost"]) if r["Cost"] is not None else "—"
     imp = (r["Imputed"] or "").strip()
     md_lines.append(
         f"| {r['Rank']} | {r['Model']} | {r['Creator']} | "
         f"{r['Total']} | {cost_str} | "
         f"{r['Agent']} | {r['Coding']} | "
         f"{r['General']} | {r['Knowledge']} | "
-        f"{imp or '\u2014'} |"
+        f"{imp or '—'} |"
     )
 
 with open(OUT_MD, "w", encoding="utf-8") as fh:
@@ -343,9 +344,9 @@ with open(OUT_META, "w", encoding="utf-8") as fh:
 print("Saved", OUT_META)
 
 
-# ---- R\u00b2 日志 ----
+# ---- R2 日志 ----
 print(f"\nData snapshot: {datetime.date.today().isoformat()}, {len(out)} rows")
-print("训练集 R\u00b2 (不含 II，仅 8\u21921 交叉预测):")
+print("训练集 R2 (不含 II，仅 8->1 交叉预测):")
 for m in METRICS:
     Xtr, ytr = [], []
     for i in range(len(rows)):
@@ -364,6 +365,6 @@ for m in METRICS:
     ss_tot = ((ytr_arr - ybar) ** 2).sum() or 1e-12
     ss_res = ((ytr_arr - pred) ** 2).sum()
     r2 = max(0.0, 1 - ss_res / ss_tot)
-    print(f"  {m:25} R\u00b2={r2:.3f}")
+    print(f"  {m:25} R2={r2:.3f}")
 
 print("\nDONE")
