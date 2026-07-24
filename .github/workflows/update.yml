@@ -2,9 +2,8 @@ name: Update AA leaderboard ranking
 
 on:
   schedule:
-    # 每月 1 号 06:00 UTC 自动跑
     - cron: "0 6 1 * *"
-  workflow_dispatch: {}   # 允许在 Actions 页面手动触发
+  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -32,7 +31,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: auto-update leaderboard ranking"
-          file_pattern: "results/aa_providers_scored.csv README.md results/validation.json"
+          file_pattern: "results/ranking.md README.md results/validation.json"
           commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
 
       - name: Alert on failure
