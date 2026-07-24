@@ -20,7 +20,7 @@ UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
 
 
 def fetch_html():
-    """抓最新页面，优先 curl，失败回退 urllib。返回是否成功。"""
+    """抓最新页面，优先 curl，失败回退 urllib。"""
     try:
         r = subprocess.run(
             ["curl", "-sL", "-A", UA, URL, "-o", HTML, "--max-time", "120"],
@@ -41,7 +41,6 @@ def fetch_html():
 
 
 def run(script):
-    """运行仓库内的步骤脚本。"""
     subprocess.run([sys.executable, os.path.join(BASE, script)],
                    cwd=BASE, check=True)
 
@@ -54,14 +53,14 @@ def _count(path):
 
 
 def update_readme():
-    """用最新 scored.csv 刷新 README 的快照行与 Top15 表。"""
-    scored = os.path.join(REPO_ROOT, "results", "aa_providers_scored.csv")
+    """用中间 CSV 刷新 README 的快照行与 Top15 表。"""
+    scored = os.path.join(BASE, "aa_providers_scored.csv")
     val_json = os.path.join(REPO_ROOT, "results", "validation.json")
-    raw = os.path.join(BASE, "aa_providers.csv")
-    dedup = os.path.join(BASE, "aa_providers_dedup.csv")
+    raw_csv = os.path.join(BASE, "aa_providers.csv")
+    dedup_csv = os.path.join(BASE, "aa_providers_dedup.csv")
     today = datetime.date.today().isoformat()
-    n_raw = _count(raw)
-    n_dedup = _count(dedup)
+    n_raw = _count(raw_csv)
+    n_dedup = _count(dedup_csv)
     n_out = _count(scored)
 
     with open(scored, encoding="utf-8-sig", newline="") as f:
