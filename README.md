@@ -10,9 +10,6 @@
 |---|---|
 | `aa_providers_scored.xlsx` | 最终评分表（两级分类色带表头 + Rank + 红格标注回归填补值 + 说明 sheet） |
 | `aa_providers_scored.csv` | 同上数据的 CSV 版，GitHub 可直接内联渲染为表格 |
-| `parse_aa.py` | 抓取并解析 AA leaderboard 原始 HTML → CSV/XLSX |
-| `dedup_aa.py` | 按 Model Slug 去重（保留 Intelligence Index 最高档） |
-| `score_aa.py` | 分层加权评分 + 多变量岭回归填补 + 成本预估，生成最终 xlsx |
 | `说明`(xlsx 内 sheet) | 方法论文档（权重、归一化、填补、成本口径） |
 
 ## 评分方法
