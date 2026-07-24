@@ -31,7 +31,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: auto-update leaderboard ranking"
-          file_pattern: "results/ranking.md results/meta.json README.md results/validation.json"
+          file_pattern: "results/aa_providers_scored.csv README.md results/validation.json"
           commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
 
       - name: Alert on failure
@@ -39,8 +39,8 @@ jobs:
         uses: dacbd/create-issue-action@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          title: "⚠ 月度排名更新失败 — ${{ github.run_date }}"
+          title: "⚠ 月度排名更新失败"
           body: |
             自动排名流水线失败。
             可能原因：AA 页面结构变更、数据源异常、网络超时。
-            请检查 [Actions 日志](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})。
+            请检查 Actions 日志。
