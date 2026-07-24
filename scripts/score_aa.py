@@ -265,7 +265,9 @@ for i, r in enumerate(rows):
     pin = to_float(r.get("Price 1M Input"))
     pout = to_float(r.get("Price 1M Output"))
     pcache = to_float(r.get("Cache Hit Price"))
-    pcache_eff = pcache if pcache is not None else pin
+    # Industry standard: cached tokens are ~10% of input price. Fall back to that
+    # when the provider does not publish a separate cache hit price (most do not).
+    pcache_eff = pcache if pcache is not None else pin * 0.1
     if None in (pin, pout):
         cost_total = None
     else:
