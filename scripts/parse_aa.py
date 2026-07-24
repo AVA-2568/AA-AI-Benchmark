@@ -28,7 +28,7 @@ def extract_via_next_data(html):
         return None
     # 遍历可能的路径找到 rows 数组
     def find_rows(obj, depth=0):
-        if depth > 6:
+        if depth > 12:
             return None
         if isinstance(obj, list) and len(obj) > 100:
             # 检查是否是模型列表（第一个元素的 label 字段存在）
