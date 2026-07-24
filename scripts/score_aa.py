@@ -157,6 +157,11 @@ else:
 
 
 # ---- leave-one-out validation ----
+# Use the full set of observed samples (no 60-element subsample) so that the
+# reported `n` field matches the denominator used to compute MAE and
+# pct_over10. The previous 60-element cap made `n` in the snapshot line
+# (e.g. "MAE=0.07 (>10%: 58.3%/331)") read as if the percentages were
+# computed over 331 samples, when they were really computed over 60.
 print("\n--- LOO validation ---")
 validation = {}
 for target_m in METRICS:
@@ -167,14 +172,9 @@ for target_m in METRICS:
         validation[target_m] = {"mae": None, "pct_over10": None, "n": n}
         continue
 
-    sample_indices = has_true
-    if n > 60:
-        rng = np.random.RandomState(42)
-        sample_indices = list(rng.choice(has_true, 60, replace=False))
-
     errors = []
     true_vals = []
-    for skip_i in sample_indices:
+    for skip_i in has_true:
         true_val = raw[target_m][skip_i]
         Xtr, ytr = [], []
         for j in range(len(rows)):
