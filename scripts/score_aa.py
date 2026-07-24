@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""评分引擎：去重后的模型按自定义权重重算综合分。
+"""Scoring engine: rank deduped models by custom weights.
 
-读取 config.json；缺失值用多变量岭回归填补（交叉特征、不含 II）。
-输出 CSV（填补值带 * 标记）。
+Reads config.json; imputes missing values via multi-variate ridge regression
+(cross-feature only, no Intelligence Index). Outputs CSV with * markers.
 """
 import csv, json, math, os, sys, datetime
 
@@ -15,7 +15,7 @@ OUT_CSV = os.path.join(REPO_ROOT, "results", "aa_providers_scored.csv")
 OUT_VAL = os.path.join(REPO_ROOT, "results", "validation.json")
 
 
-# ---- 加载配置 ----
+# ---- load config ----
 config_path = os.path.join(REPO_ROOT, "config.json")
 if os.path.exists(config_path):
     with open(config_path, encoding="utf-8") as fh:
@@ -24,17 +24,17 @@ if os.path.exists(config_path):
 else:
     cfg = {
         "categories": [
-            {"name": "\u667a\u80fd\u4f53 Agentic", "weight": 0.20,
+            {"name": "Agentic", "weight": 0.20,
              "metrics": [{"name": "GDPval-AA", "sub_weight": 1.00}]},
-            {"name": "\u7f16\u7a0b Coding", "weight": 0.20, "metrics": [
+            {"name": "Coding", "weight": 0.20, "metrics": [
                 {"name": "Terminal-Bench Hard", "sub_weight": 0.50},
                 {"name": "Terminal-Bench v2.1", "sub_weight": 0.30},
                 {"name": "SciCode", "sub_weight": 0.20}]},
-            {"name": "\u901a\u7528 General", "weight": 0.40, "metrics": [
+            {"name": "General", "weight": 0.40, "metrics": [
                 {"name": "LCR", "sub_weight": 0.30},
                 {"name": "Omniscience Index", "sub_weight": 0.30},
                 {"name": "IFBench", "sub_weight": 0.40}]},
-            {"name": "\u77e5\u8bc6 Knowledge", "weight": 0.20, "metrics": [
+            {"name": "Knowledge", "weight": 0.20, "metrics": [
                 {"name": "GPQA Diamond", "sub_weight": 0.40},
                 {"name": "HLE", "sub_weight": 0.60}]},
         ],
@@ -61,7 +61,7 @@ SCORE_THRESHOLD = cfg["score_threshold"]
 MIN_SAMPLES = cfg["imputation_min_samples"]
 
 
-# ---- 数据加载 ----
+# ---- data loading ----
 def to_float(v):
     v = (v or "").strip()
     if v in ("", "None", "null"):
@@ -76,13 +76,13 @@ rows = list(csv.DictReader(open(SRC, encoding="utf-8-sig")))
 print("loaded rows:", len(rows))
 
 
-# ---- 每指标统计 ----
+# ---- per-metric stats ----
 stats = {}
 for m in METRICS:
     vals = [to_float(r.get(m)) for r in rows]
     vals = [v for v in vals if v is not None]
     if len(vals) < 2:
-        print(f"FATAL: {m} \u6709\u6548\u6837\u672c\u6570 {len(vals)} < 2")
+        print(f"FATAL: {m} effective samples {len(vals)} < 2")
         sys.exit(1)
     lo, hi = min(vals), max(vals)
     sv = sorted(vals)
@@ -94,7 +94,7 @@ for m in METRICS:
     print(f"  {m:20} min={lo:.3f} max={hi:.3f} P95={p95:.3f} n={len(vals)}")
 
 
-# ---- 岭回归填补 ----
+# ---- ridge regression imputation ----
 raw = {m: [to_float(r.get(m)) for r in rows] for m in METRICS}
 cur = {m: [(v if v is not None else stats[m][2]) for v in raw[m]] for m in METRICS}
 
@@ -108,9 +108,10 @@ for m in METRICS:
     n_train = sum(1 for i in range(len(rows)) if raw[m][i] is not None)
     imputation_quality[m] = {"n_train": n_train}
 
-print("\n--- \u8fed\u4ee3\u586b\u8865 ---")
+print("\n--- iterative imputation ---")
 prev = {m: list(cur[m]) for m in METRICS}
 stable_count = 0
+max_delta = 0.0
 
 for it in range(30):
     for m in METRICS:
@@ -146,23 +147,23 @@ for it in range(30):
     if max_delta < 0.001:
         stable_count += 1
         if stable_count >= 3:
-            print(f"  \u6536\u655b\u4e8e\u7b2c {it - 1} \u8f6e\uff0cmax_delta={max_delta:.6f}")
+            print(f"  converged at iter {it - 1}, max_delta={max_delta:.6f}")
             break
     else:
         stable_count = 0
     prev = {m: list(cur[m]) for m in METRICS}
 else:
-    print(f"  !! \u8b66\u544a\uff1a30 \u8f6e\u672a\u6536\u655b\uff0cmax_delta={max_delta:.4f}")
+    print(f"  !! WARNING: not converged after 30 iters, max_delta={max_delta:.4f}")
 
 
-# ---- 留一验证 ----
-print("\n--- \u7559\u4e00\u9a8c\u8bc1 ---")
+# ---- leave-one-out validation ----
+print("\n--- LOO validation ---")
 validation = {}
 for target_m in METRICS:
     has_true = [j for j in range(len(rows)) if raw[target_m][j] is not None]
     n = len(has_true)
     if n < 10:
-        print(f"  {target_m}: \u6837\u672c\u4e0d\u8db3 ({n})\uff0c\u8df3\u8fc7\u9a8c\u8bc1")
+        print(f"  {target_m}: samples too few ({n}), skip validation")
         validation[target_m] = {"mae": None, "pct_over10": None, "n": n}
         continue
 
@@ -198,7 +199,7 @@ for target_m in METRICS:
         true_vals.append(true_val)
 
     if not errors:
-        print(f"  {target_m}: \u65e0\u6cd5\u5b8c\u6210\u9a8c\u8bc1")
+        print(f"  {target_m}: validation failed")
         validation[target_m] = {"mae": None, "pct_over10": None, "n": n}
         continue
 
@@ -212,10 +213,8 @@ for target_m in METRICS:
         "pct_over10": round(over10 / len(errors) * 100, 1),
         "n": n,
     }
-    print(
-        f"  {target_m:25} MAE={mae:.3f}  "
-        f"\u8bef\u5dee>10%: {over10}/{len(errors)} ({over10/len(errors)*100:.0f}%)"
-    )
+    err_pct = over10 / len(errors) * 100
+    print(f"  {target_m:25} MAE={mae:.3f}  err>10%: {over10}/{len(errors)} ({err_pct:.0f}%)")
 
 os.makedirs(os.path.dirname(OUT_VAL), exist_ok=True)
 with open(OUT_VAL, "w", encoding="utf-8") as fh:
@@ -223,7 +222,7 @@ with open(OUT_VAL, "w", encoding="utf-8") as fh:
 print("Saved validation ->", OUT_VAL)
 
 
-# ---- 评分 ----
+# ---- scoring ----
 def norm(m, v):
     lo, hi, _, _, _ = stats[m]
     if hi == lo:
@@ -306,13 +305,13 @@ out = [r for r in out
        if r["Weighted Total"] is not None
        and r["Weighted Total"] >= SCORE_THRESHOLD]
 
-print(f">={SCORE_THRESHOLD} \u5206\u5171 {len(out)} \u884c")
+print(f">={SCORE_THRESHOLD} score: {len(out)} rows")
 
 for idx, row in enumerate(out, 1):
     row["Rank"] = idx
 
 
-# ---- 写入 CSV ----
+# ---- write CSV ----
 headers = ["Rank", "Model", "Weighted Total", "Total $/1M", "Creator",
            "Reasoning", "Orig Intelligence Index"]
 for _, _, subs in CATS:
@@ -329,9 +328,9 @@ with open(OUT_CSV, "w", newline="", encoding="utf-8-sig") as fh:
 print("Saved", OUT_CSV)
 
 
-# ---- R2 日志 ----
+# ---- R2 log ----
 print(f"\nData snapshot: {datetime.date.today().isoformat()}, {len(out)} rows")
-print("训练集 R2 (不含 II，仅 8->1 交叉预测):")
+print("Training R2 (no II, 8->1 cross-predict):")
 for m in METRICS:
     Xtr, ytr = [], []
     for i in range(len(rows)):
@@ -339,7 +338,7 @@ for m in METRICS:
             Xtr.append(feat(i, m))
             ytr.append(raw[m][i])
     if len(Xtr) < 3:
-        print(f"  {m}: 样本不足，跳过")
+        print(f"  {m}: too few samples, skip")
         continue
     Xtr_arr = np.array(Xtr, dtype=float)
     ytr_arr = np.array(ytr, dtype=float)
