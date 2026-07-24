@@ -7,7 +7,7 @@
 基于 [Artificial Analysis](https://artificialanalysis.ai/leaderboards/providers) 的公开基准测试数据，按自定义权重重算综合能力总分。每月自动更新，帮你一眼看清「哪个 AI 模型最值得用」。
 
 <!--SNAPSHOT_START-->
-> 2026-07-24 抓取（1068 模型×服务商 → 去重 391 → 取前 15% = 59 行）。
+> 2026-07-24 抓取（1068 模型×服务商 → 去重 391 → ≥70 分 59 行）。
 <!--SNAPSHOT_END-->
 
 ## 📊 Top 15 排名
@@ -36,7 +36,7 @@
 
 ## 🧭 怎么算的
 
-**总分 = Σ（指标得分 × 权重）**，满分 100 分。
+**总分 = Σ（指标得分 × 权重）**，满分 100 分。仅收录 ≥70 分的模型。
 
 | 大类 | 权重 | 主要指标 |
 |---|---|---|
@@ -46,8 +46,10 @@
 | 📚 Knowledge · 知识 | 20% | GPQA Diamond / HLE |
 
 - 各指标按全量样本 **min-max 归一化** 到 0–100 分
-- 缺失值用**多变量岭回归**填补，标注 `(reg)`
+- 缺失值用**多变量岭回归**填补（仅用评分指标交叉预测，不含 Intelligence Index），标注 `(reg)`；训练样本 < 50 的指标填补可信度低，标 `(reg,low)`
 - 成本按 `70% 输入 + 30% 输出，50% 输入命中缓存` 估算
+- 权重与参数可在 [`config.json`](config.json) 中自定义，无需改源码
+- 每次运行自动输出留一验证结果与 R²，填入 README 快照行
 
 📖 [完整方法论（含公式推导与 R² 拟合质量）](METHODOLOGY.md)
 
@@ -62,14 +64,15 @@ python scripts/build.py
 
 ## 🤖 自动化
 
-由 GitHub Actions 驱动，**每月 1 号**自动抓取最新榜单、重算排名并推送更新。也可以随时在仓库 [Actions](https://github.com/AVA-2568/AA-AI-Benchmark/actions) 页面手动触发。
+由 GitHub Actions 驱动，**每月 1 号**自动抓取最新榜单、重算排名并推送更新。也可以随时在仓库 [Actions](https://github.com/AVA-2568/AA-AI-Benchmark/actions) 页面手动触发。更新失败自动开 Issue 报警。
 
 ## 📁 仓库结构
 
 ```
+├── config.json       # 评分权重与参数（可自定义）
 ├── scripts/          # 数据流水线（抓取 → 解析 → 去重 → 评分）
-├── results/          # 最终排名（CSV）
-├── .github/          # CI 自动化
+├── results/          # 最终排名（CSV）+ 填补验证（JSON）
+├── .github/          # CI 自动化（月更 + 失败告警）
 └── README.md
 ```
 
@@ -77,6 +80,7 @@ python scripts/build.py
 
 - 分数代表**在当前样本中相对靠前**，非理论能力满分
 - 标注 `(reg)` 的指标由回归预测填补，参考时可优先看无标注行
+- 标注 `(reg,low)` 表示该指标训练样本不足 50，填补可信度较低
 - 价格为抓取时快照，随服务商调价变动
 - 原始数据版权归 [Artificial Analysis](https://artificialanalysis.ai/) 所有
 
