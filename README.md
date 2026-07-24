@@ -7,7 +7,7 @@
 基于 [Artificial Analysis](https://artificialanalysis.ai/leaderboards/providers) 的公开基准测试数据，按自定义权重重算综合能力总分。每月自动更新，帮你一眼看清「哪个 AI 模型最值得用」。
 
 <!--SNAPSHOT_START-->
-> 数据快照：2026-07-24 抓取（1068 模型×服务商 → 去重 391 → 取前 15% = 59 行）。
+> 2026-07-24 抓取（1068 模型×服务商 → 去重 391 → 取前 15% = 59 行）。
 <!--SNAPSHOT_END-->
 
 ## 📊 Top 15 排名
@@ -21,7 +21,7 @@
 | 4 | GPT-5.6 Sol (xhigh) | OpenAI | 90.2 | 10.925 | — |
 | 5 | GPT-5.5 (xhigh) | OpenAI | 88.2 | 12.018 | — |
 | 6 | GPT-5.6 Sol (high) | OpenAI | 88.1 | 10.925 | — |
-| 7 | GPT-5.6 Sol (medium) | OpenAI | 86 | 10.925 | — |
+| 7 | GPT-5.6 Sol (medium) | OpenAI | 86.0 | 10.925 | — |
 | 8 | Claude Opus 4.8 (max) | Anthropic | 85.8 | 9.425 | — |
 | 9 | GPT-5.5 (high) | OpenAI | 85.7 | 12.018 | — |
 | 10 | GPT-5.6 Terra (max) | OpenAI | 85.5 | 5.463 | — |
