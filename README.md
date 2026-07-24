@@ -1,8 +1,12 @@
-# AI 模型供应商排名 · 专注于通用Agent领域
+# AI 模型供应商排名 · 自定义加权评分
 
 基于 [Artificial Analysis](https://artificialanalysis.ai/leaderboards/providers) 的 providers leaderboard，按自定义分层权重重算综合能力总分，并给出每 1M token 的成本预估。
 
-> 数据快照：2026-07-24 抓取（1067 模型×服务商 → 去重 390 → 取前 15% = 59 行）。
+<!--SNAPSHOT_START-->
+> 数据快照：2026-07-24 抓取（1068 模型×服务商 → 去重 391 → 取前 15% = 59 行）。
+<!--SNAPSHOT_END-->
+
+> 本仓库由 GitHub Actions 每周自动抓取最新榜单并重算，无需手动维护。
 
 ## 仓库内容
 
@@ -10,6 +14,9 @@
 |---|---|
 | `aa_providers_scored.xlsx` | 最终评分表（两级分类色带表头 + Rank + 红格标注回归填补值 + 说明 sheet） |
 | `aa_providers_scored.csv` | 同上数据的 CSV 版，GitHub 可直接内联渲染为表格 |
+| `parse_aa.py` | 抓取并解析 AA leaderboard 原始 HTML → CSV/XLSX |
+| `dedup_aa.py` | 按 Model Slug 去重（保留 Intelligence Index 最高档） |
+| `score_aa.py` | 分层加权评分 + 多变量岭回归填补 + 成本预估，生成最终 xlsx |
 | `说明`(xlsx 内 sheet) | 方法论文档（权重、归一化、填补、成本口径） |
 
 ## 评分方法
@@ -35,24 +42,38 @@
 
 ## Top 15（完整 59 行见 CSV / XLSX）
 
+<!--TOP15_START-->
 | # | 模型 | 厂商 | 总分 | $/1M | 回归填补项 |
 |---|---|---|---|---|---|
-| 1 | GPT-5.6 Sol (max) | OpenAI | 93.2 | 10.93 | — |
+| 1 | GPT-5.6 Sol (max) | OpenAI | 93.2 | 10.925 | — |
 | 2 | Claude Fable 5 (with fallback) | Anthropic | 93.1 | 18.85 | — |
-| 3 | Kimi K3 | Kimi | 90.7 | 5.66 | TB-Hard, IFBench |
-| 4 | GPT-5.6 Sol (xhigh) | OpenAI | 90.2 | 10.93 | — |
-| 5 | GPT-5.5 (xhigh) | OpenAI | 88.2 | 12.02 | — |
-| 6 | GPT-5.6 Sol (high) | OpenAI | 88.1 | 10.93 | — |
-| 7 | GPT-5.6 Sol (medium) | OpenAI | 86.0 | 10.93 | — |
-| 8 | Claude Opus 4.8 (max) | Anthropic | 85.8 | 9.43 | — |
-| 9 | GPT-5.5 (high) | OpenAI | 85.7 | 12.02 | — |
-| 10 | GPT-5.6 Terra (max) | OpenAI | 85.5 | 5.46 | — |
-| 11 | Claude Sonnet 5 (max) | Anthropic | 85.5 | 5.66 | TB-Hard, IFBench |
-| 12 | Grok 4.5 (high) | SpaceXAI | 85.3 | 2.68 | TB-Hard, IFBench |
-| 13 | GPT-5.4 (xhigh) | OpenAI | 83.1 | 6.01 | — |
-| 14 | GPT-5.6 Terra (xhigh) | OpenAI | 82.9 | 5.46 | — |
-| 15 | GPT-5.6 Luna (max) | OpenAI | 82.8 | 2.19 | TB-Hard, IFBench |
+| 3 | Kimi K3 | Kimi | 90.7 | 5.655 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 4 | GPT-5.6 Sol (xhigh) | OpenAI | 90.2 | 10.925 | — |
+| 5 | GPT-5.5 (xhigh) | OpenAI | 88.2 | 12.018 | — |
+| 6 | GPT-5.6 Sol (high) | OpenAI | 88.1 | 10.925 | — |
+| 7 | GPT-5.6 Sol (medium) | OpenAI | 86 | 10.925 | — |
+| 8 | Claude Opus 4.8 (max) | Anthropic | 85.8 | 9.425 | — |
+| 9 | GPT-5.5 (high) | OpenAI | 85.7 | 12.018 | — |
+| 10 | GPT-5.6 Terra (max) | OpenAI | 85.5 | 5.463 | — |
+| 11 | Claude Sonnet 5 (max) | Anthropic | 85.5 | 5.655 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 12 | Grok 4.5 (high) | SpaceXAI | 85.3 | 2.675 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 13 | GPT-5.4 (xhigh) | OpenAI | 83.1 | 6.009 | — |
+| 14 | GPT-5.6 Terra (xhigh) | OpenAI | 82.9 | 5.463 | — |
+| 15 | GPT-5.6 Luna (max) | OpenAI | 82.8 | 2.185 | Terminal-Bench Hard(reg), IFBench(reg) |
+<!--TOP15_END-->
 
+## 如何复现
+
+```bash
+pip install -r requirements.txt
+python build.py         # 一键：抓页 → 解析 → 去重 → 评分 → 导出 → 刷新 README
+```
+
+分步：`python parse_aa.py && python dedup_aa.py && python score_aa.py && python export_deliverables.py`
+
+## 自动化更新
+
+由 `.github/workflows/update.yml` 驱动：每周一 UTC 06:00 自动抓取最新榜单、重算并推送提交；也可在仓库 **Actions** 页手动 `Run workflow` 立即触发。
 
 ## 注意事项
 
@@ -62,4 +83,4 @@
 
 ## License
 
-数据 © Artificial Analysis，按原站条款使用；本仓库的整理结果以 MIT 许可发布
+数据 © Artificial Analysis，按原站条款使用；本仓库的评分脚本与整理结果以 MIT 许可发布（按需调整）。

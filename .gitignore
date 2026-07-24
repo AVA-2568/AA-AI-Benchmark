@@ -1,0 +1,16 @@
+# 中间产物（由 build.py 每次自动重建，体积大，不入库）
+aa_providers.html
+aa_providers_live.html
+aa_providers.csv
+aa_providers.xlsx
+aa_providers_dedup.csv
+aa_providers_dedup.xlsx
+__pycache__/
+
+# 内部工作记忆（不公开）
+.workbuddy/
+
+# 一次性校验脚本（非流水线必需）
+verify_hier.py
+verify_reg.py
+verify_top50.py
