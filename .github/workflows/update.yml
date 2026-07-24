@@ -24,12 +24,12 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Fetch, score, export, refresh README
+      - name: Fetch, score, refresh README
         run: python scripts/build.py
 
       - name: Commit & push if changed
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: auto-update leaderboard ranking"
-          file_pattern: "results/aa_providers_scored.csv results/aa_providers_scored.xlsx README.md"
+          file_pattern: "results/aa_providers_scored.csv README.md"
           commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"

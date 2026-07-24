@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""一键构建：抓取 AA leaderboard → 解析 → 去重 → 评分 → 导出 → 刷新 README。
+"""一键构建：抓取 AA leaderboard → 解析 → 去重 → 评分 → 刷新 README。
 
 可在本地运行，也可由 GitHub Actions 调用。
 """
@@ -30,7 +30,6 @@ def fetch_html():
             return True
     except FileNotFoundError:
         pass
-    # 回退：urllib
     req = urllib.request.Request(URL, headers={"User-Agent": UA})
     with urllib.request.urlopen(req, timeout=120) as resp:
         data = resp.read()
@@ -104,6 +103,5 @@ if __name__ == "__main__":
     run("parse_aa.py")
     run("dedup_aa.py")
     run("score_aa.py")
-    run("export_deliverables.py")
     update_readme()
     print("BUILD OK")

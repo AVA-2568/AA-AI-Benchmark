@@ -1,4 +1,4 @@
-# 🏆 AI Model Provider Rankings · AI 模型供��商综合排名
+# 🏆 AI Model Provider Rankings · AI 模型供应商综合排名
 
 [![Monthly Update](https://img.shields.io/badge/update-monthly-blue)](https://github.com/AVA-2568/AA-AI-Benchmark/actions)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue)](https://www.python.org/)
@@ -32,7 +32,7 @@
 | 15 | GPT-5.6 Luna (max) | OpenAI | 82.8 | 2.185 | Terminal-Bench Hard(reg), IFBench(reg) |
 <!--TOP15_END-->
 
-👉 [查看完整 59 行排名（CSV）](results/aa_providers_scored.csv)
+👉 [查看完整排名（CSV）](results/aa_providers_scored.csv)
 
 ## 🧭 怎么算的
 
@@ -58,7 +58,7 @@ pip install -r requirements.txt
 python scripts/build.py
 ```
 
-分步跑：`python scripts/parse_aa.py && python scripts/dedup_aa.py && python scripts/score_aa.py && python scripts/export_deliverables.py`
+分步跑：`python scripts/parse_aa.py && python scripts/dedup_aa.py && python scripts/score_aa.py`
 
 ## 🤖 自动化
 
@@ -67,8 +67,8 @@ python scripts/build.py
 ## 📁 仓库结构
 
 ```
-├── scripts/          # 数据流水线（抓取 → 解析 → 去重 → 评分 → 导出）
-├── results/          # 最终排名表（CSV + XLSX）
+├── scripts/          # 数据流水线（抓取 → 解析 → 去重 → 评分）
+├── results/          # 最终排名（CSV）
 ├── .github/          # CI 自动化
 └── README.md
 ```
