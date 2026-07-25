@@ -18,8 +18,8 @@
 - 流水线开源可本地复现——见下方"一键复现"
 
 <!--SNAPSHOT_START-->
-> 2026-07-24 抓取（1068 模型 x 服务商 -> 去重 391 -> >=70 分 53 行）。
-> 填补验证：IFBench MAE=0.06 (>10%: 47.4%/331) ; Terminal-Bench Hard MAE=0.03 (>10%: 51.1%/323) ; Terminal-Bench v2.1 MAE=0.05 (>10%: 48.0%/150) ; HLE MAE=0.03 (>10%: 73.0%/378) ; GPQA Diamond MAE=0.05 (>10%: 27.2%/379)
+> 2026-07-25 抓取（1083 模型 x 服务商 -> 去重 396 -> >=70 分 56 行）。
+> 填补验证：IFBench MAE=0.06 (>10%: 45.0%/331) ; Terminal-Bench Hard MAE=0.03 (>10%: 51.7%/323) ; Terminal-Bench v2.1 MAE=0.05 (>10%: 45.8%/155) ; HLE MAE=0.03 (>10%: 73.1%/383) ; GPQA Diamond MAE=0.05 (>10%: 27.1%/384)
 <!--SNAPSHOT_END-->
 
 ## 📊 Top 15 排名
@@ -27,21 +27,21 @@
 <!--TOP15_START-->
 | # | Model | Creator | Score | $/1M | Imputed |
 |---|---|---|---|---|---|
-| 1 | GPT-5.6 Sol (max) | OpenAI | 93.2 | 10.925 | - |
-| 2 | Claude Fable 5 (with fallback) | Anthropic | 93.1 | 18.85 | - |
-| 3 | GPT-5.6 Sol (xhigh) | OpenAI | 90.2 | 10.925 | - |
-| 4 | GPT-5.5 (xhigh) | OpenAI | 88.2 | 12.018 | - |
-| 5 | GPT-5.6 Sol (high) | OpenAI | 88.1 | 10.925 | - |
-| 6 | Kimi K3 | Kimi | 87.5 | 5.655 | Terminal-Bench Hard(reg), IFBench(reg) |
-| 7 | GPT-5.6 Sol (medium) | OpenAI | 86.0 | 10.925 | - |
-| 8 | Claude Opus 4.8 (max) | Anthropic | 85.8 | 9.425 | - |
-| 9 | GPT-5.5 (high) | OpenAI | 85.7 | 12.018 | - |
-| 10 | GPT-5.6 Terra (max) | OpenAI | 85.5 | 5.463 | - |
-| 11 | Grok 4.5 (high) | SpaceXAI | 83.2 | 2.675 | Terminal-Bench Hard(reg), IFBench(reg) |
-| 12 | GPT-5.4 (xhigh) | OpenAI | 83.1 | 6.009 | - |
-| 13 | GPT-5.6 Terra (xhigh) | OpenAI | 82.9 | 5.463 | - |
-| 14 | Muse Spark 1.1 (xhigh) | Meta | 82.9 | 1.765 | Terminal-Bench Hard(reg), IFBench(reg) |
-| 15 | Claude Sonnet 5 (max) | Anthropic | 82.8 | 5.655 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 1 | Claude Fable 5 (with fallback) | Anthropic | 91.5 | 18.85 | - |
+| 2 | GPT-5.6 Sol (max) | OpenAI | 91.5 | 10.925 | - |
+| 3 | Claude Opus 5 (max) | Anthropic | 90.4 | 9.425 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 4 | Claude Opus 5 (xhigh) | Anthropic | 89.8 | 9.425 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 5 | GPT-5.6 Sol (xhigh) | OpenAI | 88.6 | 10.925 | - |
+| 6 | Claude Opus 5 (high) | Anthropic | 88.0 | 9.425 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 7 | GPT-5.5 (xhigh) | OpenAI | 86.9 | 12.018 | - |
+| 8 | GPT-5.6 Sol (high) | OpenAI | 86.6 | 10.925 | - |
+| 9 | Claude Opus 5 (medium) | Anthropic | 86.4 | 9.425 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 10 | Kimi K3 | Kimi | 85.9 | 5.655 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 11 | GPT-5.6 Sol (medium) | OpenAI | 84.6 | 10.925 | - |
+| 12 | GPT-5.5 (high) | OpenAI | 84.4 | 12.018 | - |
+| 13 | Claude Opus 4.8 (max) | Anthropic | 84.3 | 9.425 | - |
+| 14 | GPT-5.6 Terra (max) | OpenAI | 84.0 | 5.463 | - |
+| 15 | Grok 4.5 (high) | SpaceXAI | 81.9 | 2.675 | Terminal-Bench Hard(reg), IFBench(reg) |
 <!--TOP15_END-->
 
 > Imputed 列说明：`-` 表示该模型所有 9 个指标均有真实值；`指标名(reg)` 表示该指标为岭回归预测值；`指标名(reg,low)` 表示预测可信度低（训练样本 < 50）。
