@@ -27,17 +27,17 @@
 ## 📊 通用榜 Top 15
 
 <!--SNAPSHOT_GENERAL_START-->
-> 2026-07-28 抓取（1082 模型 x 服务商 -> 去重 396 -> >=70 分 55 行）。
-> 填补验证：GDPval-AA MAE=0.04 (>10%: 43.9%/157) ; Terminal-Bench Hard MAE=0.03 (>10%: 50.2%/323) ; Terminal-Bench v2.1 MAE=0.04 (>10%: 44.5%/155) ; SciCode MAE=0.03 (>10%: 39.2%/383) ; LCR MAE=0.08 (>10%: 47.3%/357) ; Omniscience Index MAE=1.73 (>10%: 27.2%/349) ; IFBench MAE=0.05 (>10%: 40.5%/331) ; GPQA Diamond MAE=0.05 (>10%: 25.0%/384) ; HLE MAE=0.03 (>10%: 69.2%/383)
+> 2026-07-28 抓取（1098 模型 x 服务商 -> 去重 397 -> >=70 分 55 行）。
+> 填补验证：GDPval-AA MAE=0.04 (>10%: 44.9%/158) ; Terminal-Bench Hard MAE=0.03 (>10%: 50.2%/323) ; Terminal-Bench v2.1 MAE=0.04 (>10%: 44.9%/156) ; SciCode MAE=0.03 (>10%: 39.3%/384) ; LCR MAE=0.08 (>10%: 47.2%/358) ; Omniscience Index MAE=1.73 (>10%: 27.1%/350) ; IFBench MAE=0.05 (>10%: 40.5%/331) ; GPQA Diamond MAE=0.05 (>10%: 25.2%/385) ; HLE MAE=0.03 (>10%: 69.0%/384)
 <!--SNAPSHOT_GENERAL_END-->
 
 <!--TOP15_GENERAL_START-->
 | # | Model | Creator | Score | $/1M | Imputed |
 |---|---|---|---|---|---|
 | 1 | Claude Fable 5 (with fallback) | Anthropic | 91.5 | 18.85 | - |
-| 2 | GPT-5.6 Sol (max) | OpenAI | 91.5 | 10.925 | - |
+| 2 | GPT-5.6 Sol (max) | OpenAI | 91.5 | 12.018 | - |
 | 3 | Claude Opus 5 (max) | Anthropic | 89.3 | 9.425 | Terminal-Bench Hard(reg), IFBench(reg) |
-| 4 | Claude Opus 5 (xhigh) | Anthropic | 88.9 | 9.425 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 4 | Claude Opus 5 (xhigh) | Anthropic | 88.8 | 9.425 | Terminal-Bench Hard(reg), IFBench(reg) |
 | 5 | GPT-5.6 Sol (xhigh) | OpenAI | 88.6 | 10.925 | - |
 | 6 | Claude Opus 5 (high) | Anthropic | 87.0 | 9.425 | Terminal-Bench Hard(reg), IFBench(reg) |
 | 7 | GPT-5.5 (xhigh) | OpenAI | 86.9 | 12.018 | - |
@@ -58,8 +58,8 @@
 > 面向**日常对话、查资料、事实问答**场景：事实性（不幻觉 + 答对）40%、交互（指令遵循 + 长上下文）35%、知识深度 25%。不含编程与智能体指标。
 
 <!--SNAPSHOT_TEXT_START-->
-> 2026-07-28 抓取（1082 模型 x 服务商 -> 去重 396 -> >=70 分 35 行）。
-> 填补验证：Omniscience Non-Halluc. MAE=0.02 (>10%: 37.8%/349) ; Omniscience Accuracy MAE=0.01 (>10%: 8.6%/349) ; IFBench MAE=0.05 (>10%: 40.5%/331) ; LCR MAE=0.08 (>10%: 47.3%/357) ; HLE MAE=0.03 (>10%: 69.2%/383) ; GPQA Diamond MAE=0.05 (>10%: 25.0%/384)
+> 2026-07-28 抓取（1098 模型 x 服务商 -> 去重 397 -> >=70 分 35 行）。
+> 填补验证：Omniscience Non-Halluc. MAE=0.02 (>10%: 38.0%/350) ; Omniscience Accuracy MAE=0.01 (>10%: 8.9%/350) ; IFBench MAE=0.05 (>10%: 40.5%/331) ; LCR MAE=0.08 (>10%: 47.2%/358) ; HLE MAE=0.03 (>10%: 69.0%/384) ; GPQA Diamond MAE=0.05 (>10%: 25.2%/385)
 <!--SNAPSHOT_TEXT_END-->
 
 <!--TOP15_TEXT_START-->
@@ -67,8 +67,8 @@
 |---|---|---|---|---|---|
 | 1 | Gemini 3.1 Pro Preview (AI Studio) | Google | 82.5 | 4.37 | - |
 | 2 | Qwen3.7 Max | Alibaba | 81.6 | 3.212 | - |
-| 3 | MiniMax-M3 (MXFP8) | MiniMax | 80.7 | 0.486 | - |
-| 4 | Grok 4.3 (high) | SpaceXAI | 80.7 | 1.257 | - |
+| 3 | Grok 4.3 (high) | SpaceXAI | 80.7 | 1.257 | - |
+| 4 | MiniMax-M3 (MXFP8) | MiniMax | 80.7 | 0.486 | - |
 | 5 | Grok 4.3 (medium) | SpaceXAI | 80.2 | 1.257 | - |
 | 6 | Muse Spark 1.1 (xhigh) | Meta | 80.0 | 1.765 | IFBench(reg) |
 | 7 | Claude Fable 5 (with fallback) | Anthropic | 79.5 | 18.85 | - |
@@ -79,7 +79,7 @@
 | 12 | Claude Opus 5 (xhigh) | Anthropic | 76.9 | 9.425 | IFBench(reg) |
 | 13 | Claude Opus 5 (max) | Anthropic | 76.6 | 9.425 | IFBench(reg) |
 | 14 | GLM-5.2 (max) | Z AI | 76.5 | 1.72 | - |
-| 15 | Claude Opus 5 (medium) | Anthropic | 76.4 | 9.425 | IFBench(reg) |
+| 15 | Gemini 3.5 Flash AI Studio | Google | 76.4 | 3.277 | - |
 <!--TOP15_TEXT_END-->
 
 👉 [文本榜完整排名（CSV）](results/aa_text_scored.csv)
