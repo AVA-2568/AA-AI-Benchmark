@@ -29,7 +29,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: auto-update leaderboard ranking"
-          file_pattern: "results/aa_providers_scored.csv README.md results/validation.json"
+          file_pattern: "results/*.csv results/*.json README.md"
           commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
 
       # Revert to dacbd/create-issue-action@v2. peter-evans/create-or-update-

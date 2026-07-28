@@ -1,23 +1,62 @@
 {
-  "categories": [
-    {"name": "智能体 Agentic", "weight": 0.20, "metrics": [
-      {"name": "GDPval-AA", "sub_weight": 1.00}
-    ]},
-    {"name": "编程 Coding", "weight": 0.20, "metrics": [
-      {"name": "Terminal-Bench Hard", "sub_weight": 0.50},
-      {"name": "Terminal-Bench v2.1", "sub_weight": 0.30},
-      {"name": "SciCode", "sub_weight": 0.20}
-    ]},
-    {"name": "通用 General", "weight": 0.40, "metrics": [
-      {"name": "LCR", "sub_weight": 0.30},
-      {"name": "Omniscience Index", "sub_weight": 0.30},
-      {"name": "IFBench", "sub_weight": 0.40}
-    ]},
-    {"name": "知识 Knowledge", "weight": 0.20, "metrics": [
-      {"name": "GPQA Diamond", "sub_weight": 0.40},
-      {"name": "HLE", "sub_weight": 0.60}
-    ]}
+  "imputation_pool": [
+    "GDPval-AA",
+    "Terminal-Bench Hard",
+    "Terminal-Bench v2.1",
+    "SciCode",
+    "LCR",
+    "Omniscience Index",
+    "IFBench",
+    "GPQA Diamond",
+    "HLE",
+    "Omniscience Accuracy",
+    "Omniscience Non-Halluc."
   ],
+  "leaderboards": {
+    "general": {
+      "title": "通用榜 General",
+      "output_csv": "aa_general_scored.csv",
+      "validation_json": "validation_general.json",
+      "categories": [
+        {"name": "智能体 Agentic", "weight": 0.20, "metrics": [
+          {"name": "GDPval-AA", "sub_weight": 1.00}
+        ]},
+        {"name": "编程 Coding", "weight": 0.20, "metrics": [
+          {"name": "Terminal-Bench Hard", "sub_weight": 0.50},
+          {"name": "Terminal-Bench v2.1", "sub_weight": 0.30},
+          {"name": "SciCode", "sub_weight": 0.20}
+        ]},
+        {"name": "通用 General", "weight": 0.40, "metrics": [
+          {"name": "LCR", "sub_weight": 0.30},
+          {"name": "Omniscience Index", "sub_weight": 0.30},
+          {"name": "IFBench", "sub_weight": 0.40}
+        ]},
+        {"name": "知识 Knowledge", "weight": 0.20, "metrics": [
+          {"name": "GPQA Diamond", "sub_weight": 0.40},
+          {"name": "HLE", "sub_weight": 0.60}
+        ]}
+      ]
+    },
+    "text": {
+      "title": "文本榜 Text",
+      "output_csv": "aa_text_scored.csv",
+      "validation_json": "validation_text.json",
+      "categories": [
+        {"name": "事实性 Factuality", "weight": 0.40, "metrics": [
+          {"name": "Omniscience Non-Halluc.", "sub_weight": 0.60},
+          {"name": "Omniscience Accuracy", "sub_weight": 0.40}
+        ]},
+        {"name": "交互 Interaction", "weight": 0.35, "metrics": [
+          {"name": "IFBench", "sub_weight": 0.70},
+          {"name": "LCR", "sub_weight": 0.30}
+        ]},
+        {"name": "知识 Knowledge", "weight": 0.25, "metrics": [
+          {"name": "HLE", "sub_weight": 0.60},
+          {"name": "GPQA Diamond", "sub_weight": 0.40}
+        ]}
+      ]
+    }
+  },
   "cost": {
     "input_share": 0.70,
     "output_share": 0.30,

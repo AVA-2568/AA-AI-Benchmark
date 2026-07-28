@@ -1,4 +1,5 @@
 # 中间产物（由 build.py 每次自动重建，体积大，不入库）
+scripts/aa_providers.rsc
 scripts/aa_providers.html
 scripts/aa_providers.csv
 scripts/aa_providers_dedup.csv

@@ -1,21 +1,80 @@
 #!/usr/bin/env python3
-"""解析 AA leaderboard HTML → CSV。
+"""解析 AA leaderboard 数据 → CSV。
 
-优先从 Next.js __NEXT_DATA__ JSON 提取（跨版本稳定），
-失败时回退到 __next_f.push 内部序列化格式。
+三级解析链（按优先级降级）：
+1. RSC 数据流（scripts/aa_providers.rsc，由 build.py 带 ``RSC: 1`` 头抓取，
+   ~2.4MB 纯数据，无 HTML 壳，json.JSONDecoder().raw_decode 直接解析）
+2. 整页 HTML 的 __next_f.push 序列化（scripts/aa_providers.html，App Router 流式注水）
+3. 整页 HTML 的 __NEXT_DATA__ script 标签（Pages Router 遗留，2026-07 已确认
+   AA 迁移后不再出现，保留仅作历史回退）
+
+解析成功后过数据哨兵（行数 + 评分字段非空率），不达标直接失败，
+避免半残数据静默污染下游评分。
 """
 import re, json, csv, os, sys
 
 BS = chr(92)
 OUT = os.path.dirname(os.path.abspath(__file__))
+RSC_PATH = os.path.join(OUT, "aa_providers.rsc")
 HTML_PATH = os.path.join(OUT, "aa_providers.html")
 
-with open(HTML_PATH, encoding="utf-8") as f:
-    html = f.read()
+
+# ---------- 解析器 ----------
+
+def _decode_rows_at(text, start):
+    """从 text 的 '"rows":[' 处用标准库 raw_decode 解析出 rows 数组。"""
+    i = text.index("[", start)
+    try:
+        rows, _ = json.JSONDecoder().raw_decode(text, i)
+    except (json.JSONDecodeError, ValueError):
+        return None
+    if isinstance(rows, list) and rows and isinstance(rows[0], dict):
+        return rows
+    return None
 
 
-def extract_via_next_data(html):
-    """从 __NEXT_DATA__ script 标签提取 rows，失败返回 None。"""
+def extract_via_rsc(path):
+    """主路径：RSC 数据流。payload 是明文 JSON，无需反转义。"""
+    if not os.path.exists(path):
+        return None
+    with open(path, encoding="utf-8", errors="replace") as f:
+        text = f.read()
+    best = None
+    start = text.find('"rows":[')
+    while start != -1:
+        rows = _decode_rows_at(text, start)
+        # 页面可能有多个 rows（如小型侧表），取最长且元素含 label 的那个
+        if rows and "label" in rows[0] and (best is None or len(rows) > len(best)):
+            best = rows
+        start = text.find('"rows":[', start + 1)
+    return best
+
+
+def extract_via_next_f_push(path):
+    """回退 1：整页 HTML 的 __next_f.push 序列化（JS 字符串，需反转义）。"""
+    if not os.path.exists(path):
+        return None
+    with open(path, encoding="utf-8", errors="replace") as f:
+        html = f.read()
+    pat = re.compile(
+        r'self\.__next_f\.push\(\s*\[1,\s*"(.*?)"\s*\]\s*\)', re.S
+    )
+    chunks = pat.findall(html)
+    if not chunks:
+        return None
+    combined = "".join(chunks).encode().decode("unicode_escape")
+    start = combined.find('"rows":[')
+    if start == -1:
+        return None
+    return _decode_rows_at(combined, start)
+
+
+def extract_via_next_data(path):
+    """回退 2：__NEXT_DATA__ script 标签（Pages Router 遗留）。"""
+    if not os.path.exists(path):
+        return None
+    with open(path, encoding="utf-8", errors="replace") as f:
+        html = f.read()
     m = re.search(
         r'<script\s+id="__NEXT_DATA__"[^>]*>\s*(.*?)\s*</script>',
         html, re.S | re.I,
@@ -26,12 +85,11 @@ def extract_via_next_data(html):
         data = json.loads(m.group(1))
     except json.JSONDecodeError:
         return None
-    # 遍历可能的路径找到 rows 数组
+
     def find_rows(obj, depth=0):
         if depth > 12:
             return None
         if isinstance(obj, list) and len(obj) > 100:
-            # 检查是否是模型列表（第一个元素的 label 字段存在）
             if isinstance(obj[0], dict) and "label" in obj[0]:
                 return obj
         if isinstance(obj, dict):
@@ -45,79 +103,75 @@ def extract_via_next_data(html):
                 if r is not None:
                     return r
         return None
+
     return find_rows(data)
 
 
-def extract_via_next_f_push(html):
-    """从 __next_f.push 内部格式提取 rows（旧版回退）。"""
-    pat = re.compile(
-        r'self\.__next_f\.push\(\s*\[1,\s*"(.*?)"\s*\]\s*\)', re.S
-    )
-    combined = "".join(pat.findall(html)).encode().decode("unicode_escape")
-    start = combined.find('"rows":[')
-    if start == -1:
-        return None
-    i = combined.index("[", start)
-    depth = 0
-    in_str = False
-    esc = False
-    end = None
-    for j in range(i, len(combined)):
-        c = combined[j]
-        if in_str:
-            if esc:
-                esc = False
-            elif c == BS:
-                esc = True
-            elif c == '"':
-                in_str = False
-            continue
-        if c == '"':
-            in_str = True
-        elif c == "[":
-            depth += 1
-        elif c == "]":
-            depth -= 1
-            if depth == 0:
-                end = j + 1
-                break
-    if end is None:
-        return None
-    return json.loads(combined[i:end])
+# ---------- 主解析（三级降级链） ----------
+PARSERS = [
+    ("RSC stream", lambda: extract_via_rsc(RSC_PATH)),
+    ("__next_f.push", lambda: extract_via_next_f_push(HTML_PATH)),
+    ("__NEXT_DATA__", lambda: extract_via_next_data(HTML_PATH)),
+]
 
+rows, parser_used = None, None
+for name, fn in PARSERS:
+    rows = fn()
+    if rows:
+        parser_used = name
+        break
+    print(f"⚠ {name} 未命中，尝试下一级")
 
-# ---- 主解析 ----
-rows = None
-parser_used = None
-
-rows = extract_via_next_data(html)
-if rows is not None:
-    parser_used = "__NEXT_DATA__"
-else:
-    print("⚠ __NEXT_DATA__ 未命中，回退到 __next_f.push")
-    rows = extract_via_next_f_push(html)
-    if rows is not None:
-        parser_used = "__next_f.push"
-
-if rows is None:
-    print("FATAL: 两种解析方式均失败")
+if not rows:
+    print("FATAL: 全部解析方式失败（RSC / __next_f.push / __NEXT_DATA__）")
     sys.exit(1)
 
-# ---- 校验 ----
-assert len(rows) > 100, (
-    f"行数异常：{len(rows)}（预期 >100），可能页面结构已变化"
+
+# ---------- 数据哨兵 ----------
+# 行数门槛：近期快照 ~1080 行，<800 视为页面结构变化或数据截断
+MIN_ROWS = 800
+# 评分字段（9 个通用榜 + 2 个文本榜新列）非空率哨兵：
+# 均值门槛拦"整体塌方"，单字段门槛拦"某列静默消失"
+SENTINEL_FIELDS = [
+    "gdpvalNormalized", "terminalbenchHard", "terminalbenchV21", "scicode",
+    "lcr", "omniscience", "ifbench", "gpqa", "hle",
+    "omniscienceAccuracy", "omniscienceNonHallucination",
+]
+MEAN_RATE_MIN = 0.60   # 11 字段平均非空率下限（2026-07 实测 87%，留波动余量）
+FIELD_RATE_MIN = 0.05  # 单字段非空率下限（=0 说明该列已从页面消失）
+
+assert len(rows) > MIN_ROWS, (
+    f"行数哨兵触发：{len(rows)}（预期 >{MIN_ROWS}），页面结构可能已变化"
 )
-required_keys = ["label", "model"]
-for key in required_keys:
+for key in ("label", "model"):
     missing = sum(1 for r in rows if key not in r)
     assert missing == 0, f"{missing} 行缺少字段 '{key}'"
-print(f"rows: {len(rows)}  (parser: {parser_used})")
 
-# ---- 字段映射 ----
+rates = {}
+for f_ in SENTINEL_FIELDS:
+    n_ok = sum(
+        1 for r in rows
+        if isinstance(r.get("model"), dict) and r["model"].get(f_) is not None
+    )
+    rates[f_] = n_ok / len(rows)
+mean_rate = sum(rates.values()) / len(rates)
+
+print(f"rows: {len(rows)}  (parser: {parser_used})")
+print("字段非空率（全池）: " + ", ".join(
+    f"{k}={v:.0%}" for k, v in rates.items()))
+print(f"均值={mean_rate:.0%}")
+
+bad = [k for k, v in rates.items() if v < FIELD_RATE_MIN]
+assert not bad, f"字段哨兵触发：{bad} 非空率 <{FIELD_RATE_MIN:.0%}，该列可能已从页面消失"
+assert mean_rate >= MEAN_RATE_MIN, (
+    f"均值哨兵触发：评分字段平均非空率 {mean_rate:.0%} < {MEAN_RATE_MIN:.0%}"
+)
+
+# ---------- 字段映射 ----------
 known_perf = {"medianOutputTokensPerSecond", "percentile05OutputTokensPerSec"}
 extra_perf = sorted({
     k for r in rows
-    for k in r.get("performance", {})
+    for k in (r.get("performance") or {})
     if k not in known_perf
 })
 

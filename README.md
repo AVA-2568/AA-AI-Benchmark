@@ -5,52 +5,92 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue)](https://www.python.org/)
 [![MIT License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-基于 [Artificial Analysis](https://artificialanalysis.ai/leaderboards/providers) 的公开基准测试数据，按自定义权重重算综合能力总分。每月自动更新。
+基于 [Artificial Analysis](https://artificialanalysis.ai/leaderboards/providers) 的公开基准测试数据，按自定义权重重算综合能力总分。**双榜单**：通用榜（编程 + 智能体 + 通用 + 知识）与文本榜（对话 / 查资料场景）。每月自动更新。
 
 ## 这是什么
 
-本仓库使用 [Artificial Analysis](https://artificialanalysis.ai/leaderboards/providers) 的公开基准数据，**按自定义权重**计算综合分，而非沿用 AA 的合成 Intelligence Index。权重设计偏重实际使用场景（编程 / 通用 / 智能体各 20-40%、知识 20%），详见 [`config.json`](config.json) 与 [METHODOLOGY.md](METHODOLOGY.md)。
+本仓库使用 [Artificial Analysis](https://artificialanalysis.ai/leaderboards/providers) 的公开基准数据，**按自定义权重**计算综合分，而非沿用 AA 的合成 Intelligence Index。权重详见 [`config.json`](config.json) 与 [METHODOLOGY.md](METHODOLOGY.md)。
+
+**两个榜单，一套流水线**：
+
+| 榜单 | 定位 | 大类权重 |
+|---|---|---|
+| **通用榜 General** | 编程 / 智能体 / 日常混合使用 | Agentic 20% / Coding 20% / General 40% / Knowledge 20% |
+| **文本榜 Text** | 日常对话、查资料、事实问答 | Factuality 40% / Interaction 35% / Knowledge 25% |
 
 **与原始榜单的差异**：
-- 9 个评分指标交叉岭回归预测，处理缺失值
+- 11 个评分指标共享一个交叉岭回归填补池，处理缺失值
 - 权重完全可自定义——见 [METHODOLOGY.md](METHODOLOGY.md#指标选取与权重)
 - 填补字段在 CSV `Imputed` 列标注
 - 流水线开源可本地复现——见下方"一键复现"
 
-<!--SNAPSHOT_START-->
-> 2026-07-25 抓取（1083 模型 x 服务商 -> 去重 396 -> >=70 分 56 行）。
-> 填补验证：IFBench MAE=0.06 (>10%: 45.0%/331) ; Terminal-Bench Hard MAE=0.03 (>10%: 51.7%/323) ; Terminal-Bench v2.1 MAE=0.05 (>10%: 45.8%/155) ; HLE MAE=0.03 (>10%: 73.1%/383) ; GPQA Diamond MAE=0.05 (>10%: 27.1%/384)
-<!--SNAPSHOT_END-->
+## 📊 通用榜 Top 15
 
-## 📊 Top 15 排名
+<!--SNAPSHOT_GENERAL_START-->
+> 2026-07-28 抓取（1082 模型 x 服务商 -> 去重 396 -> >=70 分 55 行）。
+> 填补验证：GDPval-AA MAE=0.04 (>10%: 43.9%/157) ; Terminal-Bench Hard MAE=0.03 (>10%: 50.2%/323) ; Terminal-Bench v2.1 MAE=0.04 (>10%: 44.5%/155) ; SciCode MAE=0.03 (>10%: 39.2%/383) ; LCR MAE=0.08 (>10%: 47.3%/357) ; Omniscience Index MAE=1.73 (>10%: 27.2%/349) ; IFBench MAE=0.05 (>10%: 40.5%/331) ; GPQA Diamond MAE=0.05 (>10%: 25.0%/384) ; HLE MAE=0.03 (>10%: 69.2%/383)
+<!--SNAPSHOT_GENERAL_END-->
 
-<!--TOP15_START-->
+<!--TOP15_GENERAL_START-->
 | # | Model | Creator | Score | $/1M | Imputed |
 |---|---|---|---|---|---|
 | 1 | Claude Fable 5 (with fallback) | Anthropic | 91.5 | 18.85 | - |
 | 2 | GPT-5.6 Sol (max) | OpenAI | 91.5 | 10.925 | - |
-| 3 | Claude Opus 5 (max) | Anthropic | 90.4 | 9.425 | Terminal-Bench Hard(reg), IFBench(reg) |
-| 4 | Claude Opus 5 (xhigh) | Anthropic | 89.8 | 9.425 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 3 | Claude Opus 5 (max) | Anthropic | 89.3 | 9.425 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 4 | Claude Opus 5 (xhigh) | Anthropic | 88.9 | 9.425 | Terminal-Bench Hard(reg), IFBench(reg) |
 | 5 | GPT-5.6 Sol (xhigh) | OpenAI | 88.6 | 10.925 | - |
-| 6 | Claude Opus 5 (high) | Anthropic | 88.0 | 9.425 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 6 | Claude Opus 5 (high) | Anthropic | 87.0 | 9.425 | Terminal-Bench Hard(reg), IFBench(reg) |
 | 7 | GPT-5.5 (xhigh) | OpenAI | 86.9 | 12.018 | - |
 | 8 | GPT-5.6 Sol (high) | OpenAI | 86.6 | 10.925 | - |
-| 9 | Claude Opus 5 (medium) | Anthropic | 86.4 | 9.425 | Terminal-Bench Hard(reg), IFBench(reg) |
-| 10 | Kimi K3 | Kimi | 85.9 | 5.655 | Terminal-Bench Hard(reg), IFBench(reg) |
-| 11 | GPT-5.6 Sol (medium) | OpenAI | 84.6 | 10.925 | - |
+| 9 | Kimi K3 | Kimi | 85.7 | 5.655 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 10 | Claude Opus 5 (medium) | Anthropic | 85.4 | 9.425 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 11 | GPT-5.6 Sol (medium) | OpenAI | 84.5 | 10.925 | - |
 | 12 | GPT-5.5 (high) | OpenAI | 84.4 | 12.018 | - |
 | 13 | Claude Opus 4.8 (max) | Anthropic | 84.3 | 9.425 | - |
 | 14 | GPT-5.6 Terra (max) | OpenAI | 84.0 | 5.463 | - |
-| 15 | Grok 4.5 (high) | SpaceXAI | 81.9 | 2.675 | Terminal-Bench Hard(reg), IFBench(reg) |
-<!--TOP15_END-->
+| 15 | GPT-5.4 (xhigh) | OpenAI | 81.9 | 6.009 | - |
+<!--TOP15_GENERAL_END-->
 
-> Imputed 列说明：`-` 表示该模型所有 9 个指标均有真实值；`指标名(reg)` 表示该指标为岭回归预测值；`指标名(reg,low)` 表示预测可信度低（训练样本 < 50）。
+👉 [通用榜完整排名（CSV）](results/aa_general_scored.csv)
 
-👉 [查看完整排名（CSV）](results/aa_providers_scored.csv)
+## 📝 文本榜 Top 15
+
+> 面向**日常对话、查资料、事实问答**场景：事实性（不幻觉 + 答对）40%、交互（指令遵循 + 长上下文）35%、知识深度 25%。不含编程与智能体指标。
+
+<!--SNAPSHOT_TEXT_START-->
+> 2026-07-28 抓取（1082 模型 x 服务商 -> 去重 396 -> >=70 分 35 行）。
+> 填补验证：Omniscience Non-Halluc. MAE=0.02 (>10%: 37.8%/349) ; Omniscience Accuracy MAE=0.01 (>10%: 8.6%/349) ; IFBench MAE=0.05 (>10%: 40.5%/331) ; LCR MAE=0.08 (>10%: 47.3%/357) ; HLE MAE=0.03 (>10%: 69.2%/383) ; GPQA Diamond MAE=0.05 (>10%: 25.0%/384)
+<!--SNAPSHOT_TEXT_END-->
+
+<!--TOP15_TEXT_START-->
+| # | Model | Creator | Score | $/1M | Imputed |
+|---|---|---|---|---|---|
+| 1 | Gemini 3.1 Pro Preview (AI Studio) | Google | 82.5 | 4.37 | - |
+| 2 | Qwen3.7 Max | Alibaba | 81.6 | 3.212 | - |
+| 3 | MiniMax-M3 (MXFP8) | MiniMax | 80.7 | 0.486 | - |
+| 4 | Grok 4.3 (high) | SpaceXAI | 80.7 | 1.257 | - |
+| 5 | Grok 4.3 (medium) | SpaceXAI | 80.2 | 1.257 | - |
+| 6 | Muse Spark 1.1 (xhigh) | Meta | 80.0 | 1.765 | IFBench(reg) |
+| 7 | Claude Fable 5 (with fallback) | Anthropic | 79.5 | 18.85 | - |
+| 8 | Grok 4.20 0309 v2 | SpaceXAI | 79.4 | 2.57 | - |
+| 9 | Grok 4.20 0309 | SpaceXAI | 78.2 | 2.57 | - |
+| 10 | Claude Opus 4.8 (max) | Anthropic | 77.5 | 9.425 | - |
+| 11 | MiMo-V2.5-Pro | Xiaomi | 77.4 | 0.497 | - |
+| 12 | Claude Opus 5 (xhigh) | Anthropic | 76.9 | 9.425 | IFBench(reg) |
+| 13 | Claude Opus 5 (max) | Anthropic | 76.6 | 9.425 | IFBench(reg) |
+| 14 | GLM-5.2 (max) | Z AI | 76.5 | 1.72 | - |
+| 15 | Claude Opus 5 (medium) | Anthropic | 76.4 | 9.425 | IFBench(reg) |
+<!--TOP15_TEXT_END-->
+
+👉 [文本榜完整排名（CSV）](results/aa_text_scored.csv)
+
+> Imputed 列说明（两榜通用）：`-` 表示该模型所有评分指标均有真实值；`指标名(reg)` 表示该指标为岭回归预测值；`指标名(reg,low)` 表示预测可信度低（训练样本 < 50）。
 
 ## 怎么算的
 
-**总分 = 指标得分 × 权重**，满分 100 分。仅收录 ≥70 分的模型（绝对门槛，不随池子大小变化）。
+**总分 = 指标得分 × 权重**，满分 100 分。两榜均仅收录 ≥70 分的模型（绝对门槛，不随池子大小变化）。
+
+### 通用榜权重
 
 | 大类 | 权重 | 主要指标 |
 |---|---|---|
@@ -59,16 +99,35 @@
 | General - 通用 | 40% | LCR / Omniscience / IFBench |
 | Knowledge - 知识 | 20% | GPQA Diamond / HLE |
 
+### 文本榜权重
+
+| 大类 | 权重 | 主要指标 |
+|---|---|---|
+| Factuality - 事实性 | 40% | Omniscience Non-Hallucination（60%）/ Omniscience Accuracy（40%） |
+| Interaction - 交互 | 35% | IFBench（70%）/ LCR（30%） |
+| Knowledge - 知识 | 25% | HLE（60%）/ GPQA Diamond（40%） |
+
 ### 关键步骤
 
 - **min-max 归一化**：各指标按全量样本缩放到 0-100 分
-- **缺失值填补**：9 个评分指标交叉岭回归预测，α=0.1（z-score 空间）
-- **特征标准化**：岭回归输入先 z-score 处理，避免 Omniscience Index（量纲 -12~100）主导其他 7 个 0-1 指标——见 [METHODOLOGY 特征标准化](METHODOLOGY.md#特征标准化岭回归输入)
-- **成本估算**：70% 输入 + 30% 输出，50% 输入 token 命中缓存；缓存命中价缺失时按 input 价的 0.1× 回退（Anthropic / DeepSeek 行业下限，对 OpenAI 偏高）
+- **缺失值填补**：11 个评分指标（9 通用 + 2 文本新列）共享一个交叉岭回归填补池，α=0.1（z-score 空间）
+- **特征标准化**：岭回归输入先 z-score 处理，避免大量纲指标主导——见 [METHODOLOGY 特征标准化](METHODOLOGY.md#特征标准化岭回归输入)
+- **成本估算**：70% 输入 + 30% 输出，50% 输入 token 命中缓存；缓存命中价缺失时按 input 价的 0.1× 回退
 - **权重与参数在 [`config.json`](config.json) 中自定义**，无需修改源码
-- **每次运行输出留一验证结果与 R²**——见 [validation.json](results/validation.json)
+- **每次运行输出留一验证结果与 R²**——见 [validation_general.json](results/validation_general.json) / [validation_text.json](results/validation_text.json)
 
 [完整方法论 →](METHODOLOGY.md)
+
+## FAQ
+
+**Q: 文本榜为什么不评"写小说 / 创意写作"？**
+A: AA 的公开基准里没有可靠的创意写作评测（写作质量本质是主观偏好，AA 未提供该维度数据）。与其用不相关指标伪装成"写作分"，不如明确不评。需要写作能力参考请结合人工盲测类榜单自行判断。
+
+**Q: 文本榜的 IFBench 分数可信吗？**
+A: IFBench 是文本榜权重最大的单一指标（24.5%），且填补可靠性中等（留一验证误差 >10% 的样本约 40%，精确值见各榜快照行）。真实值没问题；但标注 `IFBench(reg)` 的填补值请谨慎对待。Top 段模型 IFBench 实测覆盖率 ~77%，多数头部模型无需填补。
+
+**Q: 旧文件 `aa_providers_scored.csv` / `validation.json` 去哪了？**
+A: 双榜改版后已更名：`aa_providers_scored.csv` → [`aa_general_scored.csv`](results/aa_general_scored.csv)，`validation.json` → [`validation_general.json`](results/validation_general.json)。通用榜口径与权重不变，仅文件名变化；外部引用请更新链接。
 
 ## 一键复现
 
@@ -84,17 +143,19 @@ python scripts/build.py
 ## 仓库结构
 
 ```
-├── config.json             # 评分权重与参数
+├── config.json             # 双榜权重与评分参数
 ├── requirements.txt        # numpy / pandas / scikit-learn
 ├── METHODOLOGY.md          # 完整方法论
 ├── scripts/                # 数据流水线
 │   ├── build.py            # 一键入口（fetch -> parse -> dedup -> score -> README）
-│   ├── parse_aa.py         # AA HTML -> CSV
+│   ├── parse_aa.py         # AA RSC 流 / HTML -> CSV（三级解析链 + 数据哨兵）
 │   ├── dedup_aa.py         # Model Slug 去重
-│   └── score_aa.py         # 标准化 + 岭回归填补 + 评分
+│   └── score_aa.py         # 标准化 + 共享岭回归填补 + 双榜评分
 ├── results/                # CSV 排名 + validation
-│   ├── aa_providers_scored.csv
-│   └── validation.json     # 留一验证 + R²
+│   ├── aa_general_scored.csv     # 通用榜
+│   ├── aa_text_scored.csv        # 文本榜
+│   ├── validation_general.json   # 通用榜留一验证
+│   └── validation_text.json      # 文本榜留一验证
 ├── .github/                # CI 自动化
 └── README.md
 ```
@@ -103,6 +164,7 @@ python scripts/build.py
 
 - 分数代表在当前样本中相对靠前，**非理论能力满分**
 - CSV 中 `*` 表示回归预测填补，`**` 表示低可信填补（训练样本 < 50）
+- 文本榜与通用榜共用同一次抓取、去重与填补，**同一模型两榜分数不可直接互比**（归一化基准不同类）
 - **价格是抓取时快照**，随服务商调价变动
 - **原始数据版权归 Artificial Analysis 所有**，按原站条款使用
 - 排名每月刷新；标准化 / α / 阈值变更可能引入 4-10 位的 ±2 互调

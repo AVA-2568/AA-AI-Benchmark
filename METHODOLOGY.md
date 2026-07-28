@@ -4,6 +4,10 @@
 
 ## 指标选取与权重
 
+本仓库维护**两个榜单**，共用同一次抓取、去重与缺失值填补，仅评分权重不同。
+
+### 通用榜 General
+
 从 Artificial Analysis 的 providers leaderboard 中选取 **9 个代表性基准指标**，归入 4 个大类，每大类再分配子权重：
 
 | 大类（权重） | 指标 | 子权重 | 全局权重 |
@@ -20,9 +24,45 @@
 
 全局权重之和 = 1.00。
 
-**设计逻辑**：通用能力（LCR + Omniscience + IFBench）权重最高（40%），因为它代表模型的日常使���体验；编程和智能体各 20%；知识（GPQA + HLE）20%。
+**设计逻辑**：通用能力（LCR + Omniscience + IFBench）权重最高（40%），因为它代表模型的日常使用体验；编程和智能体各 20%；知识（GPQA + HLE）20%。
 
-> 权重可在 [`config.json`](../config.json) 中自定义，无需修改源码。
+### 文本榜 Text
+
+面向**日常对话、查资料、事实问答**场景，选取 6 个纯文本相关指标，归入 3 个大类：
+
+| 大类（权重） | 指标 | 子权重 | 全局权重 |
+|---|---|---|---|
+| **事实性 Factuality** (40%) | Omniscience Non-Hallucination | 60% | 24% |
+| | Omniscience Accuracy | 40% | 16% |
+| **交互 Interaction** (35%) | IFBench | 70% | 24.5% |
+| | LCR | 30% | 10.5% |
+| **知识 Knowledge** (25%) | HLE | 60% | 15% |
+| | GPQA Diamond | 40% | 10% |
+
+全局权重之和 = 1.00。
+
+**设计逻辑**：
+- **事实性最重（40%）**：查资料场景下"不编造"比"多答对"更致命，故 Non-Hallucination 60% > Accuracy 40%。两列均来自 AA Omniscience 基准的公开拆分（与 Omniscience Index 同源，但拆开后语义正交：一个测幻觉率、一个测答对率），文本榜不再使用合成的 Omniscience Index，避免与拆分列重复计权。
+- **交互次之（35%）**：IFBench（指令遵循）是对话体验的核心代理指标，占大头 70%；LCR（长上下文）覆盖长文阅读 / 资料吞吐，占 30%。
+- **知识 25%**：HLE 偏综合推理知识（60%），GPQA Diamond 偏科学知识（40%），与通用榜内部比例一致。
+- **不含编程 / 智能体指标**：Terminal-Bench、SciCode、GDPval-AA 与文本场景无关，全部剔除。
+- **不评创意写作**：AA 没有可靠的公开写作质量基准，写作是主观偏好维度，宁缺毋滥（见 README FAQ）。
+
+> 两榜权重均可在 [`config.json`](../config.json) `leaderboards` 中自定义，无需修改源码。
+
+## 数据抓取与解析
+
+AA 已迁移到 Next.js App Router，页面不再内嵌 `__NEXT_DATA__`。流水线采用**三级降级链**：
+
+| 级别 | 方式 | 说明 |
+|---|---|---|
+| 1（主路径） | 带 `RSC: 1` 头请求同一 URL | 直取 RSC 数据流（~2.4MB 纯数据），`json.JSONDecoder().raw_decode` 标准库解析 |
+| 2（回退） | 整页 HTML 的 `__next_f.push` | App Router 流式注水的 JS 字符串，反转义后同法解析 |
+| 3（遗留） | `__NEXT_DATA__` script 标签 | Pages Router 时代格式，2026-07 起已不出现，仅保底 |
+
+解析成功后过**数据哨兵**才放行：行数 >800（近期快照 ~1080）、11 个评分字段全池平均非空率 ≥60%（2026-07 实测 87%）、单字段非空率 ≥5%（=0 说明该列已从页面消失）。任一不达标即失败退出，由 CI 开 Issue 告警，避免半残数据静默污染排名。
+
+两次抓取均失败时，沿用上次运行缓存并在日志打警告（排名可能过期）。
 
 ## 数据预处理
 
@@ -54,7 +94,7 @@
 
 ### 为什么需要
 
-8 个交叉预测特征中，`Omniscience Index` 量纲 -12 ~ 100，其他 7 个 0-1。**量纲差 100× → X^TX 病态 → β 估计不稳**。
+交叉预测特征中，`Omniscience Index` 量纲 -12 ~ 100，`Omniscience Accuracy` / `Non-Hallucination` 为 0-100，其余为 0-1。**量纲差 100× → X^TX 病态 → β 估计不稳**。
 
 具体计算：
 - 7 个 0-1 特征方差 ~0.05
@@ -64,17 +104,17 @@
 
 ### 做法
 
-1. **fit 一次**：用全量 raw 真实值（None 用 `stats[m][2]` top50% mean 替换）构造 (n × 9) 矩阵 → 跑 `sklearn.preprocessing.StandardScaler.fit` → 拿到 9 维 mean/scale
+1. **fit 一次**：用全量 raw 真实值（None 用 `stats[m][2]` top50% mean 替换）构造 (n × 11) 矩阵 → 跑 `sklearn.preprocessing.StandardScaler.fit` → 拿到 11 维 mean/scale
 2. **30 轮迭代 + LOO + R² log 都用同一个 scaler** —— 不重 fit，避免随填补值漂移
-3. **每次 transform 9 列**（含 target_m），然后用 `np.r_[:t, t+1:9]` 删 target_m 列 + 加 bias 列 → 8 维标准化特征
+3. **每次 transform 11 列**（含 target_m），然后删 target_m 列 + 加 bias 列 → 10 维标准化特征
 
 ```python
-def to_X(arr_9, target_m):
+def to_X(arr_pool, target_m):
     if scaler is not None:
-        arr_9 = scaler.transform(arr_9)
-    target_idx = METRICS.index(target_m)
-    keep = np.r_[:target_idx, target_idx + 1:9]  # 8 column indices
-    return np.hstack([np.ones((len(arr_9), 1)), arr_9[:, keep]])
+        arr_pool = scaler.transform(arr_pool)
+    target_idx = POOL.index(target_m)
+    keep = np.r_[:target_idx, target_idx + 1:N_POOL]
+    return np.hstack([np.ones((len(arr_pool), 1)), arr_pool[:, keep]])
 ```
 
 ### α 配套调整
@@ -120,23 +160,31 @@ def to_X(arr_9, target_m):
 - 部分新模型刚发布、测试数据尚未覆盖
 - 部分服务商未提交特定基准
 
+### 填补池：11 个指标共享
+
+填补在**两榜合并的 11 指标池**上进行一次（9 个通用榜指标 + 文本榜新增的 Omniscience Accuracy / Non-Hallucination），两榜共享填补结果：
+
+- 特征更多 → 交叉预测信息量更大，对两榜都有利
+- 同一模型的同一指标在两榜中填补值一致，避免"同数据不同分"的解释成本
+- 池成员在 `config.json` `imputation_pool` 中声明，榜单用到的指标必须在池内（启动时校验）
+
 ### 填补算法：多变量岭回归 + 迭代收敛
 
-对每个目标指标 `T`，用**其他 8 个评分指标交叉预测**（不含 Intelligence Index，避免循环特征）：
+对每个目标指标 `T`，用**池内其他 10 个指标交叉预测**（不含 Intelligence Index，避免循环特征）：
 
 1. 初始化：缺失值用训练集 top50% 均值填充
 2. 每轮对每个指标：
    - 提取有真实值的样本作为训练集
-   - **先 `scaler.transform` 把 9 列特征标准化**（详见"特征标准化"章节）
-   - **删 target 列 + 加 bias 列** 得到 8 维标准化 X
-   - 用其他 7 个特征做岭回归（**α=0.1**，z-score 空间统一）
+   - **先 `scaler.transform` 把 11 列特征标准化**（详见"特征标准化"章节）
+   - **删 target 列 + 加 bias 列** 得到 10 维标准化 X
+   - 用池内其他 10 个特征做岭回归（**α=0.1**，z-score 空间统一）
    - 预测所有缺失值
    - 裁剪到该指标 P95（防止缺失模型被推到历史最佳分）
 3. 迭代直至收敛（连续 3 轮 max_delta < 0.001）或达到最大 30 轮
 
 ```
 预测值 = beta0 + sum(beta_i × feature_i_std)，beta 由岭回归求解
-                  ↑ 8 个标准化特征
+                  ↑ 10 个标准化特征
          ↑ 裁剪到该列 raw P95
 ```
 
@@ -159,7 +207,7 @@ def to_X(arr_9, target_m):
 
 **全量计算**（无 60 元素采样）：n > 60 也不采样，保证 `n` 字段 = MAE 实际分母。性能开销 ~5 分钟可接受。
 
-验证结果写入 `results/validation.json`，并在 README 快照行中以摘要形式展示：
+验证结果按榜单拆分写入 `results/validation_general.json` / `results/validation_text.json`（各含该榜使用的指标），并在 README 各榜快照行中以摘要形式展示：
 
 ```
 > 填补验证：IFBench MAE=0.06 (>10%: 47.4%/331) ; Terminal-Bench Hard MAE=0.03 (>10%: 51.1%/323) ; ...
@@ -167,19 +215,23 @@ def to_X(arr_9, target_m):
 
 ## 模型拟合质量（R²）
 
-用全量训练集拟合后，计算每个指标的训练集 R²（不含 Intelligence Index，仅 8→1 交叉预测，且 X 已标准化）：
+用全量训练集拟合后，计算每个指标的训练集 R²（不含 Intelligence Index，仅池内 10→1 交叉预测，且 X 已标准化；下表为 2026-07-28 快照实测）：
 
 | 指标 | 典型 R² | 解读 |
 |---|---|---|
-| GDPval-AA | ~0.80+ | 较可预测 |
-| Terminal-Bench Hard | ~0.70+ | 较可预测 |
-| Terminal-Bench v2.1 | ~0.60+ | 中等可预测 |
-| SciCode | ~0.75+ | 较可预测 |
-| LCR | ~0.70+ | 较可预测 |
-| Omniscience Index | ~0.75+ | 较可预测 |
-| IFBench | ~0.50+ | 偏低，预测值仅供参考 |
-| GPQA Diamond | ~0.80+ | 较可预测 |
-| HLE | ~0.75+ | 较可预测 |
+| GDPval-AA | ~0.93 | 较可预测 |
+| Terminal-Bench Hard | ~0.96 | 较可预测 |
+| Terminal-Bench v2.1 | ~0.95 | 较可预测 |
+| SciCode | ~0.88 | 较可预测 |
+| LCR | ~0.81 | 池内最低，预测值谨慎参考 |
+| Omniscience Index | ~0.99 | 与 Acc / Non-Halluc 两列强相关，近乎恒等 |
+| IFBench | ~0.83 | 中等可预测（训练 R² 高但 LOO >10% 误差率 ~40%） |
+| GPQA Diamond | ~0.88 | 较可预测 |
+| HLE | ~0.92 | 较可预测 |
+| Omniscience Accuracy | ~0.99 | 与 Index / Non-Halluc 强相关 |
+| Omniscience Non-Halluc. | ~0.98 | 与 Index / Acc 强相关 |
+
+> 池扩到 11 列后各指标训练 R² 整体上升，部分来自 Omniscience 三列强相关的"信息重复"——**评估填补可信度请以留一验证（MAE / >10% 误差率）为准**，训练 R² 只反映拟合能力上限。
 
 > R² 值随每次数据更新而浮动，精确值见流水线运行日志。R² 越高，表示该指标的缺失值预测越可信。
 >
