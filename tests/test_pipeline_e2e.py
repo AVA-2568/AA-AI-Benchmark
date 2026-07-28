@@ -14,6 +14,7 @@ imputation / scoring changes the hashes and fails the test.
 Does NOT touch production results/.
 """
 import csv
+import hashlib
 import json
 import os
 import sys
@@ -23,7 +24,20 @@ _SCRIPTS = os.path.join(_REPO, "scripts")
 if _SCRIPTS not in sys.path:
     sys.path.insert(0, _SCRIPTS)
 
-from pipeline import read_rows, run_pipeline, sha256  # noqa: E402
+from pipeline import read_rows, run_pipeline  # noqa: E402
+
+
+def _norm_sha(path):
+    """sha256 of file content with CR stripped — line-ending agnostic.
+
+    ``csv.writer`` emits CRLF; git normalizes the committed
+    fixture to LF on Linux CI, so a raw-byte compare against
+    the freshly-written CRLF output would fail there even
+    though the scored *data* is identical. Stripping CR makes
+    the check portable and still catches real data drift.
+    """
+    data = open(path, "rb").read().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    return hashlib.sha256(data).hexdigest()
 
 
 FX = os.path.join(_REPO, "tests", "fixtures")
@@ -63,10 +77,10 @@ def test_e2e_deterministic_and_matches_golden(tmp_path):
 
     g1 = os.path.join(d1, "aa_general_scored.csv")
     g2 = os.path.join(d2, "aa_general_scored.csv")
-    # determinism: two runs identical
-    assert sha256(g1) == sha256(g2)
+    # determinism: two runs identical (line-ending agnostic)
+    assert _norm_sha(g1) == _norm_sha(g2)
     # reproducibility: matches committed golden snapshot
-    assert sha256(g1) == sha256(GOLDEN_GENERAL)
+    assert _norm_sha(g1) == _norm_sha(GOLDEN_GENERAL)
 
 
 def test_e2e_general_structure(tmp_path):
