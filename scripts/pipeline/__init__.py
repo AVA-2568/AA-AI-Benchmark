@@ -1,0 +1,132 @@
+"""AA-AI-Benchmark scoring pipeline (shared, implemented once).
+
+Public API:
+- ``load_config``, ``validate_config``, ``board_weights``, ``to_float``
+- ``ImputationEngine`` (stats + iterative imputation + LOO + R2)
+- ``score_board``
+- ``run_pipeline(rows, cfg, results_dir)`` — full orchestration
+
+Both ``scripts/score_aa.py`` (CLI) and ``experiments/p99_clip.py``
+import from here; the algorithm lives only in this package.
+"""
+from __future__ import annotations
+
+import datetime
+import os
+
+from .config import (
+    ConfigError,
+    board_weights,
+    imputation_params,
+    load_config,
+    to_float,
+    validate_config,
+)
+from .imputation import ImputationEngine, compute_stats
+from .io_utils import (
+    read_rows,
+    write_scored_csv,
+    write_validation,
+)
+from .models import (
+    BuildManifest,
+    CategorySpec,
+    ImputationResult,
+    LeaderboardConfig,
+    MetricSpec,
+    ScoredModel,
+)
+from .provenance import build_manifest, count_rows, sha256, write_manifest
+from .scoring import fmt_val, norm, score_board
+
+__all__ = [
+    "ConfigError",
+    "ImputationEngine",
+    "compute_stats",
+    "board_weights",
+    "to_float",
+    "validate_config",
+    "load_config",
+    "imputation_params",
+    "read_rows",
+    "write_scored_csv",
+    "write_validation",
+    "norm",
+    "fmt_val",
+    "score_board",
+    "build_manifest",
+    "write_manifest",
+    "sha256",
+    "count_rows",
+    "run_pipeline",
+    "MetricSpec",
+    "CategorySpec",
+    "LeaderboardConfig",
+    "ImputationResult",
+    "ScoredModel",
+    "BuildManifest",
+]
+
+
+def run_pipeline(rows, cfg, results_dir):
+    """Full scoring run: impute -> validate -> score both boards.
+
+    Prints the same diagnostics as the legacy script and writes one
+    CSV + one validation JSON per leaderboard. Returns the validation
+    dict (pool metric -> {mae, pct_over10, n}).
+    """
+    pool = cfg["imputation_pool"]
+    boards = cfg["leaderboards"]
+    cost = cfg["cost"]
+    score_threshold = cfg["score_threshold"]
+    ip = imputation_params(cfg)
+    cache_multiplier = ip["cache_hit_multiplier"]
+
+    params = {
+        "ridge_alpha": cfg["ridge_alpha"],
+        "imputation_min_samples": cfg["imputation_min_samples"],
+        "standardize_features": cfg.get("standardize_features", True),
+        "clip_quantile": ip["clip_quantile"],
+        "damping": ip["damping"],
+    }
+    engine = ImputationEngine(rows, pool, params)
+
+    for bkey, board in boards.items():
+        _, glob = board_weights(board)
+        print(f"[{bkey}] global weights:",
+              {m: round(w, 3) for m, w in glob.items()})
+
+    print(f"loaded rows: {len(rows)}")
+
+    converged_iter, max_delta = engine.run(
+        ip["max_iters"], ip["relative_tolerance"], ip["stable_rounds"])
+    if converged_iter is None:
+        print(f"  !! WARNING: not converged after {ip['max_iters']} iters, "
+              f"max_delta={max_delta:.4f}")
+
+    validation = engine.loo_validation()
+    for bkey, board in boards.items():
+        _, glob = board_weights(board)
+        board_val = {m: validation[m] for m in glob if m in validation}
+        val_path = os.path.join(results_dir, board["validation_json"])
+        write_validation(bkey, board_val, val_path)
+        print(f"Saved validation [{bkey}] -> {val_path}")
+
+    for bkey, board in boards.items():
+        out, headers = score_board(
+            rows, board, engine, cost, cache_multiplier, score_threshold)
+        out_csv = os.path.join(results_dir, board["output_csv"])
+        write_scored_csv(out, headers, out_csv)
+        print(f"[{bkey}] >={score_threshold} score: {len(out)} rows")
+        print(f"Saved [{bkey}] -> {out_csv}")
+
+    r2 = engine.r2_log()
+    print(f"\nData snapshot: {datetime.date.today().isoformat()}")
+    print(f"Training R2 (no II, {len(pool) - 1}->1 cross-predict "
+          f"over shared pool):")
+    for m in pool:
+        if m in r2:
+            print(f"  {m:25} R2={r2[m]:.3f}")
+
+    print("\nDONE")
+    return validation

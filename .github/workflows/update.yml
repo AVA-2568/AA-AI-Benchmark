@@ -22,6 +22,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Run unit tests (quality gate)
+        run: python -m pytest -q
+
       - name: Fetch, score, refresh README
         run: python scripts/build.py
 
@@ -29,7 +32,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: auto-update leaderboard ranking"
-          file_pattern: "results/*.csv results/*.json README.md"
+          file_pattern: "results/*.csv results/*.json results/manifest.json README.md"
           commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
 
       # Revert to dacbd/create-issue-action@v2. peter-evans/create-or-update-

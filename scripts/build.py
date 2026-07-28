@@ -8,12 +8,14 @@
 
 可在本地运行，也可由 GitHub Actions 调用。
 """
+import argparse
+import datetime
+import csv
+import hashlib
 import json
 import os
-import sys
-import csv
 import subprocess
-import datetime
+import sys
 import urllib.request
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -27,6 +29,15 @@ UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
 # RSC 流 2026-07 实测 ~2.4MB；小于该值大概率是错误页/挑战页
 RSC_MIN_SIZE = 500_000
 HTML_MIN_SIZE = 100_000
+MANIFEST = os.path.join(REPO_ROOT, "results", "manifest.json")
+
+
+class BuildError(RuntimeError):
+    """Raised when a build cannot produce a trustworthy result."""
+
+
+class StaleCacheError(BuildError):
+    """Raised when only stale input is available without explicit opt-in."""
 
 
 def _fetch(url, out_path, min_size, extra_headers=None):
@@ -53,8 +64,9 @@ def _fetch(url, out_path, min_size, extra_headers=None):
         with urllib.request.urlopen(req, timeout=120) as resp:
             data = resp.read()
         if len(data) > min_size:
-            with open(out_path, "wb") as f:
+            with open(tmp, "wb") as f:
                 f.write(data)
+            os.replace(tmp, out_path)
             print(f"fetched via urllib -> {os.path.basename(out_path)}, "
                   f"size={len(data)}")
             return True
@@ -65,22 +77,30 @@ def _fetch(url, out_path, min_size, extra_headers=None):
     return False
 
 
-def fetch_data():
-    """三级抓取：RSC 流 -> 整页 HTML -> 上次缓存。"""
+def fetch_data(allow_stale=False, offline=False):
+    """获取 RSC/HTML；缓存只有显式允许时才能作为输入。"""
+    if offline:
+        if os.path.exists(RSC) or os.path.exists(HTML):
+            print("offline mode: using existing cache")
+            return True, True
+        raise BuildError("offline mode requested but no input cache exists")
     if _fetch(URL, RSC, RSC_MIN_SIZE, {"RSC": "1"}):
-        return True
+        return True, False
     print("!! RSC fetch failed, falling back to full HTML")
     if _fetch(URL, HTML, HTML_MIN_SIZE):
         # HTML 是新鲜的，删掉过期 RSC，防止 parse_aa.py 优先吃到旧数据
         if os.path.exists(RSC):
             os.remove(RSC)
             print("removed stale aa_providers.rsc (fresh HTML takes over)")
-        return True
+        return True, False
+    if allow_stale and (os.path.exists(RSC) or os.path.exists(HTML)):
+        print("!! WARNING: both fetches failed, explicitly reusing STALE cache")
+        return True, True
     if os.path.exists(RSC) or os.path.exists(HTML):
-        print("!! WARNING: both fetches failed, reusing STALE cache from "
-              "previous run — rankings may be outdated")
-        return True
-    return False
+        raise StaleCacheError(
+            "both fetches failed; stale cache exists but --allow-stale was not set"
+        )
+    return False, False
 
 
 def run(script):
@@ -95,10 +115,21 @@ def _count(path):
         return sum(1 for _ in csv.reader(f)) - 1
 
 
-def _load_boards():
+def _sha256(path):
+    digest = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _load_config():
     with open(os.path.join(REPO_ROOT, "config.json"), encoding="utf-8") as f:
-        cfg = json.load(f)
-    return cfg["leaderboards"]
+        return json.load(f)
+
+
+def _load_boards():
+    return _load_config()["leaderboards"]
 
 
 def _board_blocks(bkey, board, n_raw, n_dedup, today):
@@ -160,8 +191,12 @@ def update_readme():
         snapshot_md, top15_md, n_out = _board_blocks(
             bkey, board, n_raw, n_dedup, today)
         tag = bkey.upper()
-        txt = _replace_block(txt, f"SNAPSHOT_{tag}", snapshot_md)
-        txt = _replace_block(txt, f"TOP15_{tag}", top15_md)
+        snapshot_name = f"SNAPSHOT_{tag}"
+        top15_name = f"TOP15_{tag}"
+        if not _has_markers(txt, snapshot_name) or not _has_markers(txt, top15_name):
+            raise BuildError(f"README marker missing for {bkey}")
+        txt = _replace_block(txt, snapshot_name, snapshot_md)
+        txt = _replace_block(txt, top15_name, top15_md)
         counts[bkey] = n_out
 
     # Atomic write: stage to .tmp, then os.replace, so a crash mid-write
@@ -173,23 +208,81 @@ def update_readme():
     print("README updated: raw=%d dedup=%d out=%s" % (n_raw, n_dedup, counts))
 
 
-def _replace_block(txt, name, content):
+def _has_markers(txt, name):
     start = f"<!--{name}_START-->"
     end = f"<!--{name}_END-->"
     s, e = txt.find(start), txt.find(end)
-    if s == -1 or e == -1:
-        print(f"WARNING: marker {name} not found in README")
+    return s != -1 and e != -1 and e >= s
+
+
+def _replace_block(txt, name, content):
+    """Replace a README marker block; return original text if absent."""
+    start = f"<!--{name}_START-->"
+    end = f"<!--{name}_END-->"
+    s, e = txt.find(start), txt.find(end)
+    if s == -1 or e == -1 or e < s:
+        print(f"ERROR: marker {name} not found in README", file=sys.stderr)
         return txt
     return txt[:s + len(start)] + "\n" + content + "\n" + txt[e:]
 
 
-if __name__ == "__main__":
-    ok = fetch_data()
-    if not ok:
-        print("FETCH FAILED", file=sys.stderr)
-        sys.exit(1)
-    run("parse_aa.py")
-    run("dedup_aa.py")
-    run("score_aa.py")
-    update_readme()
+def _read_last_parser():
+    """Read the parser name recorded by parse_aa.py (best-effort)."""
+    path = os.path.join(BASE, ".last_parser")
+    if not os.path.exists(path):
+        return None
+    with open(path, encoding="utf-8") as fh:
+        return fh.read().strip() or None
+
+
+def _write_manifest(stale, parser=None):
+    config_path = os.path.join(REPO_ROOT, "config.json")
+    raw_csv = os.path.join(BASE, "aa_providers.csv")
+    dedup_csv = os.path.join(BASE, "aa_providers_dedup.csv")
+    manifest = {
+        "run_date": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "source_url": URL,
+        "parser": parser,
+        "input_sha256": _sha256(raw_csv) if os.path.exists(raw_csv) else None,
+        "config_sha256": _sha256(config_path),
+        "algorithm_version": "0a62096",
+        "raw_rows": _count(raw_csv),
+        "dedup_rows": _count(dedup_csv),
+        "stale": stale,
+    }
+    os.makedirs(os.path.dirname(MANIFEST), exist_ok=True)
+    tmp = MANIFEST + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as fh:
+        json.dump(manifest, fh, ensure_ascii=False, indent=2)
+    os.replace(tmp, MANIFEST)
+    print(f"manifest updated -> {MANIFEST}")
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--offline", action="store_true",
+                        help="use existing input cache without network")
+    parser.add_argument("--allow-stale", action="store_true",
+                        help="allow stale cache when both fetches fail")
+    args = parser.parse_args(argv)
+    try:
+        ok, stale = fetch_data(allow_stale=args.allow_stale, offline=args.offline)
+        if not ok:
+            raise BuildError("fetch failed")
+        run("parse_aa.py")
+        run("dedup_aa.py")
+        run("score_aa.py")
+        if stale:
+            print("stale input: skipping README update")
+        else:
+            update_readme()
+        _write_manifest(stale=stale, parser=_read_last_parser())
+    except (BuildError, subprocess.CalledProcessError) as exc:
+        print(f"BUILD FAILED: {exc}", file=sys.stderr)
+        return 1
     print("BUILD OK")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -126,6 +126,9 @@ A: AA 的公开基准里没有可靠的创意写作评测（写作质量本质�
 **Q: 文本榜的 IFBench 分数可信吗？**
 A: IFBench 是文本榜权重最大的单一指标（24.5%），且填补可靠性中等（留一验证误差 >10% 的样本约 40%，精确值见各榜快照行）。真实值没问题；但标注 `IFBench(reg)` 的填补值请谨慎对待。Top 段模型 IFBench 实测覆盖率 ~77%，多数头部模型无需填补。
 
+**Q: 为什么高 Non-Hallucination、低 Accuracy 也能排很前？**
+A: 文本榜事实性 40% 内 **Non-Halluc 60% > Acc 40%**——设计目标是「查资料时少胡说」优先于「答对得多」。高 NonHalluc + 低 Acc 通常表示**更爱拒答 / 少编造**，**不代表更博学**，也**不是写作榜**。例如 Top 段可能出现 NonHalluc 很高而 Acc 偏低仍进前几名；若你更看重「答对率」，应自行调高 Accuracy 子权重或改读 Accuracy 单列。
+
 **Q: 旧文件 `aa_providers_scored.csv` / `validation.json` 去哪了？**
 A: 双榜改版后已更名：`aa_providers_scored.csv` → [`aa_general_scored.csv`](results/aa_general_scored.csv)，`validation.json` → [`validation_general.json`](results/validation_general.json)。通用榜口径与权重不变，仅文件名变化；外部引用请更新链接。
 
@@ -138,13 +141,13 @@ python scripts/build.py
 
 ## 自动化
 
-由 GitHub Actions 驱动，**每月 1 号**自动抓取、重算排名并推送更新（UTC 6:00 / 北京时间 14:00）。Actions 页面可手动触发。失败自动开 Issue（`monthly-update-failure` label 去重，CI retry 不重复开）。
+由 GitHub Actions 驱动，**每月 1 号**自动抓取、重算排名并推送更新（UTC 6:00 / 北京时间 14:00）。Actions 页面可手动触发。流水线**首次 attempt 失败**时用 `dacbd/create-issue-action` 开 Issue；**同一次 run 的 retry 不会重复开**，但**跨月 / 跨 run 无 title 去重**（每月失败仍可能各开一条）。
 
 ## 仓库结构
 
 ```
 ├── config.json             # 双榜权重与评分参数
-├── requirements.txt        # numpy / pandas / scikit-learn
+├── requirements.txt        # numpy / scikit-learn / pytest
 ├── METHODOLOGY.md          # 完整方法论
 ├── scripts/                # 数据流水线
 │   ├── build.py            # 一键入口（fetch -> parse -> dedup -> score -> README）
@@ -156,7 +159,8 @@ python scripts/build.py
 │   ├── aa_text_scored.csv        # 文本榜
 │   ├── validation_general.json   # 通用榜留一验证
 │   └── validation_text.json      # 文本榜留一验证
-├── .github/                # CI 自动化
+├── tests/                  # 单元测试（helpers / config / marker）
+├── .github/workflows/      # 月度更新 + push 时 pytest
 └── README.md
 ```
 

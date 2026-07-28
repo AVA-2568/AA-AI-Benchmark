@@ -48,7 +48,7 @@
 - **不含编程 / 智能体指标**：Terminal-Bench、SciCode、GDPval-AA 与文本场景无关，全部剔除。
 - **不评创意写作**：AA 没有可靠的公开写作质量基准，写作是主观偏好维度，宁缺毋滥（见 README FAQ）。
 
-> 两榜权重均可在 [`config.json`](../config.json) `leaderboards` 中自定义，无需修改源码。
+> 两榜权重均可在 [`config.json`](config.json) `leaderboards` 中自定义，无需修改源码。
 
 ## 数据抓取与解析
 
@@ -62,7 +62,7 @@ AA 已迁移到 Next.js App Router，页面不再内嵌 `__NEXT_DATA__`。流水
 
 解析成功后过**数据哨兵**才放行：行数 >800（近期快照 ~1080）、11 个评分字段全池平均非空率 ≥60%（2026-07 实测 87%）、单字段非空率 ≥5%（=0 说明该列已从页面消失）。任一不达标即失败退出，由 CI 开 Issue 告警，避免半残数据静默污染排名。
 
-两次抓取均失败时，沿用上次运行缓存并在日志打警告（排名可能过期）。
+默认情况下，两次抓取均失败即构建失败；只有显式传入 `--allow-stale` 才允许使用旧缓存，且陈旧输入不会刷新 README。`--offline` 用于明确复算现有缓存，同样标记为 `stale=true`。每次成功构建写入 `results/manifest.json`，记录输入/配置哈希和 stale 状态。
 
 ## 数据预处理
 
@@ -105,7 +105,7 @@ AA 已迁移到 Next.js App Router，页面不再内嵌 `__NEXT_DATA__`。流水
 ### 做法
 
 1. **fit 一次**：用全量 raw 真实值（None 用 `stats[m][2]` top50% mean 替换）构造 (n × 11) 矩阵 → 跑 `sklearn.preprocessing.StandardScaler.fit` → 拿到 11 维 mean/scale
-2. **30 轮迭代 + LOO + R² log 都用同一个 scaler** —— 不重 fit，避免随填补值漂移
+2. **最多 100 轮迭代 + LOO + R² log 都用同一个 scaler** —— 不重 fit，避免随填补值漂移
 3. **每次 transform 11 列**（含 target_m），然后删 target_m 列 + 加 bias 列 → 10 维标准化特征
 
 ```python
@@ -121,7 +121,7 @@ def to_X(arr_pool, target_m):
 
 - 旧值 α=1.0（隐式为 Omniscience 量纲补偿）
 - 标准化后 α=0.1（z-score 空间统一）
-- 在 [`config.json`](../config.json) `ridge_alpha` 可调
+- 在 [`config.json`](config.json) `ridge_alpha` 可调；迭代轮数、相对容差、稳定轮数、阻尼系数和裁剪分位点在 `imputation` 中配置
 - 调参依据：看留一验证的 MAE，**目标不是 LOO MAE 最低，而是排名稳定**
 
 ### 回退开关
@@ -180,12 +180,22 @@ def to_X(arr_pool, target_m):
    - 用池内其他 10 个特征做岭回归（**α=0.1**，z-score 空间统一）
    - 预测所有缺失值
    - 裁剪到该指标 P95（防止缺失模型被推到历史最佳分）
-3. 迭代直至收敛（连续 3 轮 max_delta < 0.001）或达到最大 30 轮
+   - **阻尼更新**：`cur = 0.5 * cur + 0.5 * pred`（抑制 Omniscience Index / Accuracy / Non-Hallucination 等强相关列互预测时的 ping-pong 振荡）
+3. 迭代直至收敛或达到最大 **100** 轮（`MAX_ITERS=100`）
+
+**收敛判据（量程相对）**：每轮计算缺失位上的相对变化
+`max_delta = max(|cur - prev| / (hi - lo))`，容差 **`REL_TOL=0.005`（量程的 0.5%）**，**连续 3 轮**满足即收敛。
+不用绝对 `max_delta < 0.001`：对量纲约 -85..40 的 Omniscience Index，0.001 仅占量程约 0.0008%，过苛；Omniscience 三列训练 R²≈0.98–0.99 强耦合，迭代谱半径接近 1，收敛尾巴很长。0.5% 量程对应归一分 ≤0.5、加权后对总分影响通常 ≤0.12 分，远小于填补本身的 LOO MAE。
+
+### P95 vs P99 裁剪实验
+
+正式算法继续使用 **P95 裁剪**，不改为 P99。2026-07-28 用同一份去重后 396 行快照做非侵入式实验（`experiments/p99_clip.py`）：P99 同样收敛，但会系统性抬高缺失较多且预测靠近上沿的模型，尤其 Claude Opus 5 / Kimi K3 等条目。通用榜 Top 15 重叠 14/15，但 Top 5 直接重排，Claude Opus 5 (max) 从第 3 升第 1（89.3→92.8）；文本榜 Top 15 也重叠 14/15，Claude Opus 5 (xhigh) 从第 12 升第 6（76.9→80.2）。这说明 P99 不是单纯“放宽上限”，而是在高分区显著改变排序；在缺失填补误差仍较高的前提下，P95 更保守、更适合作为默认。
 
 ```
 预测值 = beta0 + sum(beta_i × feature_i_std)，beta 由岭回归求解
                   ↑ 10 个标准化特征
          ↑ 裁剪到该列 raw P95
+         ↑ 阻尼 0.5 写回 cur
 ```
 
 ### 最小样本门槛
@@ -206,6 +216,8 @@ def to_X(arr_pool, target_m):
 3. 报告 MAE（平均绝对误差）和误差 >10% 的样本比例
 
 **全量计算**（无 60 元素采样）：n > 60 也不采样，保证 `n` 字段 = MAE 实际分母。性能开销 ~5 分钟可接受。
+
+**乐观偏差（须知）**：当前 LOO 在**迭代填补写满 `cur` 之后**再跑；构造特征时走 `all_feat_row()`，**其他指标的已填补值会进入特征**，并非全程 raw-only。因此报告的 MAE / >10% 误差率会**略偏乐观**（低估真实填补误差）。解读留一数字时按上界参考，不宜当作严格 OOS 估计。更严谨的 raw-only LOO（缺失特征用 top50 mean）可作为后续硬化项，不改变当前排名算法。
 
 验证结果按榜单拆分写入 `results/validation_general.json` / `results/validation_text.json`（各含该榜使用的指标），并在 README 各榜快照行中以摘要形式展示：
 
@@ -255,10 +267,9 @@ Total $/1M = (1 - cache_hit_rate) × input_share × 输入价
 
 - `输入价` / `输出价`：来自服务商在 AA leaderboard 标注的 API 定价
 - `缓存命中价`：优先从 leaderboard 的 `cacheHitPrice` 字段读取（多数 provider 没公布）
-- **`缓存命中价` 缺失时，代码层硬编码 fallback 为 `输入价 × 0.1`**——**不是 config 项**（`config.json` 里没有这个开关）。0.1× 是业界惯例下限：Anthropic 0.1×、OpenAI 0.5×、DeepSeek 0.1× input。如果场景偏 OpenAI，fallback 略**高估**；偏 Anthropic/DeepSeek 则**刚好**。
+- **`缓存命中价` 缺失时，按 `config.json` 的 `cost_fallback.cache_hit_multiplier` 回退**，默认 `输入价 × 0.1`。如果场景偏 OpenAI，fallback 可能高估；偏 Anthropic/DeepSeek 则接近实际。
 - 单位：USD / 百万 token
-- **可调参数**（在 `config.json`）：`input_share` / `output_share` / `cache_hit_rate`
-- **不可调**（在 `score_aa.py` 硬编码）：`pin * 0.1` 这个 fallback——改需要改代码
+- **可调参数**（在 `config.json`）：`input_share` / `output_share` / `cache_hit_rate` / `cost_fallback.cache_hit_multiplier`
 
 ### 参考意义
 

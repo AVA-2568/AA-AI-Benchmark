@@ -65,5 +65,15 @@
   "score_threshold": 70,
   "ridge_alpha": 0.1,
   "imputation_min_samples": 50,
-  "standardize_features": true
+  "standardize_features": true,
+  "imputation": {
+    "max_iters": 100,
+    "relative_tolerance": 0.005,
+    "stable_rounds": 3,
+    "damping": 0.5,
+    "clip_quantile": 0.95
+  },
+  "cost_fallback": {
+    "cache_hit_multiplier": 0.1
+  }
 }
