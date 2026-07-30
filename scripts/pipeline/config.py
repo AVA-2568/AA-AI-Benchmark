@@ -33,6 +33,26 @@ def board_weights(board: Dict[str, Any]):
     return cats, glob
 
 
+def cost_params(cfg: Dict[str, Any]) -> Dict[str, Any]:
+    """Resolve the cost block with sensible defaults.
+
+    New keys (reasoning-aware cost):
+    - ``reasoning_output_multiplier``: output-term multiplier applied to
+      reasoning models that have no recognized thinking-level suffix.
+    - ``thinking_multipliers``: optional map {level: multiplier} for
+      graded thinking effort (minimal/low/medium/high/xhigh/max).
+    """
+    cost = cfg.get("cost", {})
+    return {
+        "input_share": cost.get("input_share", 0.70),
+        "output_share": cost.get("output_share", 0.30),
+        "cache_hit_rate": cost.get("cache_hit_rate", 0.50),
+        "reasoning_output_multiplier": cost.get(
+            "reasoning_output_multiplier", 1.0),
+        "thinking_multipliers": cost.get("thinking_multipliers", {}) or {},
+    }
+
+
 def to_float(v):
     if v is None:
         return None
@@ -103,6 +123,17 @@ def validate_config(cfg: Dict[str, Any]) -> bool:
             f"cost.cache_hit_rate must be in [0, 1], "
             f"got {cost.get('cache_hit_rate')}"
         )
+    # reasoning-aware cost knobs (optional; validated only if present)
+    if ("reasoning_output_multiplier" in cost
+            and cost["reasoning_output_multiplier"] <= 0):
+        raise ConfigError(
+            "cost.reasoning_output_multiplier must be > 0"
+        )
+    for lvl, mult in (cost.get("thinking_multipliers") or {}).items():
+        if not isinstance(mult, (int, float)) or mult <= 0:
+            raise ConfigError(
+                f"cost.thinking_multipliers['{lvl}'] must be > 0"
+            )
     for bkey, board in boards.items():
         cats, glob = board_weights(board)
         if abs(sum(glob.values()) - 1.0) >= 1e-9:

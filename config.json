@@ -60,7 +60,16 @@
   "cost": {
     "input_share": 0.70,
     "output_share": 0.30,
-    "cache_hit_rate": 0.50
+    "cache_hit_rate": 0.50,
+    "reasoning_output_multiplier": 3.0,
+    "thinking_multipliers": {
+      "minimal": 1.5,
+      "low": 2.0,
+      "medium": 3.0,
+      "high": 4.0,
+      "xhigh": 5.0,
+      "max": 6.0
+    }
   },
   "score_threshold": 70,
   "ridge_alpha": 0.1,

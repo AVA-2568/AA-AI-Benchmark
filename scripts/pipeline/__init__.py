@@ -17,6 +17,7 @@ import os
 from .config import (
     ConfigError,
     board_weights,
+    cost_params,
     imputation_params,
     load_config,
     to_float,
@@ -77,7 +78,7 @@ def run_pipeline(rows, cfg, results_dir):
     """
     pool = cfg["imputation_pool"]
     boards = cfg["leaderboards"]
-    cost = cfg["cost"]
+    cost = cost_params(cfg)
     score_threshold = cfg["score_threshold"]
     ip = imputation_params(cfg)
     cache_multiplier = ip["cache_hit_multiplier"]
