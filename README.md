@@ -27,28 +27,28 @@
 ## 📊 通用榜 Top 15
 
 <!--SNAPSHOT_GENERAL_START-->
-> 2026-08-01 抓取（1076 模型 x 服务商 -> 去重 400 -> >=70 分 56 行）。
-> 填补验证：GDPval-AA MAE=0.04 (>10%: 44.8%/163) ; Terminal-Bench Hard MAE=0.03 (>10%: 48.9%/323) ; Terminal-Bench v2.1 MAE=0.04 (>10%: 44.7%/161) ; SciCode MAE=0.03 (>10%: 39.5%/387) ; LCR MAE=0.08 (>10%: 47.8%/362) ; Omniscience Index MAE=1.71 (>10%: 27.9%/355) ; IFBench MAE=0.05 (>10%: 41.1%/331) ; GPQA Diamond MAE=0.05 (>10%: 25.5%/388) ; HLE MAE=0.03 (>10%: 68.5%/387)
+> 2026-08-05 抓取（1078 模型 x 服务商 -> 去重 401 -> >=70 分 57 行）。
+> 填补验证：GDPval-AA MAE=0.04 (>10%: 45.7%/164) ; Terminal-Bench Hard MAE=0.03 (>10%: 49.2%/323) ; Terminal-Bench v2.1 MAE=0.04 (>10%: 44.4%/162) ; SciCode MAE=0.03 (>10%: 39.2%/388) ; LCR MAE=0.08 (>10%: 47.7%/363) ; Omniscience Index MAE=1.71 (>10%: 28.4%/356) ; IFBench MAE=0.05 (>10%: 40.2%/331) ; GPQA Diamond MAE=0.05 (>10%: 25.7%/389) ; HLE MAE=0.03 (>10%: 69.1%/388)
 <!--SNAPSHOT_GENERAL_END-->
 
 <!--TOP15_GENERAL_START-->
 | # | Model | Creator | Score | $/1M | Imputed |
 |---|---|---|---|---|---|
-| 1 | Claude Fable 5 (with fallback) | Anthropic | 91.5 | 48.85 | - |
-| 2 | GPT-5.6 Sol (max) | OpenAI | 91.5 | 61.518 | - |
+| 1 | GPT-5.6 Sol (max) | OpenAI | 91.6 | 61.518 | - |
+| 2 | Claude Fable 5 (with fallback) | Anthropic | 91.5 | 48.85 | - |
 | 3 | Claude Opus 5 (max) | Anthropic | 89.2 | 46.925 | Terminal-Bench Hard(reg), IFBench(reg) |
-| 4 | Claude Opus 5 (xhigh) | Anthropic | 88.8 | 39.425 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 4 | Claude Opus 5 (xhigh) | Anthropic | 88.7 | 39.425 | Terminal-Bench Hard(reg), IFBench(reg) |
 | 5 | GPT-5.6 Sol (xhigh) | OpenAI | 88.7 | 46.925 | - |
 | 6 | Claude Opus 5 (high) | Anthropic | 87.0 | 31.925 | Terminal-Bench Hard(reg), IFBench(reg) |
-| 7 | GPT-5.5 (xhigh) | OpenAI | 86.9 | 51.617 | - |
+| 7 | GPT-5.5 (xhigh) | OpenAI | 87.0 | 51.617 | - |
 | 8 | GPT-5.6 Sol (high) | OpenAI | 86.6 | 37.925 | - |
 | 9 | Kimi K3 (max) | Kimi | 85.6 | 28.155 | Terminal-Bench Hard(reg), IFBench(reg) |
 | 10 | Claude Opus 5 (medium) | Anthropic | 85.4 | 24.425 | Terminal-Bench Hard(reg), IFBench(reg) |
 | 11 | GPT-5.6 Sol (medium) | OpenAI | 84.6 | 28.925 | - |
 | 12 | GPT-5.5 (high) | OpenAI | 84.4 | 41.718 | - |
 | 13 | Claude Opus 4.8 (max) | Anthropic | 84.3 | 46.925 | - |
-| 14 | GPT-5.6 Terra (max) | OpenAI | 84.1 | 22.37 | - |
-| 15 | Muse Spark 1.1 (xhigh) | Meta | 82.0 | 6.865 | Terminal-Bench Hard(reg), IFBench(reg) |
+| 14 | GPT-5.6 Terra (max) | OpenAI | 84.0 | 22.37 | - |
+| 15 | GPT-5.4 (xhigh) | OpenAI | 82.0 | 25.809 | - |
 <!--TOP15_GENERAL_END-->
 
 👉 [通用榜完整排名（CSV）](results/aa_general_scored.csv)
@@ -58,21 +58,21 @@
 > 面向**日常对话、查资料、事实问答**场景：事实性（不幻觉 + 答对）40%、交互（指令遵循 + 长上下文）35%、知识深度 25%。不含编程与智能体指标。
 
 <!--SNAPSHOT_TEXT_START-->
-> 2026-08-01 抓取（1076 模型 x 服务商 -> 去重 400 -> >=70 分 35 行）。
-> 填补验证：Omniscience Non-Halluc. MAE=0.02 (>10%: 38.0%/355) ; Omniscience Accuracy MAE=0.01 (>10%: 8.7%/355) ; IFBench MAE=0.05 (>10%: 41.1%/331) ; LCR MAE=0.08 (>10%: 47.8%/362) ; HLE MAE=0.03 (>10%: 68.5%/387) ; GPQA Diamond MAE=0.05 (>10%: 25.5%/388)
+> 2026-08-05 抓取（1078 模型 x 服务商 -> 去重 401 -> >=70 分 35 行）。
+> 填补验证：Omniscience Non-Halluc. MAE=0.02 (>10%: 38.2%/356) ; Omniscience Accuracy MAE=0.01 (>10%: 8.4%/356) ; IFBench MAE=0.05 (>10%: 40.2%/331) ; LCR MAE=0.08 (>10%: 47.7%/363) ; HLE MAE=0.03 (>10%: 69.1%/388) ; GPQA Diamond MAE=0.05 (>10%: 25.7%/389)
 <!--SNAPSHOT_TEXT_END-->
 
 <!--TOP15_TEXT_START-->
 | # | Model | Creator | Score | $/1M | Imputed |
 |---|---|---|---|---|---|
 | 1 | Gemini 3.1 Pro Preview (AI Studio) | Google | 82.5 | 11.57 | - |
-| 2 | Qwen3.7 Max | Alibaba | 81.6 | 7.713 | - |
+| 2 | Qwen3.7 Max | Alibaba | 81.6 | 7.8 | - |
 | 3 | Grok 4.3 (high) | SpaceXAI | 80.7 | 3.507 | - |
 | 4 | MiniMax-M3 (MXFP8) | MiniMax | 80.7 | 1.206 | - |
 | 5 | Grok 4.3 (medium) | SpaceXAI | 80.2 | 2.757 | - |
 | 6 | Muse Spark 1.1 (xhigh) | Meta | 80.0 | 6.865 | IFBench(reg) |
 | 7 | Claude Fable 5 (with fallback) | Anthropic | 79.5 | 48.85 | - |
-| 8 | Grok 4.20 0309 v2 | SpaceXAI | 79.4 | 6.17 | - |
+| 8 | Grok 4.20 0309 v2 | SpaceXAI | 79.4 | 2.757 | - |
 | 9 | Grok 4.20 0309 | SpaceXAI | 78.2 | 6.17 | - |
 | 10 | Claude Opus 4.8 (max) | Anthropic | 77.5 | 46.925 | - |
 | 11 | MiMo-V2.5-Pro | Xiaomi | 77.4 | 1.124 | - |
