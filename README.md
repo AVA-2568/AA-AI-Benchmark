@@ -5,27 +5,27 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue)](https://www.python.org/)
 [![MIT License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-基于 [Artificial Analysis](https://artificialanalysis.ai/leaderboards/providers) 的公开基准测试数据，按自定义权重重算综合能力总分。**三榜单**：通用榜（编程 + 智能体 + 通用 + 知识）、文本榜（对话 / 查资料场景）与性价比榜（真实使用成本视角）。每月自动更新。
+基于 [Artificial Analysis](https://artificialanalysis.ai/leaderboards/providers) 公开基准数据，按**自定义权重**重算模型综合能力分（而非沿用 AA 的合成 Intelligence Index），并额外给出**真实使用成本**视角。三个榜单，每月自动更新。
 
-## 这是什么
+**核心特性**：
+- 🎯 **能力评分**：11 个基准指标 × 自定义权重，覆盖编程 / 智能体 / 通用 / 知识 / 对话场景
+- 🧮 **缺值可解释**：交叉岭回归填补缺失指标，`Imputed` 列标注可信度
+- 💰 **成本双口径**：`$/1M` 纯单价 vs `Effective $/1M` 真实成本（订阅折扣 + 90% 缓存命中）
+- 🔧 **全参数可调**：权重、成本假设、订阅计划全部在 [`config.json`](config.json)，无需改代码
 
-本仓库使用 [Artificial Analysis](https://artificialanalysis.ai/leaderboards/providers) 的公开基准数据，**按自定义权重**计算综合分，而非沿用 AA 的合成 Intelligence Index。权重详见 [`config.json`](config.json) 与 [METHODOLOGY.md](METHODOLOGY.md)。
+## 三个榜单
 
-**三个榜单，一套流水线**：
+| 榜单 | 定位 | 核心指标 | 排序依据 |
+|---|---|---|---|
+| **通用榜 General** | 编程 / 智能体 / 日常混合使用 | Agentic 20% / Coding 20% / General 40% / Knowledge 20% | 综合分 |
+| **文本榜 Text** | 日常对话、查资料、事实问答 | Factuality 40% / Interaction 35% / Knowledge 25% | 综合分 |
+| **性价比榜 Value** | 真实使用成本下的性价比 | 同通用榜权重 | 综合分 ÷ Effective $/1M |
 
-| 榜单 | 定位 | 大类权重 |
-|---|---|---|
-| **通用榜 General** | 编程 / 智能体 / 日常混合使用 | Agentic 20% / Coding 20% / General 40% / Knowledge 20% |
-| **文本榜 Text** | 日常对话、查资料、事实问答 | Factuality 40% / Interaction 35% / Knowledge 25% |
-| **性价比榜 Value** | 通用分 ÷ 真实成本（订阅 + 缓存） | 同通用榜权重，按每美元得分排序 |
-
-**与原始榜单的差异**：
-- 11 个评分指标共享一个交叉岭回归填补池，处理缺失值
-- 权重完全可自定义——见 [METHODOLOGY.md](METHODOLOGY.md#指标选取与权重)
-- 填补字段在 CSV `Imputed` 列标注
-- 流水线开源可本地复现——见下方"一键复现"
+权重与评分细节见 [METHODOLOGY.md](METHODOLOGY.md)。
 
 ## 📊 通用榜 Top 15
+
+> 面向**编程 / 智能体 / 日常混合使用**。表中 `$/1M` 为标准 API 单价（70% 输入 + 30% 输出，50% 缓存命中）。
 
 <!--SNAPSHOT_GENERAL_START-->
 > 2026-08-07 抓取（1059 模型 x 服务商 -> 去重 404 -> >=70 分 58 行）。
@@ -87,7 +87,7 @@
 
 ## 💰 性价比榜 Top 15
 
-> 面向**真实使用成本**：通用分 ÷ 真实 $/1M（每美元能买到多少分）。`Effective $/1M` = 分厂商缓存命中率下的单价 × 订阅计划折扣（如 GitHub Copilot 订阅折合 API 单价 ×0.50–0.67）；`AA Cost/Task` 为 AA 官方每任务成本估算（仅部分模型有）。同通用榜权重，仅收录 ≥70 分模型。
+> 面向**真实使用成本**：`Value` = 综合分 ÷ `Effective $/1M`（每美元买到多少分）。`Effective $/1M` 在标准单价基础上考虑两个降本因素——**订阅折扣**（GitHub Copilot 额度制折合 API 单价 ×0.50–0.67）与 **90% 缓存命中率**（主流厂商 prompt caching 成熟）。`AA Cost/Task` 为 AA 官方每任务成本估算（仅部分模型有）。同通用榜权重，仅收录 ≥70 分模型。
 
 <!--SNAPSHOT_VALUE_START-->
 <!--SNAPSHOT_VALUE_END-->
@@ -97,11 +97,11 @@
 
 👉 [性价比榜完整排名（CSV）](results/aa_value_scored.csv)
 
-> Imputed 列说明（各榜通用）：`-` 表示该模型所有评分指标均有真实值；`指标名(reg)` 表示该指标为岭回归预测值；`指标名(reg,low)` 表示预测可信度低（训练样本 < 50）。
+> Imputed 列说明（各榜通用）：`-` 表示所有评分指标均为真实值；`指标名(reg)` 表示岭回归预测值；`指标名(reg,low)` 表示预测可信度低（训练样本 < 50）。
 
 ## 怎么算的
 
-**总分 = 指标得分 × 权重**，满分 100 分。两榜均仅收录 ≥70 分的模型（绝对门槛，不随池子大小变化）。
+**总分 = 指标得分 × 权重**，满分 100 分。三榜均仅收录 ≥70 分的模型（绝对门槛，不随池子大小变化）。
 
 ### 通用榜权重
 
@@ -123,10 +123,10 @@
 ### 关键步骤
 
 - **min-max 归一化**：各指标按全量样本缩放到 0-100 分
-- **缺失值填补**：11 个评分指标（9 通用 + 2 文本新列）共享一个交叉岭回归填补池，α=0.1（z-score 空间）
+- **缺失值填补**：11 个评分指标共享一个交叉岭回归填补池，α=0.1（z-score 空间）
 - **特征标准化**：岭回归输入先 z-score 处理，避免大量纲指标主导——见 [METHODOLOGY 特征标准化](METHODOLOGY.md#特征标准化岭回归输入)
-- **成本估算（标准口径）**：70% 输入 + 30% 输出，50% 输入 token 命中缓存；缓存命中价缺失时按 input 价的 0.1× 回退
-- **成本估算（真实口径，性价比榜）**：`Effective $/1M` 用分厂商缓存命中率（`config.json` 的 `provider_cache_rates`）+ 真实缓存命中价（缺失按同厂商均值回退），再乘订阅计划折扣（`plans`，如 Copilot $100/月 = $200 额度 → ×0.50）
+- **成本估算（标准口径 `$/1M`）**：70% 输入 + 30% 输出，50% 输入 token 命中缓存；缓存命中价缺失时按 input 价的 0.1× 回退
+- **成本估算（真实口径 `Effective $/1M`）**：主流厂商按 **90% 缓存命中率**（`provider_cache_rates`）+ 真实缓存命中价（缺失按同厂商均值回退），再乘订阅计划折扣（`plans`，如 Copilot $100/月 = $200 额度 → ×0.50）
 - **权重与参数在 [`config.json`](config.json) 中自定义**，无需修改源码
 - **每次运行输出留一验证结果与 R²**——见 [validation_general.json](results/validation_general.json) / [validation_text.json](results/validation_text.json) / [validation_value.json](results/validation_value.json)
 
@@ -143,8 +143,14 @@ A: IFBench 是文本榜权重最大的单一指标（24.5%），且填补可靠�
 **Q: 为什么高 Non-Hallucination、低 Accuracy 也能排很前？**
 A: 文本榜事实性 40% 内 **Non-Halluc 60% > Acc 40%**——设计目标是「查资料时少胡说」优先于「答对得多」。高 NonHalluc + 低 Acc 通常表示**更爱拒答 / 少编造**，**不代表更博学**，也**不是写作榜**。例如 Top 段可能出现 NonHalluc 很高而 Acc 偏低仍进前几名；若你更看重「答对率」，应自行调高 Accuracy 子权重或改读 Accuracy 单列。
 
+**Q: 缓存命中率为什么设 90%？真实命中率是多少？**
+A: AA 不公布命中率——它取决于你的使用模式（prompt 可缓存前缀占比、复用频率），不是模型属性。2026 年 prompt caching 已成主流厂商标配，agentic / 长上下文 / 重复前缀工作负载下实测普遍可达 ~90%（DeepSeek 官方定价页即按 90% 命中估算有效费率）。榜单对 Anthropic / OpenAI / Google / DeepSeek 统一按 0.90，其余中小厂商按 0.30 保守假设；认为不符合你的场景可在 `config.json` 的 `provider_cache_rates` 调整后重新构建。
+
+**Q: 订阅折扣为什么只算 GitHub Copilot？OpenAI / Claude / Grok 的订阅不算吗？**
+A: 经核实（2026-08）：OpenAI Plus/Pro、Anthropic Pro/Max、xAI SuperGrok 的订阅**均不含 API 额度**——API 独立按 token 计费，订阅只影响网页端用量，因此不降低 API 单价。唯一"订阅成倍降低 API 成本"的是 **Copilot 额度制**（2026-06 起按 token 计费，$10/$39/$100 月费分别买到 $15/$70/$200 等值 API 用量）。Google AI Pro/Ultra 附带 $10–40/月 API 抵扣，属小额固定抵扣而非单价折扣，未计入（避免依赖用量假设）。
+
 **Q: 旧文件 `aa_providers_scored.csv` / `validation.json` 去哪了？**
-A: 双榜改版后已更名：`aa_providers_scored.csv` → [`aa_general_scored.csv`](results/aa_general_scored.csv)，`validation.json` → [`validation_general.json`](results/validation_general.json)。通用榜口径与权重不变，仅文件名变化；外部引用请更新链接。
+A: 三榜改版后已更名：`aa_providers_scored.csv` → [`aa_general_scored.csv`](results/aa_general_scored.csv)，`validation.json` → [`validation_general.json`](results/validation_general.json)。通用榜口径与权重不变，仅文件名变化；外部引用请更新链接。
 
 ## 一键复现
 

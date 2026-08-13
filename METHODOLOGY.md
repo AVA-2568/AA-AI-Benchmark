@@ -308,14 +308,12 @@ Total $/1M = (1 - cache_hit_rate) × input_share × 输入价
 
 **2. 分厂商缓存命中率（`cost.provider_cache_rates`）**
 
-AA 不公布缓存命中率（它取决于使用模式，非模型属性）。按厂商缓存机制特征设定使用假设：
+AA 不公布缓存命中率（它取决于使用模式，非模型属性）。2026 年 prompt caching 已成行业标配：主流厂商在 agentic / 长上下文 / 重复前缀工作负载下实测命中率普遍可达 ~90%。按厂商缓存机制特征设定使用假设：
 
 | Creator | 命中率 | 依据 |
 |---|---|---|
-| Anthropic | 0.60 | prompt caching 折扣 90%，长上下文场景命中高 |
-| DeepSeek | 0.55 | 自动前缀缓存，命中价仅为输入价 1–2% |
-| OpenAI / Google | 0.50 | 缓存折扣 50–90% |
-| 其他 | 0.10 | 保守假设 |
+| Anthropic / OpenAI / Google / DeepSeek | 0.90 | 缓存系统成熟（折扣 50–90%），agentic 长上下文场景命中率普遍 ~90% |
+| 其他 | 0.30 | 缓存机制不明确的中小厂商，保守假设 |
 
 命中价优先取 AA 真实 `Cache Hit Price`；缺失时按**同 Creator 均值**回退（而非统一 ×0.1）；再无则回退 `输入价 × cache_hit_multiplier`。
 

@@ -87,11 +87,11 @@
     "output_share": 0.30,
     "cache_hit_rate": 0.50,
     "provider_cache_rates": {
-      "Anthropic": 0.60,
-      "OpenAI": 0.50,
-      "Google": 0.50,
-      "DeepSeek": 0.55,
-      "default": 0.10
+      "Anthropic": 0.90,
+      "OpenAI": 0.90,
+      "Google": 0.90,
+      "DeepSeek": 0.90,
+      "default": 0.30
     }
   },
   "plans": [
