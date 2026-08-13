@@ -13,7 +13,7 @@
 
 **为什么是精选而非全量**：AA 的 1000+ 模型里 90% 是重复变体（同一模型不同推理档）、长尾小厂、已弃用条目。精选池让覆盖率更高（核心指标覆盖 34–40/41）、填补更少、分数更「实」。
 
-### 数据源（5 个，全部公开可抓）
+### 数据源（6 个，全部公开可抓）
 
 | 源 | 提供指标 | 维护方 | 抓取方式 |
 |---|---|---|---|
@@ -21,6 +21,11 @@
 | DeepSWE | Pass@1（长程工程 agent） | Datacurve | 静态 HTML |
 | EQ-Bench | Creative Writing Elo | 独立 | `creative_writing.js` 内嵌 CSV |
 | Artificial Analysis | LCR / Omniscience Index / GPQA Diamond / HLE | 独立评测机构 | RSC 流（三级解析链） |
+| Frankfurter | USD→CNY 汇率（ECB 官方） | 开源 | v2 rates API（备源 open.er-api.com） |
+
+### 人民币价格
+
+性价比榜同时输出美元与人民币价格：`Total ¥/1M` / `Effective ¥/1M` = 对应美元价 × 实时 USD→CNY 汇率。汇率每次构建实时抓取（Frankfurter 主、open.er-api 备），写入 `scripts/.cache/fx.json`，不硬编码。
 
 ### 跨源模型名对齐
 
@@ -28,7 +33,7 @@
 
 ## 指标选取与权重
 
-本仓库维护**两个榜单**，共用同一次抓取、合并与缺失值填补，仅评分权重不同。
+本仓库维护**三个榜单**（通用榜 / 文本榜 / 性价比榜），共用同一次抓取、合并与缺失值填补，仅评分权重不同（性价比榜与通用榜同权重，按 `综合分 ÷ Effective $/1M` 排序）。
 
 ### 通用榜 General（六维）
 

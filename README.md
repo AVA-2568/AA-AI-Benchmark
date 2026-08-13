@@ -1,33 +1,28 @@
-# 🏆 AI 前沿模型综合排名 — 第一梯队精选榜
+# 🏆 AI 前沿模型排行
 
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue)](https://www.python.org/)
-[![MIT License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+**只排真正可用的第一梯队模型**（约 40 个），数据来自多个公开、抗污染的第三方基准，价格同时给出美元与人民币（实时汇率）。
 
-基于**多个公开、行业认可的第三方基准**，对**国际 + 国内第一梯队**（约 40 个主流前沿模型）按自定义权重重算综合能力分。数据源全部公开、可机器抓取、抗污染，不再依赖单一聚合站。
+---
 
-**核心特性**：
-- 🎯 **多源聚合**：LiveBench（抗污染通用）、DeepSWE（长程工程 agent）、EQ-Bench（创意写作）、Artificial Analysis（长上下文 / 事实性 / 知识）
-- 🧮 **缺值可解释**：交叉岭回归填补缺失指标，`Imputed` 列标注可信度
-- 🎯 **第一梯队精选**：只收国际 + 国内真正可用的前沿模型（约 40 个），不做几百个模型的长尾堆砌
-- 🔧 **全参数可调**：权重、模型池、别名映射全部在 [`config.json`](config.json) 与 [`model_registry.json`](scripts/model_registry.json)，无需改代码
+## 为什么是这个榜单
 
-## 三个榜单
+市面上的 AI 榜单大多有两类问题：要么用单一聚合站（如 Artificial Analysis）的合成指数，要么堆几百个长尾模型凑数。这个榜单反着来：
 
-| 榜单 | 定位 | 核心维度 | 排序依据 |
-|---|---|---|---|
-| **通用榜 General** | 编程 / 智能体 / 日常混合使用 | 编码 30% / Agent 25% / 指令遵循 15% / 长上下文 10% / 事实 10% / 知识 10% | 综合分 |
-| **文本榜 Text** | 写小说、日常问答 | 创意写作 25% / 事实 20% / 指令遵循 20% / 知识 20% / 长上下文 15% | 综合分 |
-| **性价比榜 Value** | 真实使用成本下的性价比 | 同通用榜权重 | 综合分 ÷ Effective $/1M |
+| 设计决策 | 做法 | 解决什么问题 |
+|---|---|---|
+| **第一梯队精选** | 只收国际 + 国内主流厂商的旗舰（约 40 个） | 长尾模型没人用，堆砌只会稀释榜单 |
+| **多源聚合** | LiveBench + DeepSWE + EQ-Bench + AA 四个源 | 单一源有偏见，交叉验证更可信 |
+| **固定锚点打分** | 按指标理论范围缩放，不做 min-max 名次分 | min-max 把「第一名=100」虚高，扭曲真实差距 |
+| **人民币价格** | USD 价格 × 实时汇率 | 国内用户直接可比 |
 
-权重与评分细节见 [METHODOLOGY.md](METHODOLOGY.md)。
+---
 
 ## 📊 通用榜 Top 15
 
-> 面向**编程 / 智能体 / 日常混合使用**。
+> **编程 / 智能体 / 日常混合使用** · 编码 30% / Agent 25% / 指令遵循 15% / 长上下文 10% / 事实 10% / 知识 10%
 
 <!--SNAPSHOT_GENERAL_START-->
 > 2026-08-13 抓取（41 第一梯队模型 -> 41 行）。
-> 填补验证：LiveBench Coding MAE=3.19 (>10%: 5.1%/39) ; DeepSWE MAE=10.46 (>10%: 68.2%/22) ; LiveBench Agentic Coding MAE=3.17 (>10%: 23.1%/39) ; LiveBench Instruction Following MAE=3.82 (>10%: 15.4%/39) ; LCR MAE=0.02 (>10%: 0.0%/34) ; Omniscience Index MAE=6.14 (>10%: 82.4%/34) ; GPQA Diamond MAE=0.01 (>10%: 0.0%/34) ; HLE MAE=0.03 (>10%: 29.4%/34)
 <!--SNAPSHOT_GENERAL_END-->
 
 <!--TOP15_GENERAL_START-->
@@ -43,22 +38,21 @@
 | 8 | muse-spark-1.2 | Meta | 69.6 | LCR(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg) |
 | 9 | gpt-5.6-terra | OpenAI | 69.4 | - |
 | 10 | muse-spark-1.1 | Meta | 69.2 | - |
-| 11 | claude-opus-4.7 | Anthropic | 68.7 | DeepSWE(reg) |
-| 12 | grok-4.6 | xAI | 68.6 | LCR(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg) |
-| 13 | claude-sonnet-5 | Anthropic | 68.5 | - |
-| 14 | gpt-5.2-codex | OpenAI | 68.1 | DeepSWE(reg) |
-| 15 | gpt-5.6-luna | OpenAI | 68.1 | - |
+| 11 | claude-opus-4.7 | Anthropic | 69.0 | DeepSWE(reg) |
+| 12 | gpt-5.6-luna | OpenAI | 68.1 | - |
+| 13 | claude-sonnet-5 | Anthropic | 68.1 | - |
+| 14 | gpt-5.4 | OpenAI | 67.9 | - |
+| 15 | grok-4.6 | xAI | 67.6 | LCR(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg) |
 <!--TOP15_GENERAL_END-->
 
-👉 [通用榜完整排名（CSV）](results/general_scored.csv)
+👉 [完整排名 CSV](results/general_scored.csv)
 
 ## 📝 文本榜 Top 15
 
-> 面向**写小说、日常问答**：创意写作 25%、事实性 20%、指令遵循 20%、知识 20%、长上下文 15%。
+> **写小说 / 日常问答** · 创意写作 25% / 事实 20% / 指令遵循 20% / 知识 20% / 长上下文 15%
 
 <!--SNAPSHOT_TEXT_START-->
 > 2026-08-13 抓取（41 第一梯队模型 -> 41 行）。
-> 填补验证：EQ-Bench Creative Writing MAE=87.97 (>10%: 11.5%/26) ; LiveBench Language MAE=3.91 (>10%: 5.1%/39) ; Omniscience Index MAE=6.14 (>10%: 82.4%/34) ; LiveBench Instruction Following MAE=3.82 (>10%: 15.4%/39) ; GPQA Diamond MAE=0.01 (>10%: 0.0%/34) ; HLE MAE=0.03 (>10%: 29.4%/34) ; LCR MAE=0.02 (>10%: 0.0%/34)
 <!--SNAPSHOT_TEXT_END-->
 
 <!--TOP15_TEXT_START-->
@@ -74,152 +68,96 @@
 | 8 | claude-opus-4.8 | Anthropic | 72.0 | - |
 | 9 | muse-spark-1.2 | Meta | 71.6 | EQ-Bench Creative Writing(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg), LCR(reg) |
 | 10 | claude-opus-4.7 | Anthropic | 71.3 | - |
-| 11 | gemini-3.5-flash | Google | 71.2 | EQ-Bench Creative Writing(reg) |
-| 12 | gemini-3.1-pro | Google | 70.9 | - |
-| 13 | gpt-5.4 | OpenAI | 69.9 | - |
-| 14 | gemini-3.6-flash | Google | 69.8 | - |
-| 15 | gpt-5.6-terra | OpenAI | 68.7 | - |
+| 11 | gemini-3.1-pro | Google | 71.0 | - |
+| 12 | gpt-5.4 | OpenAI | 70.5 | - |
+| 13 | gemini-3.5-flash | Google | 70.0 | EQ-Bench Creative Writing(reg) |
+| 14 | gemini-3.6-flash | Google | 69.5 | - |
+| 15 | gpt-5.6-terra | OpenAI | 68.8 | - |
 <!--TOP15_TEXT_END-->
 
-👉 [文本榜完整排名（CSV）](results/text_scored.csv)
+👉 [完整排名 CSV](results/text_scored.csv)
 
 ## 💰 性价比榜 Top 15
 
-> 面向**真实使用成本**：`Value` = 综合分 ÷ `Effective $/1M`（每美元买到多少分）。`Effective $/1M` 在标准单价基础上考虑两个降本因素——**订阅折扣**（Copilot 官方额度折合 ×0.50–0.67；ChatGPT/Claude 等按 SemiAnalysis 实测隐含价值折合）与**分厂商缓存命中率**（主流厂商 90%）。同通用榜权重，仅收录有成本数据的模型。
+> **每美元 / 每人民币买到多少分** · `Value` = 综合分 ÷ Effective $/1M。有效成本含订阅折扣与缓存命中率；人民币价按实时汇率换算（本次 ¥6.741/$）。
 
 <!--SNAPSHOT_VALUE_START-->
 > 2026-08-13 抓取（41 第一梯队模型 -> 34 行）。
-> 填补验证：LiveBench Coding MAE=3.19 (>10%: 5.1%/39) ; DeepSWE MAE=10.46 (>10%: 68.2%/22) ; LiveBench Agentic Coding MAE=3.17 (>10%: 23.1%/39) ; LiveBench Instruction Following MAE=3.82 (>10%: 15.4%/39) ; LCR MAE=0.02 (>10%: 0.0%/34) ; Omniscience Index MAE=6.14 (>10%: 82.4%/34) ; GPQA Diamond MAE=0.01 (>10%: 0.0%/34) ; HLE MAE=0.03 (>10%: 29.4%/34)
 <!--SNAPSHOT_VALUE_END-->
 
 <!--TOP15_VALUE_START-->
-| # | Model | Creator | Score | $/1M | Effective $/1M | Value | Imputed |
-|---|---|---|---|---|---|---|---|
-| 1 | minimax-m3 | MiniMax | 56.1 | 0.389 | 0.008 | 7009.96 | DeepSWE(reg) |
-| 2 | gpt-5.4-mini | OpenAI | 58.9 | 1.639 | 0.02 | 2943.15 | DeepSWE(reg) |
-| 3 | gpt-5.6-luna | OpenAI | 68.1 | 2.492 | 0.032 | 2129.38 | - |
-| 4 | gpt-5.2-codex | OpenAI | 68.1 | 4.874 | 0.062 | 1098.74 | DeepSWE(reg) |
-| 5 | gpt-5.2 | OpenAI | 63.6 | 4.874 | 0.062 | 1026.42 | DeepSWE(reg) |
-| 6 | gpt-5.4 | OpenAI | 67.3 | 5.463 | 0.068 | 989.51 | - |
-| 7 | gpt-5.6-terra | OpenAI | 69.4 | 6.232 | 0.08 | 867.21 | - |
-| 8 | claude-sonnet-5 | Anthropic | 68.5 | 3.931 | 0.089 | 769.39 | - |
-| 9 | deepseek-v4-flash | DeepSeek | 63.7 | 0.134 | 0.096 | 663.18 | - |
-| 10 | gpt-5.5 | OpenAI | 72.1 | 10.925 | 0.135 | 533.74 | - |
-| 11 | gpt-5.6-sol | OpenAI | 74.0 | 11.328 | 0.145 | 510.37 | - |
-| 12 | claude-sonnet-4.6 | Anthropic | 61.6 | 5.896 | 0.133 | 463.41 | - |
-| 13 | claude-opus-5 | Anthropic | 73.8 | 9.828 | 0.222 | 332.52 | - |
-| 14 | claude-opus-4.8 | Anthropic | 70.4 | 9.828 | 0.222 | 317.32 | - |
-| 15 | claude-opus-4.7 | Anthropic | 68.7 | 9.828 | 0.222 | 309.46 | DeepSWE(reg) |
+| # | Model | Creator | Score | $/1M | Effective $/1M | ¥/1M | Eff ¥/1M | Value | Imputed |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | minimax-m3 | MiniMax | 56.1 | 0.389 | 0.008 | 2.622 | 0.054 | 7009.96 | DeepSWE(reg) |
+| 2 | gpt-5.4-mini | OpenAI | 58.9 | 1.639 | 0.02 | 11.048 | 0.135 | 2943.15 | DeepSWE(reg) |
+| 3 | gpt-5.6-luna | OpenAI | 68.1 | 2.492 | 0.032 | 16.799 | 0.216 | 2129.38 | - |
+| 4 | gpt-5.2-codex | OpenAI | 68.1 | 4.874 | 0.062 | 32.856 | 0.418 | 1098.74 | DeepSWE(reg) |
+| 5 | gpt-5.2 | OpenAI | 63.6 | 4.874 | 0.062 | 32.856 | 0.418 | 1026.42 | DeepSWE(reg) |
+| 6 | gpt-5.4 | OpenAI | 67.3 | 5.463 | 0.068 | 36.826 | 0.458 | 989.51 | - |
+| 7 | gpt-5.6-terra | OpenAI | 69.4 | 6.232 | 0.08 | 42.01 | 0.539 | 867.21 | - |
+| 8 | claude-sonnet-5 | Anthropic | 68.5 | 3.931 | 0.089 | 26.499 | 0.6 | 769.39 | - |
+| 9 | deepseek-v4-flash | DeepSeek | 63.7 | 0.134 | 0.096 | 0.903 | 0.647 | 663.18 | - |
+| 10 | gpt-5.5 | OpenAI | 72.1 | 10.925 | 0.135 | 73.645 | 0.91 | 533.74 | - |
+| 11 | gpt-5.6-sol | OpenAI | 74.0 | 11.328 | 0.145 | 76.362 | 0.977 | 510.38 | - |
+| 12 | claude-sonnet-4.6 | Anthropic | 63.0 | 3.931 | 0.089 | 26.499 | 0.6 | 708.44 | - |
+| 13 | claude-opus-5 | Anthropic | 73.8 | 9.828 | 0.222 | 66.253 | 1.497 | 332.4 | - |
+| 14 | claude-opus-4.8 | Anthropic | 70.4 | 9.828 | 0.222 | 66.253 | 1.497 | 317.1 | - |
+| 15 | claude-opus-4.7 | Anthropic | 69.0 | 9.828 | 0.222 | 66.253 | 1.497 | 310.77 | DeepSWE(reg) |
 <!--TOP15_VALUE_END-->
 
-👉 [性价比榜完整排名（CSV）](results/value_scored.csv)
+👉 [完整排名 CSV](results/value_scored.csv)
 
-> Imputed 列说明：`-` 表示所有评分指标均为真实值；`指标名(reg)` 表示岭回归预测值；`指标名(reg,low)` 表示预测可信度低（训练样本 < 门槛）。
+> **Imputed 列**：`-` = 全部真实值；`指标(reg)` = 岭回归填补；`指标(reg,low)` = 低可信填补。
 
-## 怎么算的
-
-**总分 = 指标得分 × 权重**，满分 100 分。模型池为**国际 + 国内第一梯队**（约 40 个模型，见 [`model_registry.json`](scripts/model_registry.json)）。
-
-### 通用榜权重（六维）
-
-| 大类 | 权重 | 指标 |
-|---|---|---|
-| 编码 Coding | 30% | LiveBench Coding |
-| Agent 能力 | 25% | DeepSWE 60% / LiveBench Agentic Coding 40% |
-| 指令遵循 | 15% | LiveBench Instruction Following |
-| 长上下文 | 10% | LCR |
-| 事实准确性 | 10% | Omniscience Index |
-| 知识领域 | 10% | GPQA Diamond 60% / HLE 40% |
-
-### 文本榜权重（五维）
-
-| 大类 | 权重 | 指标 |
-|---|---|---|
-| 创意写作 | 25% | EQ-Bench Creative Writing 70% / LiveBench Language 30% |
-| 事实准确性 | 20% | Omniscience Index |
-| 指令遵循 | 20% | LiveBench Instruction Following |
-| 知识领域 | 20% | GPQA Diamond 60% / HLE 40% |
-| 长上下文 | 15% | LCR |
-
-### 关键步骤
-
-- **多源采集**：`fetch_sources.py` 抓取 LiveBench / DeepSWE / SWE-bench / EQ-Bench，`parse_aa.py` 解析 AA
-- **跨源合并**：`merge.py` 按 `model_registry.json` 的别名映射，把 5 个源的分数合并成统一宽表
-- **固定锚点归一化**：各指标按理论范围（`metric_scales`）缩放到 0-100 分，保留绝对难度（DeepSWE 最高 74% 就是 74 分，不是 100）
-- **缺失值填补**：10 个评分指标共享一个交叉岭回归填补池，α=0.1（z-score 空间）
-- **权重与参数在 [`config.json`](config.json) 中自定义**，无需修改源码
-- **每次运行输出留一验证结果与 R²**——见 [validation_general.json](results/validation_general.json) / [validation_text.json](results/validation_text.json)
-
-[完整方法论 →](METHODOLOGY.md)
+---
 
 ## 数据源
 
-| 源 | 维度 | 维护方 | 抗污染 |
+| 源 | 测什么 | 维护方 | 抗污染 |
 |---|---|---|---|
 | [LiveBench](https://livebench.ai) | 编码 / Agentic Coding / 指令遵循 / 语言 | Abacus.AI + 学界 | ✅ 半年刷新 |
 | [DeepSWE](https://deepswe.datacurve.ai) | 长程软件工程 agent | Datacurve | ✅ 原创任务 |
 | [EQ-Bench](https://eqbench.com) | 创意写作 | 独立（LLM-judge） | ⚠️ 主观维度 |
-| [Artificial Analysis](https://artificialanalysis.ai) | LCR / Omniscience / GPQA / HLE | 独立评测机构 | ✅ 第三方统一跑分 |
+| [Artificial Analysis](https://artificialanalysis.ai) | 长上下文 / 事实性 / 知识 | 独立评测机构 | ✅ 第三方统一跑分 |
+| [Frankfurter](https://frankfurter.dev) | USD→CNY 汇率（ECB 官方） | 开源 | — |
+
+## 权重与打分
+
+**固定锚点打分**：每项指标按理论范围缩放到 0–100 分（不是「样本最高=100」的名次分），再按权重加权。
+
+**通用榜**：编码 30%（LiveBench Coding）· Agent 25%（DeepSWE 60% + Agentic Coding 40%）· 指令遵循 15% · 长上下文 10%（LCR）· 事实 10%（Omniscience）· 知识 10%（GPQA 60% + HLE 40%）
+
+**文本榜**：创意写作 25%（EQ-Bench 70% + Language 30%）· 事实 20% · 指令遵循 20% · 知识 20% · 长上下文 15%
+
+**性价比榜**：同通用榜权重，按 `综合分 ÷ Effective $/1M` 排序。
+
+[完整方法论 →](METHODOLOGY.md)
 
 ## FAQ
 
-**Q: 为什么模型池只有 40 个左右？**
-A: 榜单定位是「前沿可用模型精选」，不是「全量长尾堆砌」。AA 的 1000+ 模型里 90% 是重复变体 / 长尾 / 已弃用，实际被使用的就这几十个。精选池让覆盖率更高、填补更少、分数更「实」。
+**Q: 为什么只有 40 个模型？**
+A: 榜单定位是「前沿可用模型精选」，不是长尾堆砌。几百个模型里 90% 是重复变体、长尾小厂、已弃用条目，实际被使用的就这几十个。
+
+**Q: 分数为什么不像别的榜单那么高（比如 90+）？**
+A: 我们不做 min-max 名次分。DeepSWE 最高只有 74%（说明这基准难），它就是 74 分，不会虚高成 100。分数反映真实能力，不反映「你排第几」。
 
 **Q: 为什么不用 SWE-bench？**
-A: SWE-bench Verified 已饱和 + 被前沿厂商弃用（OpenAI 因污染停止报告），其 leaderboard 停留在旧模型（最高 Claude 4.5 Opus / GPT 5.2），对 2026 前沿模型覆盖近乎为零。真实 repo 工程能力由 DeepSWE（抗污染、长程）+ LiveBench Agentic Coding 覆盖。
+A: SWE-bench Verified 已饱和且被前沿厂商弃用（OpenAI 因污染停止报告），其 leaderboard 停留在旧模型。真实 repo 工程能力由 DeepSWE + LiveBench Agentic Coding 覆盖。
 
-**Q: 为什么创意写作用 EQ-Bench 这种 LLM-judge？**
-A: 写作质量本质是主观偏好，没有客观解。EQ-Bench 是当前最专门的创意写作基准（用 Judgemark 校验裁判与人类偏好相关性），是「主观维度」能做到的最可信折中。
+**Q: 汇率怎么来的？**
+A: 每次构建实时抓取 Frankfurter（ECB 官方参考汇率），失败回退 open.er-api.com，不硬编码。
 
-**Q: 填补值可信吗？**
-A: 填补值已标注 `(reg)` / `(reg,low)`，且留一验证给出每指标的 MAE。填补只在「部分缺失」时补充，不用于「几乎全缺」的模型（覆盖率门槛保证）。Top 段模型多数无填补。
-
-## 一键复现
+## 复现
 
 ```bash
 pip install -r requirements.txt
-python scripts/build.py
+python scripts/build.py            # 完整构建（抓取 + 合并 + 评分 + README）
+python scripts/build.py --offline  # 离线复算缓存
+python -m pytest -q                # 测试
 ```
 
-离线复算现有缓存（本地测试用）：
-```bash
-python scripts/build.py --offline
-```
-
-## 自动化
-
-由 GitHub Actions 驱动，**每月 1 号**自动抓取、重算排名并推送更新（UTC 6:00 / 北京时间 14:00）。Actions 页面可手动触发。
-
-## 仓库结构
-
-```
-├── config.json             # 两榜权重 + 填补参数
-├── requirements.txt        # numpy / scikit-learn / pytest
-├── METHODOLOGY.md          # 完整方法论
-├── scripts/                # 数据流水线
-│   ├── build.py            # 一键入口（fetch -> parse -> merge -> score -> README）
-│   ├── parse_aa.py         # AA RSC 流 / HTML -> CSV
-│   ├── fetch_sources.py    # LiveBench / DeepSWE / SWE-bench / EQ-Bench 抓取
-│   ├── merge.py            # 跨源合并成统一宽表
-│   ├── score_aa.py         # 评分 CLI
-│   ├── model_registry.json # 第一梯队模型池 + 别名映射
-│   └── pipeline/           # 评分算法（配置/填补/评分/溯源）
-├── results/                # CSV 排名 + validation
-├── tests/                  # 单元测试 + e2e
-├── .github/workflows/      # 月度更新 + push 时 pytest
-└── README.md
-```
-
-## 注意事项
-
-- 分数代表在当前第一梯队样本中的相对位置，**非理论能力满分**
-- CSV 中 `*` 表示回归预测填补，`**` 表示低可信填补（训练样本 < 门槛）
-- 两榜共用同一次抓取、合并与填补，**同一模型两榜分数不可直接互比**（归一化基准不同类）
-- 各源模型命名不一致，跨源对齐依赖 [`model_registry.json`](scripts/model_registry.json) 的手动别名映射，新增模型需同步维护
-- **原始数据版权归各基准所有**，按原站条款使用
+GitHub Actions 每月 1 号自动更新。
 
 ## License
 
-评分脚本与整理结果：MIT License  
-原始数据：(c) 各基准维护方，按原站条款使用
+评分脚本与整理结果：MIT · 原始数据版权归各基准维护方

@@ -200,11 +200,45 @@ def fetch_eqbench():
     return path
 
 
+# ---------- 汇率 ----------
+
+def fetch_fx():
+    """抓取 USD→CNY 汇率，写 .cache/fx.json。
+
+    主源 Frankfurter（ECB 官方参考汇率，无 key、无限流），
+    备源 open.er-api.com。返回 {usd_cny, date}。
+    """
+    usd_cny, date = None, None
+    # 主源：Frankfurter
+    try:
+        data = json.loads(_get(
+            "https://api.frankfurter.dev/v2/rates?base=USD&quotes=CNY"
+        ).decode("utf-8"))
+        row = data[0]
+        usd_cny = float(row["rate"])
+        date = row["date"]
+    except Exception as e:
+        print(f"  frankfurter failed: {e}, fallback open.er-api")
+    # 备源：open.er-api.com
+    if usd_cny is None:
+        data = json.loads(_get(
+            "https://open.er-api.com/v6/latest/USD").decode("utf-8"))
+        usd_cny = float(data["rates"]["CNY"])
+        date = (data.get("time_last_update_utc") or "")[:10]
+    fx = {"usd_cny": round(usd_cny, 4), "date": date}
+    os.makedirs(CACHE, exist_ok=True)
+    with open(os.path.join(CACHE, "fx.json"), "w", encoding="utf-8") as f:
+        json.dump(fx, f)
+    print(f"fx: 1 USD = {fx['usd_cny']} CNY ({date})")
+    return fx
+
+
 FETCHERS = {
     "livebench": fetch_livebench,
     "deepswe": fetch_deepswe,
     "swebench": fetch_swebench,
     "eqbench": fetch_eqbench,
+    "fx": fetch_fx,
 }
 
 

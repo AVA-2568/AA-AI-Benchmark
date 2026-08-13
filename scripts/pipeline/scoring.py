@@ -109,7 +109,8 @@ def _cost_terms(r, cost, cache_multiplier, cache_price_fallback, plans):
 
 
 def score_board(rows, board, engine, cost, cache_multiplier, score_threshold,
-                plans=None, cache_price_fallback=None, scales=None):
+                plans=None, cache_price_fallback=None, scales=None,
+                fx_rate=None):
     """Score one leaderboard. Returns (scored_rows, headers).
 
     ``engine`` provides stats / cur / raw / imputation_quality and
@@ -155,6 +156,9 @@ def score_board(rows, board, engine, cost, cache_multiplier, score_threshold,
                         plans)
         value_score = (round(total / eff_cost, 2)
                        if eff_cost else None)
+        # 人民币价格（汇率实时抓取；缺失时不输出）
+        std_cny = round(std_cost * fx_rate, 3) if (std_cost and fx_rate) else None
+        eff_cny = round(eff_cost * fx_rate, 3) if (eff_cost and fx_rate) else None
 
         imputed_set = {m.split("(low)")[0] for m in imputed}
         low_set = {m.split("(low)")[0] for m in imputed if m.endswith("(low)")}
@@ -173,6 +177,8 @@ def score_board(rows, board, engine, cost, cache_multiplier, score_threshold,
             "Cache Hit": pcache_eff,
             "Total $/1M": std_cost,
             "Effective $/1M": eff_cost,
+            "Total ¥/1M": std_cny,
+            "Effective ¥/1M": eff_cny,
             "Value Score": value_score,
             "Cache Hit Rate": cache_rate,
             "Plan": plan_name,
@@ -204,7 +210,8 @@ def score_board(rows, board, engine, cost, cache_multiplier, score_threshold,
         row["Rank"] = idx
 
     headers = ["Rank", "Model", "Weighted Total", "Total $/1M",
-               "Effective $/1M", "Value Score", "Cache Hit Rate", "Plan",
+               "Effective $/1M", "Total ¥/1M", "Effective ¥/1M",
+               "Value Score", "Cache Hit Rate", "Plan",
                "AA Cost/Task", "Creator", "Reasoning",
                "Orig Intelligence Index"]
     for _, _, subs in cats:

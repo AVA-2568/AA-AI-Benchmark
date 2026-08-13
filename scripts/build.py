@@ -142,18 +142,20 @@ def _board_blocks(bkey, board, n_models, today):
         rows = list(csv.DictReader(f))
     top = rows[:15]
     if board.get("rank_by") == "value":
-        # 性价比榜：展示真实成本（订阅+缓存）与性价比分
+        # 性价比榜：展示真实成本（订阅+缓存）与性价比分，含人民币价（实时汇率）
         lines = [
-            "| # | Model | Creator | Score | $/1M | Effective $/1M | Value | Imputed |",
-            "|---|---|---|---|---|---|---|---|",
+            "| # | Model | Creator | Score | $/1M | Effective $/1M | ¥/1M | Eff ¥/1M | Value | Imputed |",
+            "|---|---|---|---|---|---|---|---|---|---|",
         ]
         for r in top:
             imp = (r["Imputed"] or "").strip()
-            lines.append("| {} | {} | {} | {} | {} | {} | {} | {} |".format(
+            lines.append("| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
                 r["Rank"], r["Model"], r["Creator"],
                 r.get("Weighted Total") or "",
                 r.get("Total $/1M") or "",
                 r.get("Effective $/1M") or "",
+                r.get("Total ¥/1M") or "",
+                r.get("Effective ¥/1M") or "",
                 r.get("Value Score") or "",
                 imp or "-",
             ))

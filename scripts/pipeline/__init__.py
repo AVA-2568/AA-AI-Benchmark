@@ -81,7 +81,7 @@ def _creator_cache_price_mean(rows):
             for c in sums if counts[c] > 0}
 
 
-def run_pipeline(rows, cfg, results_dir):
+def run_pipeline(rows, cfg, results_dir, fx_rate=None):
     """Full scoring run: impute -> validate -> score both boards.
 
     Prints the same diagnostics as the legacy script and writes one
@@ -135,7 +135,7 @@ def run_pipeline(rows, cfg, results_dir):
         out, headers = score_board(
             rows, board, engine, cost, cache_multiplier, score_threshold,
             plans=plans, cache_price_fallback=cache_price_fallback,
-            scales=scales)
+            scales=scales, fx_rate=fx_rate)
         out_csv = os.path.join(results_dir, board["output_csv"])
         write_scored_csv(out, headers, out_csv)
         print(f"[{bkey}] >={score_threshold} score: {len(out)} rows")
