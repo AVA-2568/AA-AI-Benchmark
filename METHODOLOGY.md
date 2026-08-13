@@ -316,8 +316,10 @@ Total $/1M = (1 - cache_hit_rate) × input_share × 输入价
 | SuperGrok Lite | $10 | $50 | ~5x | ×0.20 |
 | SuperGrok | $30 | $160 | ~5.3x | ×0.19 |
 | SuperGrok Heavy | $300 | $1,600 | ~5.3x | ×0.19 |
+| MiniMax Plus / Max / Ultra Token Plan | ¥49/¥119/¥469 | $292 / $875 / $2,673 | ~43x / ~53x / ~41x | ×0.023 / ×0.019 / ×0.024 |
+| Kimi 会员 Allegretto | ¥199 | ~$125 | ~4.5x | ×0.22 |
 
-> 倍率来源：OpenAI/Anthropic 为 SemiAnalysis（2026-06）实测；xAI 为 agentplans.fyi（2026-06）按 API 等价估算。**未收录**：Google AI Plus/Pro/Ultra（无权威社区倍率，仅 $10–40/月 API 抵扣，非额度制）、Mistral Le Chat（消息数限额制）、Kimi 会员（token credit 池但额度未公开）、DeepSeek（无订阅）。
+> 倍率来源：OpenAI/Anthropic 为 SemiAnalysis（2026-06）实测；xAI 为 agentplans.fyi（2026-06）按 API 等价估算；**MiniMax 为官方 token 池**（6/18/55 亿 token/月，多模态共享且**含 API 额度**，按榜单旗舰 M3 标准单价折算，属官方额度制）；**Kimi 为社区实测**（zhiqiang.org 2026-07，会员为共享 token 池但**不抵扣 API**，按 app 渠道隐含价值折算）。**未收录**：Google AI Plus/Pro/Ultra（无权威社区倍率，仅 $10–40/月 API 抵扣，非额度制）、智谱 GLM Coding Plan（prompt 配额制，无 token 折算依据）、阶跃 Step Plan / 腾讯混元 Token Plan（credit 与 token 关系未公开）、Mistral Le Chat（消息数限额制）、通义/豆包/文心（功能打包非额度制）、DeepSeek（无订阅）。
 
 > **重要口径**：(b) 类折扣是**用满额度上限**的估计（普通用户远达不到，SemiAnalysis 明言"最大配额价值而非平均行为"）；且行业正在收窄该补贴窗口（Anthropic 2026-06-15 起 Agent SDK / 无界面调用移出订阅池，Claude Fable 5 转 usage credits；OpenAI 4 月起 Codex 按 token 计费）。因此 (b) 类计划代表"重度订阅用户"的成本下界，`Effective $/1M` 取命中计划中的**最低折扣**。如认为不符合你的使用强度，在 `config.json` 删除或调低对应计划即可。
 

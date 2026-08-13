@@ -142,6 +142,42 @@
       "note": "用满额度上限：$20/月 ≈ $400 API 等价（20x）"
     },
     {
+      "name": "MiniMax Max Token Plan",
+      "creator_match": ["MiniMax"],
+      "monthly": 16.5,
+      "implied_value": 875,
+      "discount": 0.019,
+      "source": "MiniMax 官方 token 池 2026-06，按 M3 榜单单价折算",
+      "note": "¥119/月 18 亿 token（多模态共享，含 API）；按 M3 标准单价折算 ≈$875 API 等价（53x）"
+    },
+    {
+      "name": "MiniMax Ultra Token Plan",
+      "creator_match": ["MiniMax"],
+      "monthly": 65.1,
+      "implied_value": 2673,
+      "discount": 0.024,
+      "source": "MiniMax 官方 token 池 2026-06，按 M3 榜单单价折算",
+      "note": "¥469/月 55 亿 token；≈$2,673 API 等价（41x）"
+    },
+    {
+      "name": "MiniMax Plus Token Plan",
+      "creator_match": ["MiniMax"],
+      "monthly": 6.8,
+      "implied_value": 292,
+      "discount": 0.023,
+      "source": "MiniMax 官方 token 池 2026-06，按 M3 榜单单价折算",
+      "note": "¥49/月 6 亿 token；≈$292 API 等价（43x）"
+    },
+    {
+      "name": "Kimi 会员 Allegretto",
+      "creator_match": ["Kimi"],
+      "monthly": 27.6,
+      "implied_value": 125,
+      "discount": 0.22,
+      "source": "社区实测（zhiqiang.org 2026-07）",
+      "note": "¥199/月共享 token 池 + Kimi Code 独立池；社区实测用满 ≈¥900 API 等价（4.5x），不抵扣 API"
+    },
+    {
       "name": "SuperGrok Heavy",
       "creator_match": ["SpaceXAI"],
       "monthly": 300,
