@@ -1,32 +1,37 @@
 {
-  "Omniscience Non-Halluc.": {
-    "mae": 0.0222,
-    "pct_over10": 37.8,
-    "n": 349
+  "EQ-Bench Creative Writing": {
+    "mae": 98.1022,
+    "pct_over10": 19.2,
+    "n": 26
   },
-  "Omniscience Accuracy": {
-    "mae": 0.0098,
-    "pct_over10": 8.6,
-    "n": 349
+  "LiveBench Language": {
+    "mae": 3.5444,
+    "pct_over10": 7.7,
+    "n": 39
   },
-  "IFBench": {
-    "mae": 0.0511,
-    "pct_over10": 40.5,
-    "n": 331
+  "Omniscience Index": {
+    "mae": 6.0892,
+    "pct_over10": 76.5,
+    "n": 34
   },
-  "LCR": {
-    "mae": 0.0768,
-    "pct_over10": 47.3,
-    "n": 357
-  },
-  "HLE": {
-    "mae": 0.0267,
-    "pct_over10": 69.2,
-    "n": 383
+  "LiveBench Instruction Following": {
+    "mae": 3.7837,
+    "pct_over10": 17.9,
+    "n": 39
   },
   "GPQA Diamond": {
-    "mae": 0.0459,
-    "pct_over10": 25.0,
-    "n": 384
+    "mae": 0.0102,
+    "pct_over10": 0.0,
+    "n": 34
+  },
+  "HLE": {
+    "mae": 0.0227,
+    "pct_over10": 17.6,
+    "n": 34
+  },
+  "LCR": {
+    "mae": 0.0175,
+    "pct_over10": 0.0,
+    "n": 34
   }
 }

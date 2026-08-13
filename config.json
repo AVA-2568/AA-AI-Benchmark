@@ -1,83 +1,93 @@
 {
   "imputation_pool": [
-    "GDPval-AA",
-    "Terminal-Bench Hard",
-    "Terminal-Bench v2.1",
-    "SciCode",
+    "LiveBench Coding",
+    "DeepSWE",
+    "LiveBench Agentic Coding",
+    "LiveBench Instruction Following",
     "LCR",
     "Omniscience Index",
-    "IFBench",
     "GPQA Diamond",
     "HLE",
-    "Omniscience Accuracy",
-    "Omniscience Non-Halluc."
+    "EQ-Bench Creative Writing",
+    "LiveBench Language"
   ],
   "leaderboards": {
     "general": {
       "title": "通用榜 General",
-      "output_csv": "aa_general_scored.csv",
+      "output_csv": "general_scored.csv",
       "validation_json": "validation_general.json",
       "categories": [
-        {"name": "智能体 Agentic", "weight": 0.20, "metrics": [
-          {"name": "GDPval-AA", "sub_weight": 1.00}
+        {"name": "编码 Coding", "weight": 0.30, "metrics": [
+          {"name": "LiveBench Coding", "sub_weight": 1.00}
         ]},
-        {"name": "编程 Coding", "weight": 0.20, "metrics": [
-          {"name": "Terminal-Bench Hard", "sub_weight": 0.50},
-          {"name": "Terminal-Bench v2.1", "sub_weight": 0.30},
-          {"name": "SciCode", "sub_weight": 0.20}
+        {"name": "Agent 能力", "weight": 0.25, "metrics": [
+          {"name": "DeepSWE", "sub_weight": 0.60},
+          {"name": "LiveBench Agentic Coding", "sub_weight": 0.40}
         ]},
-        {"name": "通用 General", "weight": 0.40, "metrics": [
-          {"name": "LCR", "sub_weight": 0.30},
-          {"name": "Omniscience Index", "sub_weight": 0.30},
-          {"name": "IFBench", "sub_weight": 0.40}
+        {"name": "指令遵循", "weight": 0.15, "metrics": [
+          {"name": "LiveBench Instruction Following", "sub_weight": 1.00}
         ]},
-        {"name": "知识 Knowledge", "weight": 0.20, "metrics": [
-          {"name": "GPQA Diamond", "sub_weight": 0.40},
-          {"name": "HLE", "sub_weight": 0.60}
+        {"name": "长上下文", "weight": 0.10, "metrics": [
+          {"name": "LCR", "sub_weight": 1.00}
+        ]},
+        {"name": "事实准确性", "weight": 0.10, "metrics": [
+          {"name": "Omniscience Index", "sub_weight": 1.00}
+        ]},
+        {"name": "知识领域", "weight": 0.10, "metrics": [
+          {"name": "GPQA Diamond", "sub_weight": 0.60},
+          {"name": "HLE", "sub_weight": 0.40}
         ]}
       ]
     },
     "text": {
       "title": "文本榜 Text",
-      "output_csv": "aa_text_scored.csv",
+      "output_csv": "text_scored.csv",
       "validation_json": "validation_text.json",
       "categories": [
-        {"name": "事实性 Factuality", "weight": 0.40, "metrics": [
-          {"name": "Omniscience Non-Halluc.", "sub_weight": 0.60},
-          {"name": "Omniscience Accuracy", "sub_weight": 0.40}
+        {"name": "创意写作", "weight": 0.25, "metrics": [
+          {"name": "EQ-Bench Creative Writing", "sub_weight": 0.70},
+          {"name": "LiveBench Language", "sub_weight": 0.30}
         ]},
-        {"name": "交互 Interaction", "weight": 0.35, "metrics": [
-          {"name": "IFBench", "sub_weight": 0.70},
-          {"name": "LCR", "sub_weight": 0.30}
+        {"name": "事实准确性", "weight": 0.20, "metrics": [
+          {"name": "Omniscience Index", "sub_weight": 1.00}
         ]},
-        {"name": "知识 Knowledge", "weight": 0.25, "metrics": [
-          {"name": "HLE", "sub_weight": 0.60},
-          {"name": "GPQA Diamond", "sub_weight": 0.40}
+        {"name": "指令遵循", "weight": 0.20, "metrics": [
+          {"name": "LiveBench Instruction Following", "sub_weight": 1.00}
+        ]},
+        {"name": "知识领域", "weight": 0.20, "metrics": [
+          {"name": "GPQA Diamond", "sub_weight": 0.60},
+          {"name": "HLE", "sub_weight": 0.40}
+        ]},
+        {"name": "长上下文", "weight": 0.15, "metrics": [
+          {"name": "LCR", "sub_weight": 1.00}
         ]}
       ]
     },
     "value": {
       "title": "性价比榜 Value",
-      "output_csv": "aa_value_scored.csv",
+      "output_csv": "value_scored.csv",
       "validation_json": "validation_value.json",
       "rank_by": "value",
       "categories": [
-        {"name": "智能体 Agentic", "weight": 0.20, "metrics": [
-          {"name": "GDPval-AA", "sub_weight": 1.00}
+        {"name": "编码 Coding", "weight": 0.30, "metrics": [
+          {"name": "LiveBench Coding", "sub_weight": 1.00}
         ]},
-        {"name": "编程 Coding", "weight": 0.20, "metrics": [
-          {"name": "Terminal-Bench Hard", "sub_weight": 0.50},
-          {"name": "Terminal-Bench v2.1", "sub_weight": 0.30},
-          {"name": "SciCode", "sub_weight": 0.20}
+        {"name": "Agent 能力", "weight": 0.25, "metrics": [
+          {"name": "DeepSWE", "sub_weight": 0.60},
+          {"name": "LiveBench Agentic Coding", "sub_weight": 0.40}
         ]},
-        {"name": "通用 General", "weight": 0.40, "metrics": [
-          {"name": "LCR", "sub_weight": 0.30},
-          {"name": "Omniscience Index", "sub_weight": 0.30},
-          {"name": "IFBench", "sub_weight": 0.40}
+        {"name": "指令遵循", "weight": 0.15, "metrics": [
+          {"name": "LiveBench Instruction Following", "sub_weight": 1.00}
         ]},
-        {"name": "知识 Knowledge", "weight": 0.20, "metrics": [
-          {"name": "GPQA Diamond", "sub_weight": 0.40},
-          {"name": "HLE", "sub_weight": 0.60}
+        {"name": "长上下文", "weight": 0.10, "metrics": [
+          {"name": "LCR", "sub_weight": 1.00}
+        ]},
+        {"name": "事实准确性", "weight": 0.10, "metrics": [
+          {"name": "Omniscience Index", "sub_weight": 1.00}
+        ]},
+        {"name": "知识领域", "weight": 0.10, "metrics": [
+          {"name": "GPQA Diamond", "sub_weight": 0.60},
+          {"name": "HLE", "sub_weight": 0.40}
         ]}
       ]
     }
@@ -103,7 +113,7 @@
       "implied_value": 14000,
       "discount": 0.014,
       "source": "SemiAnalysis 2026-06 实测",
-      "note": "用满额度上限：$200/月 ≈ $14,000 API 等价（70x）；Codex 按 token 计费后实际随用量"
+      "note": "用满额度上限：$200/月 ≈ $14,000 API 等价（70x）"
     },
     {
       "name": "ChatGPT Plus",
@@ -148,7 +158,7 @@
       "implied_value": 875,
       "discount": 0.019,
       "source": "MiniMax 官方 token 池 2026-06，按 M3 榜单单价折算",
-      "note": "¥119/月 18 亿 token（多模态共享，含 API）；按 M3 标准单价折算 ≈$875 API 等价（53x）"
+      "note": "¥119/月 18 亿 token（多模态共享，含 API）"
     },
     {
       "name": "MiniMax Ultra Token Plan",
@@ -157,7 +167,7 @@
       "implied_value": 2673,
       "discount": 0.024,
       "source": "MiniMax 官方 token 池 2026-06，按 M3 榜单单价折算",
-      "note": "¥469/月 55 亿 token；≈$2,673 API 等价（41x）"
+      "note": "¥469/月 55 亿 token"
     },
     {
       "name": "MiniMax Plus Token Plan",
@@ -166,34 +176,34 @@
       "implied_value": 292,
       "discount": 0.023,
       "source": "MiniMax 官方 token 池 2026-06，按 M3 榜单单价折算",
-      "note": "¥49/月 6 亿 token；≈$292 API 等价（43x）"
+      "note": "¥49/月 6 亿 token"
     },
     {
       "name": "Kimi 会员 Allegretto",
-      "creator_match": ["Kimi"],
+      "creator_match": ["Kimi", "Moonshot AI"],
       "monthly": 27.6,
       "implied_value": 125,
       "discount": 0.22,
       "source": "社区实测（zhiqiang.org 2026-07）",
-      "note": "¥199/月共享 token 池 + Kimi Code 独立池；社区实测用满 ≈¥900 API 等价（4.5x），不抵扣 API"
+      "note": "¥199/月共享 token 池，不抵扣 API"
     },
     {
       "name": "SuperGrok Heavy",
-      "creator_match": ["SpaceXAI"],
+      "creator_match": ["xAI", "SpaceXAI"],
       "monthly": 300,
       "implied_value": 1600,
       "discount": 0.19,
       "source": "agentplans.fyi 2026-06 估算",
-      "note": "用满额度上限：$300/月 ≈ $1,600 API 等价（5.3x）"
+      "note": "用满额度上限"
     },
     {
       "name": "SuperGrok",
-      "creator_match": ["SpaceXAI"],
+      "creator_match": ["xAI", "SpaceXAI"],
       "monthly": 30,
       "implied_value": 160,
       "discount": 0.19,
       "source": "agentplans.fyi 2026-06 估算",
-      "note": "用满额度上限：$30/月 ≈ $160 API 等价（5.3x）"
+      "note": "用满额度上限"
     },
     {
       "name": "GitHub Copilot Max",
@@ -202,7 +212,7 @@
       "credit_value": 200,
       "discount": 0.50,
       "source": "GitHub 官方 2026-06",
-      "note": "Copilot 订阅按各模型 API 价消耗 token 额度；$200/月额度折合 API 单价 ×0.50"
+      "note": "$200/月额度折合 API 单价 ×0.50"
     },
     {
       "name": "GitHub Copilot Pro+",
@@ -223,9 +233,9 @@
       "note": "$15/月额度折合 API 单价 ×0.667"
     }
   ],
-  "score_threshold": 70,
+  "score_threshold": 0,
   "ridge_alpha": 0.1,
-  "imputation_min_samples": 50,
+  "imputation_min_samples": 10,
   "standardize_features": true,
   "imputation": {
     "max_iters": 100,

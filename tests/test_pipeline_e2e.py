@@ -75,8 +75,8 @@ def test_e2e_deterministic_and_matches_golden(tmp_path):
     run_pipeline(rows, cfg, d1)
     run_pipeline(rows, cfg, d2)
 
-    g1 = os.path.join(d1, "aa_general_scored.csv")
-    g2 = os.path.join(d2, "aa_general_scored.csv")
+    g1 = os.path.join(d1, "general_scored.csv")
+    g2 = os.path.join(d2, "general_scored.csv")
     # determinism: two runs identical (line-ending agnostic)
     assert _norm_sha(g1) == _norm_sha(g2)
     # reproducibility: matches committed golden snapshot
@@ -89,7 +89,7 @@ def test_e2e_general_structure(tmp_path):
     out = str(tmp_path / "run")
     run_pipeline(rows, cfg, out)
 
-    g = os.path.join(out, "aa_general_scored.csv")
+    g = os.path.join(out, "general_scored.csv")
     with open(g, encoding="utf-8-sig") as f:
         scored = list(csv.DictReader(f))
     # all emitted rows clear the threshold
@@ -111,7 +111,7 @@ def test_e2e_text_structure(tmp_path):
     out = str(tmp_path / "run")
     run_pipeline(rows, cfg, out)
 
-    t = os.path.join(out, "aa_text_scored.csv")
+    t = os.path.join(out, "text_scored.csv")
     with open(t, encoding="utf-8-sig") as f:
         scored = list(csv.DictReader(f))
     assert scored, "no text rows scored"

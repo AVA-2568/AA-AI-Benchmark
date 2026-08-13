@@ -132,7 +132,7 @@ def _load_boards():
     return _load_config()["leaderboards"]
 
 
-def _board_blocks(bkey, board, n_raw, n_dedup, today):
+def _board_blocks(bkey, board, n_models, today):
     """生成单个榜单的 (snapshot_md, top15_md)。"""
     scored = os.path.join(REPO_ROOT, "results", board["output_csv"])
     val_json = os.path.join(REPO_ROOT, "results", board["validation_json"])
@@ -159,22 +159,20 @@ def _board_blocks(bkey, board, n_raw, n_dedup, today):
             ))
     else:
         lines = [
-            "| # | Model | Creator | Score | $/1M | Imputed |",
-            "|---|---|---|---|---|---|",
+            "| # | Model | Creator | Score | Imputed |",
+            "|---|---|---|---|---|",
         ]
         for r in top:
             imp = (r["Imputed"] or "").strip()
-            lines.append("| {} | {} | {} | {} | {} | {} |".format(
+            lines.append("| {} | {} | {} | {} | {} |".format(
                 r["Rank"], r["Model"], r["Creator"],
-                r.get("Weighted Total") or "", r.get("Total $/1M") or "",
+                r.get("Weighted Total") or "",
                 imp or "-",
             ))
     top15_md = "\n".join(lines)
 
     snapshot_parts = [
-        f"> {today} 抓取"
-        f"（{n_raw} 模型 x 服务商 -> 去重 {n_dedup}"
-        f" -> >=70 分 {n_out} 行）。"
+        f"> {today} 抓取（{n_models} 第一梯队模型 -> {n_out} 行）。"
     ]
     if os.path.exists(val_json):
         with open(val_json, encoding="utf-8") as f:
@@ -194,11 +192,9 @@ def _board_blocks(bkey, board, n_raw, n_dedup, today):
 
 def update_readme():
     """用最新 scored CSV 刷新 README：每个榜单一组 SNAPSHOT/TOP15 区块。"""
-    raw_csv = os.path.join(BASE, "aa_providers.csv")
-    dedup_csv = os.path.join(BASE, "aa_providers_dedup.csv")
+    merged_csv = os.path.join(BASE, "merged.csv")
     today = datetime.date.today().isoformat()
-    n_raw = _count(raw_csv)
-    n_dedup = _count(dedup_csv)
+    n_models = _count(merged_csv)
 
     readme = os.path.join(REPO_ROOT, "README.md")
     txt = open(readme, encoding="utf-8").read()
@@ -206,7 +202,7 @@ def update_readme():
     counts = {}
     for bkey, board in _load_boards().items():
         snapshot_md, top15_md, n_out = _board_blocks(
-            bkey, board, n_raw, n_dedup, today)
+            bkey, board, n_models, today)
         tag = bkey.upper()
         snapshot_name = f"SNAPSHOT_{tag}"
         top15_name = f"TOP15_{tag}"
@@ -222,7 +218,7 @@ def update_readme():
     with open(tmp, "w", encoding="utf-8") as f:
         f.write(txt)
     os.replace(tmp, readme)
-    print("README updated: raw=%d dedup=%d out=%s" % (n_raw, n_dedup, counts))
+    print("README updated: models=%d out=%s" % (n_models, counts))
 
 
 def _has_markers(txt, name):
@@ -254,17 +250,15 @@ def _read_last_parser():
 
 def _write_manifest(stale, parser=None):
     config_path = os.path.join(REPO_ROOT, "config.json")
-    raw_csv = os.path.join(BASE, "aa_providers.csv")
-    dedup_csv = os.path.join(BASE, "aa_providers_dedup.csv")
+    merged_csv = os.path.join(BASE, "merged.csv")
     manifest = {
         "run_date": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "source_url": URL,
         "parser": parser,
-        "input_sha256": _sha256(raw_csv) if os.path.exists(raw_csv) else None,
+        "input_sha256": _sha256(merged_csv) if os.path.exists(merged_csv) else None,
         "config_sha256": _sha256(config_path),
         "algorithm_version": "0a62096",
-        "raw_rows": _count(raw_csv),
-        "dedup_rows": _count(dedup_csv),
+        "models": _count(merged_csv),
         "stale": stale,
     }
     os.makedirs(os.path.dirname(MANIFEST), exist_ok=True)
@@ -287,7 +281,11 @@ def main(argv=None):
         if not ok:
             raise BuildError("fetch failed")
         run("parse_aa.py")
-        run("dedup_aa.py")
+        if args.offline:
+            print("offline mode: skipping independent-source fetch (using cache)")
+        else:
+            run("fetch_sources.py")
+        run("merge.py")
         run("score_aa.py")
         if stale:
             print("stale input: skipping README update")

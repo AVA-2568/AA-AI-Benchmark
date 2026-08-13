@@ -12,7 +12,7 @@ import sys
 
 _BASE = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(_BASE)
-SRC = os.path.join(_BASE, "aa_providers_dedup.csv")
+SRC = os.path.join(_BASE, "merged.csv")
 RESULTS_DIR = os.path.join(REPO_ROOT, "results")
 
 # Re-export the public, import-safe helpers (single implementation
