@@ -6,8 +6,8 @@ Public API:
 - ``score_board``
 - ``run_pipeline(rows, cfg, results_dir)`` — full orchestration
 
-Both ``scripts/score_aa.py`` (CLI) and ``experiments/p99_clip.py``
-import from here; the algorithm lives only in this package.
+Both ``scripts/score_aa.py`` (CLI) imports from here; the algorithm
+lives only in this package.
 """
 from __future__ import annotations
 
@@ -31,14 +31,12 @@ from .io_utils import (
     write_validation,
 )
 from .models import (
-    BuildManifest,
     CategorySpec,
     ImputationResult,
     LeaderboardConfig,
     MetricSpec,
     ScoredModel,
 )
-from .provenance import build_manifest, count_rows, sha256, write_manifest
 from .scoring import fmt_val, norm, score_board
 
 __all__ = [
@@ -56,17 +54,12 @@ __all__ = [
     "norm",
     "fmt_val",
     "score_board",
-    "build_manifest",
-    "write_manifest",
-    "sha256",
-    "count_rows",
     "run_pipeline",
     "MetricSpec",
     "CategorySpec",
     "LeaderboardConfig",
     "ImputationResult",
     "ScoredModel",
-    "BuildManifest",
 ]
 
 

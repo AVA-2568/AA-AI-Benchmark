@@ -50,16 +50,3 @@ class ScoredModel:
     weighted_total: Optional[float]
     rank: Optional[int] = None
     imputed: List[str] = field(default_factory=list)
-
-
-@dataclass
-class BuildManifest:
-    run_date: str
-    source_url: str
-    parser: Optional[str]
-    input_sha256: Optional[str]
-    config_sha256: str
-    algorithm_version: str
-    raw_rows: int
-    dedup_rows: int
-    stale: bool

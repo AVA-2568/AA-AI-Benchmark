@@ -2,7 +2,6 @@
 scripts/aa_providers.rsc
 scripts/aa_providers.html
 scripts/aa_providers.csv
-scripts/aa_providers_dedup.csv
 scripts/merged.csv
 scripts/.cache/
 scripts/.last_parser
