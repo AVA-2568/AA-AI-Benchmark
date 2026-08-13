@@ -294,7 +294,9 @@ Total $/1M = (1 - cache_hit_rate) × input_share × 输入价
 
 **1. 订阅计划折扣（`plans`）**
 
-部分厂商的订阅制计划（主要是 GitHub Copilot 类额度制）让 API 使用成本显著低于列表价。2026-06 起 Copilot 按 token 消耗计费，各档月费对应等值 API 额度：
+订阅让"实际 API 使用成本"远低于列表价，两种取值依据：
+
+**(a) 官方额度制（API 渠道）**——GitHub Copilot 2026-06 起按 token 消耗计费，各档月费对应等值 API 额度，折扣确定：
 
 | 计划 | 月费 | API 额度 | 折合单价系数 |
 |---|---|---|---|
@@ -302,9 +304,19 @@ Total $/1M = (1 - cache_hit_rate) × input_share × 输入价
 | Copilot Pro+ | $39 | $70 | ×0.557 |
 | Copilot Max | $100 | $200 | ×0.500 |
 
-额度按各模型公布的 API 价消耗 → 订阅内每 1M token 的等效成本 = 标准单价 × `monthly / credit_value`。模型 Creator 命中 `creator_match` 即生效，多个计划命中取**最低折扣**。
+**(b) 社区测算隐含价值（app/agent 渠道，用满上限）**——订阅的网页 / IDE / agent 用量虽无官方 token 额度，但**跑满每周限额**时按 API 牌价折算价值远高于月费。SemiAnalysis（2026-06）买下 OpenAI / Anthropic 各档订阅、跑长程编码与 agentic 任务直到限额耗尽后按 API 价折算：
 
-> OpenAI / Anthropic / xAI 的订阅（Plus、Pro、Max、SuperGrok）**不含 API 额度**，API 单独计费，因此不参与折扣。Google AI Pro/Ultra 附带 $10–40/月 API 抵扣，属小额固定抵扣而非单价折扣，未计入（避免依赖用量假设）。
+| 订阅 | 月费 | 用满 ≈ API 等价 | 倍率 | 折合系数 |
+|---|---|---|---|---|
+| ChatGPT Plus | $20 | $700 | ~35x | ×0.029 |
+| ChatGPT Pro 20x | $200 | $14,000 | ~70x | ×0.014 |
+| Claude Pro | $20 | $400 | ~20x | ×0.050 |
+| Claude Max 5x | $100 | $2,000 | ~20x | ×0.050 |
+| Claude Max 20x | $200 | $8,000 | ~40x | ×0.025 |
+
+> **重要口径**：(b) 类折扣是**用满额度上限**的估计（普通用户远达不到，SemiAnalysis 明言"最大配额价值而非平均行为"）；且行业正在收窄该补贴窗口（Anthropic 2026-06-15 起 Agent SDK / 无界面调用移出订阅池，Claude Fable 5 转 usage credits；OpenAI 4 月起 Codex 按 token 计费）。因此 (b) 类计划代表"重度订阅用户"的成本下界，`Effective $/1M` 取命中计划中的**最低折扣**。如认为不符合你的使用强度，在 `config.json` 删除或调低对应计划即可。
+
+模型 Creator 命中 `creator_match` 即生效（OpenAI 模型同时命中 ChatGPT 与 Copilot 计划时取最低折扣）。
 
 **2. 分厂商缓存命中率（`cost.provider_cache_rates`）**
 
@@ -324,7 +336,7 @@ Effective $/1M = [ (1-r_c)·in_share·pin + r_c·in_share·pcache + out_share·p
 ```
 
 - `r_c`：分厂商命中率；`pcache`：真实缓存价 → 厂商均值 → ×0.1 三级回退
-- `plan_discount`：命中计划的最低折扣，未命中 = 1.0
+- `plan_discount`：命中计划的最低折扣（官方额度制或社区测算隐含价值），未命中 = 1.0
 - 性价比分 `Value Score = Weighted Total ÷ Effective $/1M`（每美元得分）
 
 **3. AA Cost/Task 参考列**

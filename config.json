@@ -96,11 +96,57 @@
   },
   "plans": [
     {
+      "name": "ChatGPT Pro 20x",
+      "creator_match": ["OpenAI"],
+      "monthly": 200,
+      "implied_value": 14000,
+      "discount": 0.014,
+      "source": "SemiAnalysis 2026-06 实测",
+      "note": "用满额度上限：$200/月 ≈ $14,000 API 等价（70x）；Codex 按 token 计费后实际随用量"
+    },
+    {
+      "name": "ChatGPT Plus",
+      "creator_match": ["OpenAI"],
+      "monthly": 20,
+      "implied_value": 700,
+      "discount": 0.029,
+      "source": "SemiAnalysis 2026-06 实测",
+      "note": "用满额度上限：$20/月 ≈ $700 API 等价（35x）"
+    },
+    {
+      "name": "Claude Max 20x",
+      "creator_match": ["Anthropic"],
+      "monthly": 200,
+      "implied_value": 8000,
+      "discount": 0.025,
+      "source": "SemiAnalysis 2026-06 实测",
+      "note": "用满额度上限：$200/月 ≈ $8,000 API 等价（40x）"
+    },
+    {
+      "name": "Claude Max 5x",
+      "creator_match": ["Anthropic"],
+      "monthly": 100,
+      "implied_value": 2000,
+      "discount": 0.05,
+      "source": "SemiAnalysis 2026-06 实测",
+      "note": "用满额度上限：$100/月 ≈ $2,000 API 等价（20x）"
+    },
+    {
+      "name": "Claude Pro",
+      "creator_match": ["Anthropic"],
+      "monthly": 20,
+      "implied_value": 400,
+      "discount": 0.05,
+      "source": "SemiAnalysis 2026-06 实测",
+      "note": "用满额度上限：$20/月 ≈ $400 API 等价（20x）"
+    },
+    {
       "name": "GitHub Copilot Max",
       "creator_match": ["OpenAI", "Anthropic", "Google"],
       "monthly": 100,
       "credit_value": 200,
       "discount": 0.50,
+      "source": "GitHub 官方 2026-06",
       "note": "Copilot 订阅按各模型 API 价消耗 token 额度；$200/月额度折合 API 单价 ×0.50"
     },
     {
@@ -109,6 +155,7 @@
       "monthly": 39,
       "credit_value": 70,
       "discount": 0.557,
+      "source": "GitHub 官方 2026-06",
       "note": "$70/月额度折合 API 单价 ×0.557"
     },
     {
@@ -117,6 +164,7 @@
       "monthly": 10,
       "credit_value": 15,
       "discount": 0.667,
+      "source": "GitHub 官方 2026-06",
       "note": "$15/月额度折合 API 单价 ×0.667"
     }
   ],

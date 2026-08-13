@@ -87,7 +87,7 @@
 
 ## 💰 性价比榜 Top 15
 
-> 面向**真实使用成本**：`Value` = 综合分 ÷ `Effective $/1M`（每美元买到多少分）。`Effective $/1M` 在标准单价基础上考虑两个降本因素——**订阅折扣**（GitHub Copilot 额度制折合 API 单价 ×0.50–0.67）与 **90% 缓存命中率**（主流厂商 prompt caching 成熟）。`AA Cost/Task` 为 AA 官方每任务成本估算（仅部分模型有）。同通用榜权重，仅收录 ≥70 分模型。
+> 面向**真实使用成本**：`Value` = 综合分 ÷ `Effective $/1M`（每美元买到多少分）。`Effective $/1M` 在标准单价基础上考虑两个降本因素——**订阅折扣**（Copilot 官方额度折合 ×0.50–0.67；ChatGPT Plus / Claude Pro 等按 SemiAnalysis 实测隐含价值折合 ×0.014–0.05，见 FAQ）与 **90% 缓存命中率**。`AA Cost/Task` 为 AA 官方每任务成本估算（仅部分模型有）。同通用榜权重，仅收录 ≥70 分模型。
 
 <!--SNAPSHOT_VALUE_START-->
 <!--SNAPSHOT_VALUE_END-->
@@ -126,7 +126,7 @@
 - **缺失值填补**：11 个评分指标共享一个交叉岭回归填补池，α=0.1（z-score 空间）
 - **特征标准化**：岭回归输入先 z-score 处理，避免大量纲指标主导——见 [METHODOLOGY 特征标准化](METHODOLOGY.md#特征标准化岭回归输入)
 - **成本估算（标准口径 `$/1M`）**：70% 输入 + 30% 输出，50% 输入 token 命中缓存；缓存命中价缺失时按 input 价的 0.1× 回退
-- **成本估算（真实口径 `Effective $/1M`）**：主流厂商按 **90% 缓存命中率**（`provider_cache_rates`）+ 真实缓存命中价（缺失按同厂商均值回退），再乘订阅计划折扣（`plans`，如 Copilot $100/月 = $200 额度 → ×0.50）
+- **成本估算（真实口径 `Effective $/1M`）**：主流厂商按 **90% 缓存命中率**（`provider_cache_rates`）+ 真实缓存命中价（缺失按同厂商均值回退），再乘订阅计划折扣（`plans`：Copilot 官方额度 ×0.50–0.67；ChatGPT Plus / Claude Pro 等社区实测隐含价值 ×0.014–0.05）
 - **权重与参数在 [`config.json`](config.json) 中自定义**，无需修改源码
 - **每次运行输出留一验证结果与 R²**——见 [validation_general.json](results/validation_general.json) / [validation_text.json](results/validation_text.json) / [validation_value.json](results/validation_value.json)
 
@@ -146,8 +146,8 @@ A: 文本榜事实性 40% 内 **Non-Halluc 60% > Acc 40%**——设计目标是�
 **Q: 缓存命中率为什么设 90%？真实命中率是多少？**
 A: AA 不公布命中率——它取决于你的使用模式（prompt 可缓存前缀占比、复用频率），不是模型属性。2026 年 prompt caching 已成主流厂商标配，agentic / 长上下文 / 重复前缀工作负载下实测普遍可达 ~90%（DeepSeek 官方定价页即按 90% 命中估算有效费率）。榜单对 Anthropic / OpenAI / Google / DeepSeek 统一按 0.90，其余中小厂商按 0.30 保守假设；认为不符合你的场景可在 `config.json` 的 `provider_cache_rates` 调整后重新构建。
 
-**Q: 订阅折扣为什么只算 GitHub Copilot？OpenAI / Claude / Grok 的订阅不算吗？**
-A: 经核实（2026-08）：OpenAI Plus/Pro、Anthropic Pro/Max、xAI SuperGrok 的订阅**均不含 API 额度**——API 独立按 token 计费，订阅只影响网页端用量，因此不降低 API 单价。唯一"订阅成倍降低 API 成本"的是 **Copilot 额度制**（2026-06 起按 token 计费，$10/$39/$100 月费分别买到 $15/$70/$200 等值 API 用量）。Google AI Pro/Ultra 附带 $10–40/月 API 抵扣，属小额固定抵扣而非单价折扣，未计入（避免依赖用量假设）。
+**Q: 订阅折扣怎么算的？ChatGPT / Claude 订阅不是不含 API 额度吗？**
+A: 两类口径：① **官方额度制**（GitHub Copilot）——月费买到等值 API 用量（$10/$39/$100 → $15/$70/$200），折扣确定（×0.667/×0.557/×0.50）；② **社区实测隐含价值**——OpenAI/Anthropic 订阅虽不含 API 额度，但**跑满每周限额**时按 API 牌价折算价值远超月费：SemiAnalysis（2026-06）实测 ChatGPT Plus $20 ≈ $700（35x）、Claude Pro $20 ≈ $400（20x）、ChatGPT Pro 20x $200 ≈ $14,000（70x）。榜单按 `monthly ÷ 隐含价值` 折合单价系数，多个计划命中取最低折扣。**注意**：② 类是用满额度上限（重度订阅用户）的成本下界，普通用户达不到；且行业正收窄该窗口（Anthropic 2026-06 起 agent 调用移出订阅池）。不符你的使用强度可在 `config.json` 调整。
 
 **Q: 旧文件 `aa_providers_scored.csv` / `validation.json` 去哪了？**
 A: 三榜改版后已更名：`aa_providers_scored.csv` → [`aa_general_scored.csv`](results/aa_general_scored.csv)，`validation.json` → [`validation_general.json`](results/validation_general.json)。通用榜口径与权重不变，仅文件名变化；外部引用请更新链接。

@@ -54,13 +54,20 @@ def cost_params(cfg: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def plan_params(cfg: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """Resolve the subscription-plan table (e.g. GitHub Copilot).
+    """Resolve the subscription-plan table.
 
-    Each plan: name / creator_match / monthly / credit_value /
-    discount / note. ``discount`` is the multiplier applied to the
-    API unit price for models whose Creator is in ``creator_match``
-    (credit-value plans like Copilot make API usage effectively
-    cheaper: the monthly fee buys more API dollars than it costs).
+    Two kinds of value basis:
+    - ``credit_value``: official included API usage (e.g. GitHub
+      Copilot — the monthly fee buys that many API dollars).
+    - ``implied_value``: community-measured API-equivalent value of a
+      subscription's *capped app/agent* usage (e.g. ChatGPT Plus /
+      Claude Pro, measured by SemiAnalysis 2026-06 by running each
+      tier to its weekly limit).
+
+    ``discount`` = monthly / value, applied to the API unit price for
+    models whose Creator is in ``creator_match``. Note: implied-value
+    plans assume the plan is used to its cap — an upper-bound
+    estimate, documented per plan.
     """
     plans = cfg.get("plans") or []
     return [
@@ -69,7 +76,9 @@ def plan_params(cfg: Dict[str, Any]) -> List[Dict[str, Any]]:
             "creator_match": p.get("creator_match") or [],
             "monthly": to_float(p.get("monthly")),
             "credit_value": to_float(p.get("credit_value")),
+            "implied_value": to_float(p.get("implied_value")),
             "discount": to_float(p.get("discount")),
+            "source": p.get("source", ""),
             "note": p.get("note", ""),
         }
         for p in plans
