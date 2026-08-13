@@ -148,3 +148,119 @@ def test_score_board_cost_independent_of_thinking_effort():
     assert len(costs) == 1, "same list price must yield identical $/1M"
     assert "Reasoning Cost ×" not in headers
 
+
+# ---- real-world cost: per-creator cache rate + plan discount ----
+
+_COST_EFF = {
+    "input_share": 0.7, "output_share": 0.3, "cache_hit_rate": 0.5,
+    "provider_cache_rates": {"OpenAI": 0.5, "Anthropic": 0.6,
+                             "default": 0.1},
+}
+
+_PLANS = [
+    {"name": "GitHub Copilot Pro+",
+     "creator_match": ["OpenAI", "Anthropic", "Google"],
+     "discount": 0.557},
+    {"name": "GitHub Copilot Max",
+     "creator_match": ["OpenAI", "Anthropic", "Google"],
+     "discount": 0.50},
+]
+
+
+def test_effective_cost_applies_subscription_discount():
+    """Effective $/1M = standard × cheapest matching plan discount."""
+    eng = FakeEngine()
+    eng.raw = {"m1": [80.0, 20.0], "m2": [40.0, 10.0]}
+    eng.cur = dict(eng.raw)
+    rows = [
+        {"Model": "GPT", "Creator": "OpenAI",
+         "Price 1M Input": "5.0", "Price 1M Output": "25.0",
+         "Cache Hit Price": "0.5"},
+        {"Model": "DS", "Creator": "DeepSeek",
+         "Price 1M Input": "0.5", "Price 1M Output": "1.0",
+         "Cache Hit Price": "0.005"},
+    ]
+    out, _ = score_board(rows, _BOARD, eng, _COST_EFF, 0.1, 0.0,
+                         plans=_PLANS)
+    by_model = {r["Model"]: r for r in out}
+    # OpenAI in Copilot catalog: Max (0.50) beats Pro+ (0.557)
+    std = float(by_model["GPT"]["Total $/1M"])
+    eff = float(by_model["GPT"]["Effective $/1M"])
+    assert abs(eff - std * 0.50) < 1e-3  # both rounded to 3 decimals
+    assert by_model["GPT"]["Plan"] == "GitHub Copilot Max"
+    # DeepSeek: no plan -> discount 1.0; cache rate falls to default 0.1
+    assert by_model["DS"]["Plan"] == ""
+    assert float(by_model["DS"]["Cache Hit Rate"]) == 0.1
+    # effective with hit-rate 0.1, no discount:
+    # 0.7*0.9*0.5 + 0.7*0.1*0.005 + 0.3*1.0 = 0.615
+    assert abs(float(by_model["DS"]["Effective $/1M"]) - 0.615) < 1e-3
+
+
+def test_effective_cost_uses_creator_cache_rate():
+    """Real-world cost uses per-creator cache rate, not the global 50%."""
+    eng = FakeEngine()
+    eng.raw = {"m1": [80.0, 20.0], "m2": [40.0, 10.0]}
+    eng.cur = dict(eng.raw)
+    rows = [
+        {"Model": "C", "Creator": "Anthropic",
+         "Price 1M Input": "5.0", "Price 1M Output": "25.0",
+         "Cache Hit Price": "0.5"},
+        {"Model": "X", "Creator": "SomeLab",
+         "Price 1M Input": "5.0", "Price 1M Output": "25.0",
+         "Cache Hit Price": "0.5"},
+    ]
+    out, _ = score_board(rows, _BOARD, eng, _COST_EFF, 0.1, 0.0)
+    by_model = {r["Model"]: r for r in out}
+    # Anthropic: 0.6 cache rate vs SomeLab default 0.1 -> Anthropic
+    # pays less for the cached input share -> lower effective cost
+    assert float(by_model["C"]["Effective $/1M"]) < \
+        float(by_model["X"]["Effective $/1M"])
+    assert float(by_model["C"]["Cache Hit Rate"]) == 0.6
+
+
+def test_effective_cost_falls_back_to_creator_mean_cache_price():
+    """Missing Cache Hit Price falls back to the per-creator mean."""
+    eng = FakeEngine()
+    eng.raw = {"m1": [80.0, 20.0], "m2": [40.0, 10.0]}
+    eng.cur = dict(eng.raw)
+    rows = [
+        {"Model": "A", "Creator": "OpenAI",
+         "Price 1M Input": "5.0", "Price 1M Output": "25.0",
+         "Cache Hit Price": "0.5"},
+        {"Model": "B", "Creator": "OpenAI",
+         "Price 1M Input": "5.0", "Price 1M Output": "25.0",
+         "Cache Hit Price": ""},
+    ]
+    fb = {"OpenAI": 0.5}
+    out, _ = score_board(rows, _BOARD, eng, _COST_EFF, 0.1, 0.0,
+                         cache_price_fallback=fb)
+    by_model = {r["Model"]: r for r in out}
+    assert float(by_model["A"]["Effective $/1M"]) == \
+        float(by_model["B"]["Effective $/1M"])
+
+
+def test_value_board_ranks_by_score_per_dollar():
+    """rank_by='value' sorts by Weighted Total / Effective $/1M and
+    drops rows without a price."""
+    board = dict(_BOARD)
+    board["rank_by"] = "value"
+    eng = FakeEngine()
+    eng.raw = {"m1": [80.0, 20.0, 20.0, 20.0],
+               "m2": [40.0, 10.0, 10.0, 10.0]}
+    eng.cur = dict(eng.raw)
+    rows = [
+        {"Model": "Cheap", "Creator": "OpenAI",
+         "Price 1M Input": "0.5", "Price 1M Output": "1.0",
+         "Cache Hit Price": "0.05"},
+        {"Model": "Pricey", "Creator": "OpenAI",
+         "Price 1M Input": "5.0", "Price 1M Output": "25.0",
+         "Cache Hit Price": "0.5"},
+        {"Model": "NoPrice", "Creator": "OpenAI",
+         "Price 1M Input": "", "Price 1M Output": ""},
+    ]
+    out, headers = score_board(rows, board, eng, _COST_EFF, 0.1, 0.0,
+                               plans=_PLANS)
+    assert [r["Model"] for r in out] == ["Cheap", "Pricey"]
+    assert out[0]["Value Score"] > out[1]["Value Score"]
+    assert "Value Score" in headers and "Effective $/1M" in headers
+

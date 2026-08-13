@@ -5,18 +5,19 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue)](https://www.python.org/)
 [![MIT License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-基于 [Artificial Analysis](https://artificialanalysis.ai/leaderboards/providers) 的公开基准测试数据，按自定义权重重算综合能力总分。**双榜单**：通用榜（编程 + 智能体 + 通用 + 知识）与文本榜（对话 / 查资料场景）。每月自动更新。
+基于 [Artificial Analysis](https://artificialanalysis.ai/leaderboards/providers) 的公开基准测试数据，按自定义权重重算综合能力总分。**三榜单**：通用榜（编程 + 智能体 + 通用 + 知识）、文本榜（对话 / 查资料场景）与性价比榜（真实使用成本视角）。每月自动更新。
 
 ## 这是什么
 
 本仓库使用 [Artificial Analysis](https://artificialanalysis.ai/leaderboards/providers) 的公开基准数据，**按自定义权重**计算综合分，而非沿用 AA 的合成 Intelligence Index。权重详见 [`config.json`](config.json) 与 [METHODOLOGY.md](METHODOLOGY.md)。
 
-**两个榜单，一套流水线**：
+**三个榜单，一套流水线**：
 
 | 榜单 | 定位 | 大类权重 |
 |---|---|---|
 | **通用榜 General** | 编程 / 智能体 / 日常混合使用 | Agentic 20% / Coding 20% / General 40% / Knowledge 20% |
 | **文本榜 Text** | 日常对话、查资料、事实问答 | Factuality 40% / Interaction 35% / Knowledge 25% |
+| **性价比榜 Value** | 通用分 ÷ 真实成本（订阅 + 缓存） | 同通用榜权重，按每美元得分排序 |
 
 **与原始榜单的差异**：
 - 11 个评分指标共享一个交叉岭回归填补池，处理缺失值
@@ -84,7 +85,19 @@
 
 👉 [文本榜完整排名（CSV）](results/aa_text_scored.csv)
 
-> Imputed 列说明（两榜通用）：`-` 表示该模型所有评分指标均有真实值；`指标名(reg)` 表示该指标为岭回归预测值；`指标名(reg,low)` 表示预测可信度低（训练样本 < 50）。
+## 💰 性价比榜 Top 15
+
+> 面向**真实使用成本**：通用分 ÷ 真实 $/1M（每美元能买到多少分）。`Effective $/1M` = 分厂商缓存命中率下的单价 × 订阅计划折扣（如 GitHub Copilot 订阅折合 API 单价 ×0.50–0.67）；`AA Cost/Task` 为 AA 官方每任务成本估算（仅部分模型有）。同通用榜权重，仅收录 ≥70 分模型。
+
+<!--SNAPSHOT_VALUE_START-->
+<!--SNAPSHOT_VALUE_END-->
+
+<!--TOP15_VALUE_START-->
+<!--TOP15_VALUE_END-->
+
+👉 [性价比榜完整排名（CSV）](results/aa_value_scored.csv)
+
+> Imputed 列说明（各榜通用）：`-` 表示该模型所有评分指标均有真实值；`指标名(reg)` 表示该指标为岭回归预测值；`指标名(reg,low)` 表示预测可信度低（训练样本 < 50）。
 
 ## 怎么算的
 
@@ -112,9 +125,10 @@
 - **min-max 归一化**：各指标按全量样本缩放到 0-100 分
 - **缺失值填补**：11 个评分指标（9 通用 + 2 文本新列）共享一个交叉岭回归填补池，α=0.1（z-score 空间）
 - **特征标准化**：岭回归输入先 z-score 处理，避免大量纲指标主导——见 [METHODOLOGY 特征标准化](METHODOLOGY.md#特征标准化岭回归输入)
-- **成本估算**：70% 输入 + 30% 输出，50% 输入 token 命中缓存；缓存命中价缺失时按 input 价的 0.1× 回退
+- **成本估算（标准口径）**：70% 输入 + 30% 输出，50% 输入 token 命中缓存；缓存命中价缺失时按 input 价的 0.1× 回退
+- **成本估算（真实口径，性价比榜）**：`Effective $/1M` 用分厂商缓存命中率（`config.json` 的 `provider_cache_rates`）+ 真实缓存命中价（缺失按同厂商均值回退），再乘订阅计划折扣（`plans`，如 Copilot $100/月 = $200 额度 → ×0.50）
 - **权重与参数在 [`config.json`](config.json) 中自定义**，无需修改源码
-- **每次运行输出留一验证结果与 R²**——见 [validation_general.json](results/validation_general.json) / [validation_text.json](results/validation_text.json)
+- **每次运行输出留一验证结果与 R²**——见 [validation_general.json](results/validation_general.json) / [validation_text.json](results/validation_text.json) / [validation_value.json](results/validation_value.json)
 
 [完整方法论 →](METHODOLOGY.md)
 
@@ -146,19 +160,21 @@ python scripts/build.py
 ## 仓库结构
 
 ```
-├── config.json             # 双榜权重与评分参数
+├── config.json             # 三榜权重、成本口径、订阅计划与评分参数
 ├── requirements.txt        # numpy / scikit-learn / pytest
 ├── METHODOLOGY.md          # 完整方法论
 ├── scripts/                # 数据流水线
 │   ├── build.py            # 一键入口（fetch -> parse -> dedup -> score -> README）
 │   ├── parse_aa.py         # AA RSC 流 / HTML -> CSV（三级解析链 + 数据哨兵）
 │   ├── dedup_aa.py         # Model Slug 去重
-│   └── score_aa.py         # 标准化 + 共享岭回归填补 + 双榜评分
+│   └── score_aa.py         # 标准化 + 共享岭回归填补 + 评分
 ├── results/                # CSV 排名 + validation
 │   ├── aa_general_scored.csv     # 通用榜
 │   ├── aa_text_scored.csv        # 文本榜
+│   ├── aa_value_scored.csv       # 性价比榜（真实成本视角）
 │   ├── validation_general.json   # 通用榜留一验证
-│   └── validation_text.json      # 文本榜留一验证
+│   ├── validation_text.json      # 文本榜留一验证
+│   └── validation_value.json     # 性价比榜留一验证
 ├── tests/                  # 单元测试（helpers / config / marker）
 ├── .github/workflows/      # 月度更新 + push 时 pytest
 └── README.md
@@ -169,6 +185,7 @@ python scripts/build.py
 - 分数代表在当前样本中相对靠前，**非理论能力满分**
 - CSV 中 `*` 表示回归预测填补，`**` 表示低可信填补（训练样本 < 50）
 - 文本榜与通用榜共用同一次抓取、去重与填补，**同一模型两榜分数不可直接互比**（归一化基准不同类）
+- 性价比榜的 `Effective $/1M` 依赖**订阅折扣与缓存命中率假设**（非 AA 公布字段）：Copilot 折扣按现行额度折算，命中率按厂商使用模式设定——均可在 `config.json` 调整
 - **价格是抓取时快照**，随服务商调价变动
 - **原始数据版权归 Artificial Analysis 所有**，按原站条款使用
 - 排名每月刷新；标准化 / α / 阈值变更可能引入 4-10 位的 ±2 互调

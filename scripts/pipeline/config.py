@@ -44,11 +44,36 @@ def cost_params(cfg: Dict[str, Any]) -> Dict[str, Any]:
     per-token price.
     """
     cost = cfg.get("cost", {})
+    rates = cost.get("provider_cache_rates") or {}
     return {
         "input_share": cost.get("input_share", 0.70),
         "output_share": cost.get("output_share", 0.30),
         "cache_hit_rate": cost.get("cache_hit_rate", 0.50),
+        "provider_cache_rates": rates,
     }
+
+
+def plan_params(cfg: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Resolve the subscription-plan table (e.g. GitHub Copilot).
+
+    Each plan: name / creator_match / monthly / credit_value /
+    discount / note. ``discount`` is the multiplier applied to the
+    API unit price for models whose Creator is in ``creator_match``
+    (credit-value plans like Copilot make API usage effectively
+    cheaper: the monthly fee buys more API dollars than it costs).
+    """
+    plans = cfg.get("plans") or []
+    return [
+        {
+            "name": p.get("name", "?"),
+            "creator_match": p.get("creator_match") or [],
+            "monthly": to_float(p.get("monthly")),
+            "credit_value": to_float(p.get("credit_value")),
+            "discount": to_float(p.get("discount")),
+            "note": p.get("note", ""),
+        }
+        for p in plans
+    ]
 
 
 def to_float(v):
@@ -121,7 +146,25 @@ def validate_config(cfg: Dict[str, Any]) -> bool:
             f"cost.cache_hit_rate must be in [0, 1], "
             f"got {cost.get('cache_hit_rate')}"
         )
+    for creator, rate in (cost.get("provider_cache_rates") or {}).items():
+        if not 0 <= float(rate) <= 1:
+            raise ConfigError(
+                f"cost.provider_cache_rates['{creator}'] must be in [0, 1], "
+                f"got {rate}"
+            )
+    for i, p in enumerate(cfg.get("plans") or []):
+        name = p.get("name", f"plans[{i}]")
+        if not p.get("creator_match"):
+            raise ConfigError(f"plan '{name}' needs a non-empty creator_match")
+        d = p.get("discount")
+        if d is None or not 0 < float(d) <= 1:
+            raise ConfigError(f"plan '{name}' discount must be in (0, 1]")
     for bkey, board in boards.items():
+        if board.get("rank_by") not in (None, "score", "value"):
+            raise ConfigError(
+                f"[{bkey}] rank_by must be 'score' or 'value', "
+                f"got {board.get('rank_by')}"
+            )
         cats, glob = board_weights(board)
         if abs(sum(glob.values()) - 1.0) >= 1e-9:
             raise ConfigError(

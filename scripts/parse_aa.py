@@ -234,6 +234,7 @@ def build_cols(rows):
         ("Price 1M Output", "pricing", "price1mOutputTokens"),
         ("Cache Hit Price", "pricing", "cacheHitPrice"),
         ("Cache Write Price", "pricing", "cacheWritePrice"),
+        ("Cost Per Task", "pricing", "costPerTask"),
         ("Price Class", "pricing", "priceClass"),
         ("Median tok/s", "performance", "medianOutputTokensPerSecond"),
         ("P05 tok/s", "performance", "percentile05OutputTokensPerSec"),

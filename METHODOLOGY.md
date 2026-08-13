@@ -288,6 +288,51 @@ Total $/1M = (1 - cache_hit_rate) × input_share × 输入价
 - 大客户通常有批发折扣，榜单未体现
 - `$/1M` 只反映单价：思考越多的模型在单价上不占劣势，实际账单差异由 token 消耗量决定，需结合用量估算
 
+### 真实成本：Effective $/1M（性价比榜）
+
+`Total $/1M` 是纯单价基准；**性价比榜**额外输出 `Effective $/1M`，反映**真实使用成本**的两个降本因素：
+
+**1. 订阅计划折扣（`plans`）**
+
+部分厂商的订阅制计划（主要是 GitHub Copilot 类额度制）让 API 使用成本显著低于列表价。2026-06 起 Copilot 按 token 消耗计费，各档月费对应等值 API 额度：
+
+| 计划 | 月费 | API 额度 | 折合单价系数 |
+|---|---|---|---|
+| Copilot Pro | $10 | $15 | ×0.667 |
+| Copilot Pro+ | $39 | $70 | ×0.557 |
+| Copilot Max | $100 | $200 | ×0.500 |
+
+额度按各模型公布的 API 价消耗 → 订阅内每 1M token 的等效成本 = 标准单价 × `monthly / credit_value`。模型 Creator 命中 `creator_match` 即生效，多个计划命中取**最低折扣**。
+
+> OpenAI / Anthropic / xAI 的订阅（Plus、Pro、Max、SuperGrok）**不含 API 额度**，API 单独计费，因此不参与折扣。Google AI Pro/Ultra 附带 $10–40/月 API 抵扣，属小额固定抵扣而非单价折扣，未计入（避免依赖用量假设）。
+
+**2. 分厂商缓存命中率（`cost.provider_cache_rates`）**
+
+AA 不公布缓存命中率（它取决于使用模式，非模型属性）。按厂商缓存机制特征设定使用假设：
+
+| Creator | 命中率 | 依据 |
+|---|---|---|
+| Anthropic | 0.60 | prompt caching 折扣 90%，长上下文场景命中高 |
+| DeepSeek | 0.55 | 自动前缀缓存，命中价仅为输入价 1–2% |
+| OpenAI / Google | 0.50 | 缓存折扣 50–90% |
+| 其他 | 0.10 | 保守假设 |
+
+命中价优先取 AA 真实 `Cache Hit Price`；缺失时按**同 Creator 均值**回退（而非统一 ×0.1）；再无则回退 `输入价 × cache_hit_multiplier`。
+
+**公式**
+
+```
+Effective $/1M = [ (1-r_c)·in_share·pin + r_c·in_share·pcache + out_share·pout ] × plan_discount
+```
+
+- `r_c`：分厂商命中率；`pcache`：真实缓存价 → 厂商均值 → ×0.1 三级回退
+- `plan_discount`：命中计划的最低折扣，未命中 = 1.0
+- 性价比分 `Value Score = Weighted Total ÷ Effective $/1M`（每美元得分）
+
+**3. AA Cost/Task 参考列**
+
+AA 公布的部分模型 `costPerTask`（按 benchmark 任务平均 token 消耗 × 标准价估算的每任务成本，当前覆盖 ~28%），作为 `AA Cost/Task` 列交叉参考。它隐含推理 token 量，与订阅/缓存口径不同，不参与排序。
+
 ## 注意事项
 
 1. **非绝对排名**：分数是相对排名，不代表模型的能力绝对值

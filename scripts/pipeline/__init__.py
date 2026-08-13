@@ -20,6 +20,7 @@ from .config import (
     cost_params,
     imputation_params,
     load_config,
+    plan_params,
     to_float,
     validate_config,
 )
@@ -69,6 +70,24 @@ __all__ = [
 ]
 
 
+def _creator_cache_price_mean(rows):
+    """Mean Cache Hit Price per Creator (rows with a real value only).
+
+    Used as a fallback cache price for rows whose provider does not
+    publish a cache-hit price, instead of a blind global guess.
+    """
+    sums: dict = {}
+    counts: dict = {}
+    for r in rows:
+        creator = (r.get("Creator") or "").strip()
+        p = to_float(r.get("Cache Hit Price"))
+        if creator and p is not None:
+            sums[creator] = sums.get(creator, 0.0) + p
+            counts[creator] = counts.get(creator, 0) + 1
+    return {c: round(sums[c] / counts[c], 4)
+            for c in sums if counts[c] > 0}
+
+
 def run_pipeline(rows, cfg, results_dir):
     """Full scoring run: impute -> validate -> score both boards.
 
@@ -79,9 +98,14 @@ def run_pipeline(rows, cfg, results_dir):
     pool = cfg["imputation_pool"]
     boards = cfg["leaderboards"]
     cost = cost_params(cfg)
+    plans = plan_params(cfg)
     score_threshold = cfg["score_threshold"]
     ip = imputation_params(cfg)
     cache_multiplier = ip["cache_hit_multiplier"]
+
+    # per-creator mean cache price for rows missing a real Cache Hit
+    # Price (better than a blind input × multiplier guess)
+    cache_price_fallback = _creator_cache_price_mean(rows)
 
     params = {
         "ridge_alpha": cfg["ridge_alpha"],
@@ -115,7 +139,8 @@ def run_pipeline(rows, cfg, results_dir):
 
     for bkey, board in boards.items():
         out, headers = score_board(
-            rows, board, engine, cost, cache_multiplier, score_threshold)
+            rows, board, engine, cost, cache_multiplier, score_threshold,
+            plans=plans, cache_price_fallback=cache_price_fallback)
         out_csv = os.path.join(results_dir, board["output_csv"])
         write_scored_csv(out, headers, out_csv)
         print(f"[{bkey}] >={score_threshold} score: {len(out)} rows")

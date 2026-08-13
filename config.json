@@ -55,13 +55,71 @@
           {"name": "GPQA Diamond", "sub_weight": 0.40}
         ]}
       ]
+    },
+    "value": {
+      "title": "性价比榜 Value",
+      "output_csv": "aa_value_scored.csv",
+      "validation_json": "validation_value.json",
+      "rank_by": "value",
+      "categories": [
+        {"name": "智能体 Agentic", "weight": 0.20, "metrics": [
+          {"name": "GDPval-AA", "sub_weight": 1.00}
+        ]},
+        {"name": "编程 Coding", "weight": 0.20, "metrics": [
+          {"name": "Terminal-Bench Hard", "sub_weight": 0.50},
+          {"name": "Terminal-Bench v2.1", "sub_weight": 0.30},
+          {"name": "SciCode", "sub_weight": 0.20}
+        ]},
+        {"name": "通用 General", "weight": 0.40, "metrics": [
+          {"name": "LCR", "sub_weight": 0.30},
+          {"name": "Omniscience Index", "sub_weight": 0.30},
+          {"name": "IFBench", "sub_weight": 0.40}
+        ]},
+        {"name": "知识 Knowledge", "weight": 0.20, "metrics": [
+          {"name": "GPQA Diamond", "sub_weight": 0.40},
+          {"name": "HLE", "sub_weight": 0.60}
+        ]}
+      ]
     }
   },
   "cost": {
     "input_share": 0.70,
     "output_share": 0.30,
-    "cache_hit_rate": 0.50
+    "cache_hit_rate": 0.50,
+    "provider_cache_rates": {
+      "Anthropic": 0.60,
+      "OpenAI": 0.50,
+      "Google": 0.50,
+      "DeepSeek": 0.55,
+      "default": 0.10
+    }
   },
+  "plans": [
+    {
+      "name": "GitHub Copilot Max",
+      "creator_match": ["OpenAI", "Anthropic", "Google"],
+      "monthly": 100,
+      "credit_value": 200,
+      "discount": 0.50,
+      "note": "Copilot 订阅按各模型 API 价消耗 token 额度；$200/月额度折合 API 单价 ×0.50"
+    },
+    {
+      "name": "GitHub Copilot Pro+",
+      "creator_match": ["OpenAI", "Anthropic", "Google"],
+      "monthly": 39,
+      "credit_value": 70,
+      "discount": 0.557,
+      "note": "$70/月额度折合 API 单价 ×0.557"
+    },
+    {
+      "name": "GitHub Copilot Pro",
+      "creator_match": ["OpenAI", "Anthropic", "Google"],
+      "monthly": 10,
+      "credit_value": 15,
+      "discount": 0.667,
+      "note": "$15/月额度折合 API 单价 ×0.667"
+    }
+  ],
   "score_threshold": 70,
   "ridge_alpha": 0.1,
   "imputation_min_samples": 50,

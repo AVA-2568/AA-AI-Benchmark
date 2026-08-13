@@ -141,17 +141,34 @@ def _board_blocks(bkey, board, n_raw, n_dedup, today):
     with open(scored, encoding="utf-8-sig", newline="") as f:
         rows = list(csv.DictReader(f))
     top = rows[:15]
-    lines = [
-        "| # | Model | Creator | Score | $/1M | Imputed |",
-        "|---|---|---|---|---|---|",
-    ]
-    for r in top:
-        imp = (r["Imputed"] or "").strip()
-        lines.append("| {} | {} | {} | {} | {} | {} |".format(
-            r["Rank"], r["Model"], r["Creator"],
-            r.get("Weighted Total") or "", r.get("Total $/1M") or "",
-            imp or "-",
-        ))
+    if board.get("rank_by") == "value":
+        # 性价比榜：展示真实成本（订阅+缓存）与性价比分
+        lines = [
+            "| # | Model | Creator | Score | $/1M | Effective $/1M | Value | Imputed |",
+            "|---|---|---|---|---|---|---|---|",
+        ]
+        for r in top:
+            imp = (r["Imputed"] or "").strip()
+            lines.append("| {} | {} | {} | {} | {} | {} | {} | {} |".format(
+                r["Rank"], r["Model"], r["Creator"],
+                r.get("Weighted Total") or "",
+                r.get("Total $/1M") or "",
+                r.get("Effective $/1M") or "",
+                r.get("Value Score") or "",
+                imp or "-",
+            ))
+    else:
+        lines = [
+            "| # | Model | Creator | Score | $/1M | Imputed |",
+            "|---|---|---|---|---|---|",
+        ]
+        for r in top:
+            imp = (r["Imputed"] or "").strip()
+            lines.append("| {} | {} | {} | {} | {} | {} |".format(
+                r["Rank"], r["Model"], r["Creator"],
+                r.get("Weighted Total") or "", r.get("Total $/1M") or "",
+                imp or "-",
+            ))
     top15_md = "\n".join(lines)
 
     snapshot_parts = [
