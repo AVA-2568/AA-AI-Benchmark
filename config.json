@@ -11,6 +11,18 @@
     "EQ-Bench Creative Writing",
     "LiveBench Language"
   ],
+  "metric_scales": {
+    "LiveBench Coding": [0, 100],
+    "DeepSWE": [0, 100],
+    "LiveBench Agentic Coding": [0, 100],
+    "LiveBench Instruction Following": [0, 100],
+    "LiveBench Language": [0, 100],
+    "LCR": [0, 1],
+    "Omniscience Index": [-100, 100],
+    "GPQA Diamond": [0, 1],
+    "HLE": [0, 1],
+    "EQ-Bench Creative Writing": [800, 2200]
+  },
   "leaderboards": {
     "general": {
       "title": "通用榜 General",

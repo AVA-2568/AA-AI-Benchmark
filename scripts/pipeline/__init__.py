@@ -102,6 +102,7 @@ def run_pipeline(rows, cfg, results_dir):
     score_threshold = cfg["score_threshold"]
     ip = imputation_params(cfg)
     cache_multiplier = ip["cache_hit_multiplier"]
+    scales = cfg.get("metric_scales")
 
     # per-creator mean cache price for rows missing a real Cache Hit
     # Price (better than a blind input × multiplier guess)
@@ -140,7 +141,8 @@ def run_pipeline(rows, cfg, results_dir):
     for bkey, board in boards.items():
         out, headers = score_board(
             rows, board, engine, cost, cache_multiplier, score_threshold,
-            plans=plans, cache_price_fallback=cache_price_fallback)
+            plans=plans, cache_price_fallback=cache_price_fallback,
+            scales=scales)
         out_csv = os.path.join(results_dir, board["output_csv"])
         write_scored_csv(out, headers, out_csv)
         print(f"[{bkey}] >={score_threshold} score: {len(out)} rows")

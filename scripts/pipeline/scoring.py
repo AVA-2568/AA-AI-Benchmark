@@ -109,11 +109,14 @@ def _cost_terms(r, cost, cache_multiplier, cache_price_fallback, plans):
 
 
 def score_board(rows, board, engine, cost, cache_multiplier, score_threshold,
-                plans=None, cache_price_fallback=None):
+                plans=None, cache_price_fallback=None, scales=None):
     """Score one leaderboard. Returns (scored_rows, headers).
 
     ``engine`` provides stats / cur / raw / imputation_quality and
     the shared pool. No algorithm is duplicated here.
+
+    ``scales`` maps metric -> (src_lo, src_hi) 固定锚点：原始值落在此
+    区间即映射到 0-100。未提供时回退到动态 min-max（stats 的 lo/hi）。
 
     ``rank_by`` (board config, default "score"): "score" ranks by
     Weighted Total, "value" ranks by Weighted Total / Effective $/1M
@@ -127,6 +130,8 @@ def score_board(rows, board, engine, cost, cache_multiplier, score_threshold,
     raw = engine.raw
     imp_q = engine.imputation_quality
     min_samples = engine.min_samples
+    if scales is None:
+        scales = {m: (stats[m][0], stats[m][1]) for m in metrics}
 
     out = []
     for i, r in enumerate(rows):
@@ -142,7 +147,7 @@ def score_board(rows, board, engine, cost, cache_multiplier, score_threshold,
                     imputed.append(m + "(low)")
                 else:
                     imputed.append(m)
-        nrm = {m: norm(eff[m], stats[m][0], stats[m][1]) for m in metrics}
+        nrm = {m: norm(eff[m], scales[m][0], scales[m][1]) for m in metrics}
         total = sum(glob[m] * nrm[m] for m in metrics)
 
         std_cost, eff_cost, cache_rate, plan_name, pin, pout, pcache_eff = \

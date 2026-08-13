@@ -14,3 +14,6 @@ tests/__pycache__/
 
 # 内部工作记忆（不公开）
 .workbuddy/
+
+# golden 临时目录
+tests/fixtures/_golden_tmp/
