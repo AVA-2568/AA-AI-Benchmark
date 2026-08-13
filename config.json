@@ -18,7 +18,7 @@
     "LiveBench Instruction Following": [0, 100],
     "LiveBench Language": [0, 100],
     "LCR": [0, 1],
-    "Omniscience Index": [-100, 100],
+    "Omniscience Index": [-50, 50],
     "GPQA Diamond": [0, 1],
     "HLE": [0, 1],
     "EQ-Bench Creative Writing": [800, 2200]

@@ -29,21 +29,21 @@
 <!--TOP15_GENERAL_START-->
 | # | Model | Creator | Score | Imputed |
 |---|---|---|---|---|
-| 1 | claude-fable-5 | Anthropic | 76.5 | - |
-| 2 | gpt-5.6-sol | OpenAI | 74.0 | - |
-| 3 | claude-opus-5 | Anthropic | 73.8 | - |
-| 4 | kimi-k3 | Moonshot AI | 73.4 | - |
-| 5 | gpt-5.5 | OpenAI | 72.1 | - |
-| 6 | claude-opus-4.8 | Anthropic | 70.4 | - |
-| 7 | qwen3.8-max | Alibaba | 69.7 | LCR(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg) |
-| 8 | muse-spark-1.2 | Meta | 69.6 | LCR(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg) |
-| 9 | gpt-5.6-terra | OpenAI | 69.4 | - |
-| 10 | muse-spark-1.1 | Meta | 69.2 | - |
-| 11 | claude-opus-4.7 | Anthropic | 68.7 | DeepSWE(reg) |
-| 12 | grok-4.6 | xAI | 68.6 | LCR(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg) |
-| 13 | claude-sonnet-5 | Anthropic | 68.5 | - |
-| 14 | gpt-5.2-codex | OpenAI | 68.1 | DeepSWE(reg) |
-| 15 | gpt-5.6-luna | OpenAI | 68.1 | - |
+| 1 | claude-fable-5 | Anthropic | 78.7 | - |
+| 2 | claude-opus-5 | Anthropic | 75.7 | - |
+| 3 | gpt-5.6-sol | OpenAI | 75.1 | - |
+| 4 | kimi-k3 | Moonshot AI | 74.4 | - |
+| 5 | gpt-5.5 | OpenAI | 73.1 | - |
+| 6 | claude-opus-4.8 | Anthropic | 71.9 | - |
+| 7 | qwen3.8-max | Alibaba | 71.3 | LCR(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg) |
+| 8 | muse-spark-1.2 | Meta | 70.8 | LCR(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg) |
+| 9 | muse-spark-1.1 | Meta | 70.6 | - |
+| 10 | claude-opus-4.7 | Anthropic | 70.1 | DeepSWE(reg) |
+| 11 | gpt-5.6-terra | OpenAI | 69.4 | - |
+| 12 | claude-sonnet-5 | Anthropic | 69.3 | - |
+| 13 | grok-4.6 | xAI | 69.1 | LCR(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg) |
+| 14 | gemini-3.6-flash | Google | 68.7 | - |
+| 15 | deepseek-v4-pro | DeepSeek | 68.0 | - |
 <!--TOP15_GENERAL_END-->
 
 👉 [完整排名 CSV](results/general_scored.csv)
@@ -60,21 +60,21 @@
 <!--TOP15_TEXT_START-->
 | # | Model | Creator | Score | Imputed |
 |---|---|---|---|---|
-| 1 | claude-fable-5 | Anthropic | 77.5 | - |
-| 2 | claude-opus-5 | Anthropic | 76.3 | - |
-| 3 | kimi-k3 | Moonshot AI | 75.8 | - |
-| 4 | gpt-5.6-sol | OpenAI | 74.5 | - |
-| 5 | qwen3.8-max | Alibaba | 73.3 | Omniscience Index(reg), GPQA Diamond(reg), HLE(reg), LCR(reg) |
-| 6 | muse-spark-1.1 | Meta | 72.8 | - |
-| 7 | gpt-5.5 | OpenAI | 72.5 | - |
-| 8 | claude-opus-4.8 | Anthropic | 72.0 | - |
-| 9 | muse-spark-1.2 | Meta | 71.6 | EQ-Bench Creative Writing(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg), LCR(reg) |
-| 10 | claude-opus-4.7 | Anthropic | 71.3 | - |
-| 11 | gemini-3.5-flash | Google | 71.2 | EQ-Bench Creative Writing(reg) |
-| 12 | gemini-3.1-pro | Google | 70.9 | - |
-| 13 | gpt-5.4 | OpenAI | 69.9 | - |
-| 14 | gemini-3.6-flash | Google | 69.8 | - |
-| 15 | gpt-5.6-terra | OpenAI | 68.7 | - |
+| 1 | claude-fable-5 | Anthropic | 81.8 | - |
+| 2 | claude-opus-5 | Anthropic | 80.0 | - |
+| 3 | kimi-k3 | Moonshot AI | 77.7 | - |
+| 4 | gpt-5.6-sol | OpenAI | 76.7 | - |
+| 5 | qwen3.8-max | Alibaba | 76.5 | Omniscience Index(reg), GPQA Diamond(reg), HLE(reg), LCR(reg) |
+| 6 | muse-spark-1.1 | Meta | 75.6 | - |
+| 7 | claude-opus-4.8 | Anthropic | 74.9 | - |
+| 8 | gpt-5.5 | OpenAI | 74.5 | - |
+| 9 | claude-opus-4.7 | Anthropic | 74.1 | - |
+| 10 | gemini-3.1-pro | Google | 74.1 | - |
+| 11 | muse-spark-1.2 | Meta | 74.0 | EQ-Bench Creative Writing(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg), LCR(reg) |
+| 12 | gemini-3.5-flash | Google | 73.3 | EQ-Bench Creative Writing(reg) |
+| 13 | gemini-3.6-flash | Google | 72.0 | - |
+| 14 | grok-4.5 | xAI | 71.0 | - |
+| 15 | gpt-5.4 | OpenAI | 70.5 | - |
 <!--TOP15_TEXT_END-->
 
 👉 [完整排名 CSV](results/text_scored.csv)
@@ -91,21 +91,21 @@
 <!--TOP15_VALUE_START-->
 | # | Model | Creator | Score | $/1M | Effective $/1M | ¥/1M | Eff ¥/1M | Value | Imputed |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | minimax-m3 | MiniMax | 56.1 | 0.389 | 0.008 | 2.622 | 0.054 | 7009.96 | DeepSWE(reg) |
-| 2 | gpt-5.4-mini | OpenAI | 58.9 | 1.639 | 0.02 | 11.048 | 0.135 | 2943.15 | DeepSWE(reg) |
-| 3 | gpt-5.6-luna | OpenAI | 68.1 | 2.492 | 0.032 | 16.799 | 0.216 | 2129.38 | - |
-| 4 | gpt-5.2-codex | OpenAI | 68.1 | 4.874 | 0.062 | 32.856 | 0.418 | 1098.74 | DeepSWE(reg) |
-| 5 | gpt-5.2 | OpenAI | 63.6 | 4.874 | 0.062 | 32.856 | 0.418 | 1026.42 | DeepSWE(reg) |
-| 6 | gpt-5.4 | OpenAI | 67.3 | 5.463 | 0.068 | 36.826 | 0.458 | 989.51 | - |
-| 7 | gpt-5.6-terra | OpenAI | 69.4 | 6.232 | 0.08 | 42.01 | 0.539 | 867.21 | - |
-| 8 | claude-sonnet-5 | Anthropic | 68.5 | 3.931 | 0.089 | 26.499 | 0.6 | 769.39 | - |
-| 9 | deepseek-v4-flash | DeepSeek | 63.7 | 0.134 | 0.096 | 0.903 | 0.647 | 663.18 | - |
-| 10 | gpt-5.5 | OpenAI | 72.1 | 10.925 | 0.135 | 73.645 | 0.91 | 533.74 | - |
-| 11 | gpt-5.6-sol | OpenAI | 74.0 | 11.328 | 0.145 | 76.362 | 0.977 | 510.37 | - |
-| 12 | claude-sonnet-4.6 | Anthropic | 61.6 | 5.896 | 0.133 | 39.745 | 0.897 | 463.41 | - |
-| 13 | claude-opus-5 | Anthropic | 73.8 | 9.828 | 0.222 | 66.251 | 1.497 | 332.52 | - |
-| 14 | claude-opus-4.8 | Anthropic | 70.4 | 9.828 | 0.222 | 66.251 | 1.497 | 317.32 | - |
-| 15 | claude-opus-4.7 | Anthropic | 68.7 | 9.828 | 0.222 | 66.251 | 1.497 | 309.46 | DeepSWE(reg) |
+| 1 | minimax-m3 | MiniMax | 56.1 | 0.389 | 0.008 | 2.622 | 0.054 | 7018.4 | DeepSWE(reg) |
+| 2 | gpt-5.4-mini | OpenAI | 57.9 | 1.639 | 0.02 | 11.048 | 0.135 | 2895.86 | DeepSWE(reg) |
+| 3 | gpt-5.6-luna | OpenAI | 67.6 | 2.492 | 0.032 | 16.799 | 0.216 | 2113.31 | - |
+| 4 | gpt-5.2-codex | OpenAI | 68.0 | 4.874 | 0.062 | 32.856 | 0.418 | 1097.0 | DeepSWE(reg) |
+| 5 | gpt-5.2 | OpenAI | 63.6 | 4.874 | 0.062 | 32.856 | 0.418 | 1025.71 | DeepSWE(reg) |
+| 6 | gpt-5.4 | OpenAI | 67.6 | 5.463 | 0.068 | 36.826 | 0.458 | 993.76 | - |
+| 7 | gpt-5.6-terra | OpenAI | 69.4 | 6.232 | 0.08 | 42.01 | 0.539 | 867.24 | - |
+| 8 | claude-sonnet-5 | Anthropic | 69.3 | 3.931 | 0.089 | 26.499 | 0.6 | 778.63 | - |
+| 9 | deepseek-v4-flash | DeepSeek | 63.0 | 0.134 | 0.096 | 0.903 | 0.647 | 655.74 | - |
+| 10 | gpt-5.5 | OpenAI | 73.1 | 10.925 | 0.135 | 73.645 | 0.91 | 541.33 | - |
+| 11 | gpt-5.6-sol | OpenAI | 75.1 | 11.328 | 0.145 | 76.362 | 0.977 | 517.94 | - |
+| 12 | claude-sonnet-4.6 | Anthropic | 62.2 | 5.896 | 0.133 | 39.745 | 0.897 | 468.0 | - |
+| 13 | claude-opus-5 | Anthropic | 75.7 | 9.828 | 0.222 | 66.251 | 1.497 | 340.86 | - |
+| 14 | claude-opus-4.8 | Anthropic | 71.9 | 9.828 | 0.222 | 66.251 | 1.497 | 323.79 | - |
+| 15 | claude-opus-4.7 | Anthropic | 70.1 | 9.828 | 0.222 | 66.251 | 1.497 | 315.6 | DeepSWE(reg) |
 <!--TOP15_VALUE_END-->
 
 👉 [完整排名 CSV](results/value_scored.csv)
