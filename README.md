@@ -27,27 +27,27 @@
 
 <!--SNAPSHOT_GENERAL_START-->
 > 2026-08-13 抓取（41 第一梯队模型 -> 41 行）。
-> 填补验证：LiveBench Coding MAE=2.24 (>10%: 5.1%/39) ; DeepSWE MAE=9.01 (>10%: 54.5%/22) ; LiveBench Agentic Coding MAE=3.15 (>10%: 20.5%/39) ; LiveBench Instruction Following MAE=3.78 (>10%: 17.9%/39) ; LCR MAE=0.02 (>10%: 0.0%/34) ; Omniscience Index MAE=6.09 (>10%: 76.5%/34) ; GPQA Diamond MAE=0.01 (>10%: 0.0%/34) ; HLE MAE=0.02 (>10%: 17.6%/34)
+> 填补验证：LiveBench Coding MAE=3.19 (>10%: 5.1%/39) ; DeepSWE MAE=10.46 (>10%: 68.2%/22) ; LiveBench Agentic Coding MAE=3.17 (>10%: 23.1%/39) ; LiveBench Instruction Following MAE=3.82 (>10%: 15.4%/39) ; LCR MAE=0.02 (>10%: 0.0%/34) ; Omniscience Index MAE=6.14 (>10%: 82.4%/34) ; GPQA Diamond MAE=0.01 (>10%: 0.0%/34) ; HLE MAE=0.03 (>10%: 29.4%/34)
 <!--SNAPSHOT_GENERAL_END-->
 
 <!--TOP15_GENERAL_START-->
 | # | Model | Creator | Score | Imputed |
 |---|---|---|---|---|
-| 1 | claude-fable-5 | Anthropic | 75.6 | - |
-| 2 | gpt-5.6-sol | OpenAI | 73.5 | - |
-| 3 | claude-opus-5 | Anthropic | 72.9 | - |
-| 4 | kimi-k3 | Moonshot AI | 72.5 | - |
-| 5 | gpt-5.5 | OpenAI | 71.5 | - |
-| 6 | claude-opus-4.8 | Anthropic | 69.7 | - |
-| 7 | gpt-5.6-terra | OpenAI | 68.8 | - |
-| 8 | claude-opus-4.7 | Anthropic | 68.3 | DeepSWE(reg) |
-| 9 | claude-sonnet-5 | Anthropic | 67.7 | - |
-| 10 | muse-spark-1.2 | Meta | 67.7 | LCR(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg) |
-| 11 | gpt-5.6-luna | OpenAI | 67.6 | - |
-| 12 | qwen3.8-max | Alibaba | 67.5 | LCR(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg) |
-| 13 | gpt-5.4 | OpenAI | 66.8 | - |
-| 14 | grok-4.6 | xAI | 66.8 | LCR(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg) |
-| 15 | muse-spark-1.1 | Meta | 66.8 | - |
+| 1 | claude-fable-5 | Anthropic | 76.5 | - |
+| 2 | gpt-5.6-sol | OpenAI | 74.0 | - |
+| 3 | claude-opus-5 | Anthropic | 73.8 | - |
+| 4 | kimi-k3 | Moonshot AI | 73.4 | - |
+| 5 | gpt-5.5 | OpenAI | 72.1 | - |
+| 6 | claude-opus-4.8 | Anthropic | 70.4 | - |
+| 7 | qwen3.8-max | Alibaba | 69.7 | LCR(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg) |
+| 8 | muse-spark-1.2 | Meta | 69.6 | LCR(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg) |
+| 9 | gpt-5.6-terra | OpenAI | 69.4 | - |
+| 10 | muse-spark-1.1 | Meta | 69.2 | - |
+| 11 | claude-opus-4.7 | Anthropic | 68.7 | DeepSWE(reg) |
+| 12 | grok-4.6 | xAI | 68.6 | LCR(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg) |
+| 13 | claude-sonnet-5 | Anthropic | 68.5 | - |
+| 14 | gpt-5.2-codex | OpenAI | 68.1 | DeepSWE(reg) |
+| 15 | gpt-5.6-luna | OpenAI | 68.1 | - |
 <!--TOP15_GENERAL_END-->
 
 👉 [通用榜完整排名（CSV）](results/general_scored.csv)
@@ -58,27 +58,27 @@
 
 <!--SNAPSHOT_TEXT_START-->
 > 2026-08-13 抓取（41 第一梯队模型 -> 41 行）。
-> 填补验证：EQ-Bench Creative Writing MAE=98.10 (>10%: 19.2%/26) ; LiveBench Language MAE=3.54 (>10%: 7.7%/39) ; Omniscience Index MAE=6.09 (>10%: 76.5%/34) ; LiveBench Instruction Following MAE=3.78 (>10%: 17.9%/39) ; GPQA Diamond MAE=0.01 (>10%: 0.0%/34) ; HLE MAE=0.02 (>10%: 17.6%/34) ; LCR MAE=0.02 (>10%: 0.0%/34)
+> 填补验证：EQ-Bench Creative Writing MAE=87.97 (>10%: 11.5%/26) ; LiveBench Language MAE=3.91 (>10%: 5.1%/39) ; Omniscience Index MAE=6.14 (>10%: 82.4%/34) ; LiveBench Instruction Following MAE=3.82 (>10%: 15.4%/39) ; GPQA Diamond MAE=0.01 (>10%: 0.0%/34) ; HLE MAE=0.03 (>10%: 29.4%/34) ; LCR MAE=0.02 (>10%: 0.0%/34)
 <!--SNAPSHOT_TEXT_END-->
 
 <!--TOP15_TEXT_START-->
 | # | Model | Creator | Score | Imputed |
 |---|---|---|---|---|
-| 1 | claude-fable-5 | Anthropic | 76.0 | - |
-| 2 | claude-opus-5 | Anthropic | 74.7 | - |
-| 3 | kimi-k3 | Moonshot AI | 74.2 | - |
-| 4 | gpt-5.6-sol | OpenAI | 73.7 | - |
-| 5 | gpt-5.5 | OpenAI | 71.6 | - |
-| 6 | claude-opus-4.8 | Anthropic | 70.9 | - |
-| 7 | claude-opus-4.7 | Anthropic | 70.3 | - |
-| 8 | gemini-3.1-pro | Google | 69.9 | - |
-| 9 | qwen3.8-max | Alibaba | 69.7 | Omniscience Index(reg), GPQA Diamond(reg), HLE(reg), LCR(reg) |
-| 10 | gpt-5.4 | OpenAI | 69.2 | - |
-| 11 | muse-spark-1.1 | Meta | 69.0 | - |
-| 12 | gemini-3.5-flash | Google | 68.8 | EQ-Bench Creative Writing(reg) |
-| 13 | gemini-3.6-flash | Google | 68.4 | - |
-| 14 | muse-spark-1.2 | Meta | 68.1 | EQ-Bench Creative Writing(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg), LCR(reg) |
-| 15 | gpt-5.6-terra | OpenAI | 67.7 | - |
+| 1 | claude-fable-5 | Anthropic | 77.5 | - |
+| 2 | claude-opus-5 | Anthropic | 76.3 | - |
+| 3 | kimi-k3 | Moonshot AI | 75.8 | - |
+| 4 | gpt-5.6-sol | OpenAI | 74.5 | - |
+| 5 | qwen3.8-max | Alibaba | 73.3 | Omniscience Index(reg), GPQA Diamond(reg), HLE(reg), LCR(reg) |
+| 6 | muse-spark-1.1 | Meta | 72.8 | - |
+| 7 | gpt-5.5 | OpenAI | 72.5 | - |
+| 8 | claude-opus-4.8 | Anthropic | 72.0 | - |
+| 9 | muse-spark-1.2 | Meta | 71.6 | EQ-Bench Creative Writing(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg), LCR(reg) |
+| 10 | claude-opus-4.7 | Anthropic | 71.3 | - |
+| 11 | gemini-3.5-flash | Google | 71.2 | EQ-Bench Creative Writing(reg) |
+| 12 | gemini-3.1-pro | Google | 70.9 | - |
+| 13 | gpt-5.4 | OpenAI | 69.9 | - |
+| 14 | gemini-3.6-flash | Google | 69.8 | - |
+| 15 | gpt-5.6-terra | OpenAI | 68.7 | - |
 <!--TOP15_TEXT_END-->
 
 👉 [文本榜完整排名（CSV）](results/text_scored.csv)
@@ -89,27 +89,27 @@
 
 <!--SNAPSHOT_VALUE_START-->
 > 2026-08-13 抓取（41 第一梯队模型 -> 34 行）。
-> 填补验证：LiveBench Coding MAE=2.24 (>10%: 5.1%/39) ; DeepSWE MAE=9.01 (>10%: 54.5%/22) ; LiveBench Agentic Coding MAE=3.15 (>10%: 20.5%/39) ; LiveBench Instruction Following MAE=3.78 (>10%: 17.9%/39) ; LCR MAE=0.02 (>10%: 0.0%/34) ; Omniscience Index MAE=6.09 (>10%: 76.5%/34) ; GPQA Diamond MAE=0.01 (>10%: 0.0%/34) ; HLE MAE=0.02 (>10%: 17.6%/34)
+> 填补验证：LiveBench Coding MAE=3.19 (>10%: 5.1%/39) ; DeepSWE MAE=10.46 (>10%: 68.2%/22) ; LiveBench Agentic Coding MAE=3.17 (>10%: 23.1%/39) ; LiveBench Instruction Following MAE=3.82 (>10%: 15.4%/39) ; LCR MAE=0.02 (>10%: 0.0%/34) ; Omniscience Index MAE=6.14 (>10%: 82.4%/34) ; GPQA Diamond MAE=0.01 (>10%: 0.0%/34) ; HLE MAE=0.03 (>10%: 29.4%/34)
 <!--SNAPSHOT_VALUE_END-->
 
 <!--TOP15_VALUE_START-->
 | # | Model | Creator | Score | $/1M | Effective $/1M | Value | Imputed |
 |---|---|---|---|---|---|---|---|
-| 1 | minimax-m3 | MiniMax | 56.6 | 0.389 | 0.008 | 7078.21 | DeepSWE(reg) |
-| 2 | gpt-5.4-mini | OpenAI | 56.9 | 1.639 | 0.02 | 2844.87 | DeepSWE(reg) |
-| 3 | gpt-5.6-luna | OpenAI | 67.6 | 2.265 | 0.029 | 2329.95 | - |
-| 4 | gpt-5.2-codex | OpenAI | 66.7 | 4.874 | 0.062 | 1075.61 | DeepSWE(reg) |
-| 5 | gpt-5.2 | OpenAI | 63.3 | 4.874 | 0.062 | 1020.77 | DeepSWE(reg) |
-| 6 | gpt-5.4 | OpenAI | 66.8 | 5.463 | 0.068 | 982.77 | - |
-| 7 | gpt-5.6-terra | OpenAI | 68.8 | 5.664 | 0.073 | 941.82 | - |
-| 8 | deepseek-v4-flash | DeepSeek | 61.8 | 0.134 | 0.096 | 643.29 | - |
-| 9 | gpt-5.5 | OpenAI | 71.5 | 10.925 | 0.135 | 529.67 | - |
-| 10 | claude-sonnet-5 | Anthropic | 67.7 | 5.896 | 0.133 | 509.15 | - |
-| 11 | gpt-5.6-sol | OpenAI | 73.5 | 11.328 | 0.145 | 506.88 | - |
-| 12 | claude-sonnet-4.6 | Anthropic | 61.2 | 5.896 | 0.133 | 459.87 | - |
-| 13 | claude-opus-5 | Anthropic | 72.9 | 9.828 | 0.222 | 328.25 | - |
-| 14 | claude-opus-4.8 | Anthropic | 69.7 | 9.828 | 0.222 | 314.09 | - |
-| 15 | claude-opus-4.7 | Anthropic | 68.3 | 9.828 | 0.222 | 307.45 | DeepSWE(reg) |
+| 1 | minimax-m3 | MiniMax | 56.1 | 0.389 | 0.008 | 7009.96 | DeepSWE(reg) |
+| 2 | gpt-5.4-mini | OpenAI | 58.9 | 1.639 | 0.02 | 2943.15 | DeepSWE(reg) |
+| 3 | gpt-5.6-luna | OpenAI | 68.1 | 2.492 | 0.032 | 2129.38 | - |
+| 4 | gpt-5.2-codex | OpenAI | 68.1 | 4.874 | 0.062 | 1098.74 | DeepSWE(reg) |
+| 5 | gpt-5.2 | OpenAI | 63.6 | 4.874 | 0.062 | 1026.42 | DeepSWE(reg) |
+| 6 | gpt-5.4 | OpenAI | 67.3 | 5.463 | 0.068 | 989.51 | - |
+| 7 | gpt-5.6-terra | OpenAI | 69.4 | 6.232 | 0.08 | 867.21 | - |
+| 8 | claude-sonnet-5 | Anthropic | 68.5 | 3.931 | 0.089 | 769.39 | - |
+| 9 | deepseek-v4-flash | DeepSeek | 63.7 | 0.134 | 0.096 | 663.18 | - |
+| 10 | gpt-5.5 | OpenAI | 72.1 | 10.925 | 0.135 | 533.74 | - |
+| 11 | gpt-5.6-sol | OpenAI | 74.0 | 11.328 | 0.145 | 510.37 | - |
+| 12 | claude-sonnet-4.6 | Anthropic | 61.6 | 5.896 | 0.133 | 463.41 | - |
+| 13 | claude-opus-5 | Anthropic | 73.8 | 9.828 | 0.222 | 332.52 | - |
+| 14 | claude-opus-4.8 | Anthropic | 70.4 | 9.828 | 0.222 | 317.32 | - |
+| 15 | claude-opus-4.7 | Anthropic | 68.7 | 9.828 | 0.222 | 309.46 | DeepSWE(reg) |
 <!--TOP15_VALUE_END-->
 
 👉 [性价比榜完整排名（CSV）](results/value_scored.csv)
