@@ -86,6 +86,7 @@
     "input_share": 0.70,
     "output_share": 0.30,
     "cache_hit_rate": 0.50,
+    "cache_write_ratio": 0.20,
     "provider_cache_rates": {
       "Anthropic": 0.90,
       "OpenAI": 0.90,
@@ -139,6 +140,24 @@
       "discount": 0.05,
       "source": "SemiAnalysis 2026-06 实测",
       "note": "用满额度上限：$20/月 ≈ $400 API 等价（20x）"
+    },
+    {
+      "name": "SuperGrok Heavy",
+      "creator_match": ["SpaceXAI"],
+      "monthly": 300,
+      "implied_value": 1600,
+      "discount": 0.19,
+      "source": "agentplans.fyi 2026-06 估算",
+      "note": "用满额度上限：$300/月 ≈ $1,600 API 等价（5.3x）"
+    },
+    {
+      "name": "SuperGrok",
+      "creator_match": ["SpaceXAI"],
+      "monthly": 30,
+      "implied_value": 160,
+      "discount": 0.19,
+      "source": "agentplans.fyi 2026-06 估算",
+      "note": "用满额度上限：$30/月 ≈ $160 API 等价（5.3x）"
     },
     {
       "name": "GitHub Copilot Max",

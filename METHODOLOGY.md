@@ -313,6 +313,11 @@ Total $/1M = (1 - cache_hit_rate) × input_share × 输入价
 | Claude Pro | $20 | $400 | ~20x | ×0.050 |
 | Claude Max 5x | $100 | $2,000 | ~20x | ×0.050 |
 | Claude Max 20x | $200 | $8,000 | ~40x | ×0.025 |
+| SuperGrok Lite | $10 | $50 | ~5x | ×0.20 |
+| SuperGrok | $30 | $160 | ~5.3x | ×0.19 |
+| SuperGrok Heavy | $300 | $1,600 | ~5.3x | ×0.19 |
+
+> 倍率来源：OpenAI/Anthropic 为 SemiAnalysis（2026-06）实测；xAI 为 agentplans.fyi（2026-06）按 API 等价估算。**未收录**：Google AI Plus/Pro/Ultra（无权威社区倍率，仅 $10–40/月 API 抵扣，非额度制）、Mistral Le Chat（消息数限额制）、Kimi 会员（token credit 池但额度未公开）、DeepSeek（无订阅）。
 
 > **重要口径**：(b) 类折扣是**用满额度上限**的估计（普通用户远达不到，SemiAnalysis 明言"最大配额价值而非平均行为"）；且行业正在收窄该补贴窗口（Anthropic 2026-06-15 起 Agent SDK / 无界面调用移出订阅池，Claude Fable 5 转 usage credits；OpenAI 4 月起 Codex 按 token 计费）。因此 (b) 类计划代表"重度订阅用户"的成本下界，`Effective $/1M` 取命中计划中的**最低折扣**。如认为不符合你的使用强度，在 `config.json` 删除或调低对应计划即可。
 
@@ -328,6 +333,14 @@ AA 不公布缓存命中率（它取决于使用模式，非模型属性）。20
 | 其他 | 0.30 | 缓存机制不明确的中小厂商，保守假设 |
 
 命中价优先取 AA 真实 `Cache Hit Price`；缺失时按**同 Creator 均值**回退（而非统一 ×0.1）；再无则回退 `输入价 × cache_hit_multiplier`。
+
+**缓存写入价（Cache Write Price）**：命中输入并非全部按 read 价——首次写入缓存的输入按 **write 价**计费（Anthropic / OpenAI 均为输入价的 1.25×，数据实测一致）。按 `cost.cache_write_ratio`（默认 0.20，即缓存输入中约 1/5 为首次写入）混合：
+
+```
+pcache = cache_write_ratio × pwrite + (1 - cache_write_ratio) × phit
+```
+
+- 无 `Cache Write Price` 的厂商视为 write 已含在未命中价中，缓存输入只按 hit 价计（DeepSeek / Google 等即此类）。
 
 **公式**
 

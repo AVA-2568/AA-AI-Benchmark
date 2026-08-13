@@ -49,6 +49,7 @@ def cost_params(cfg: Dict[str, Any]) -> Dict[str, Any]:
         "input_share": cost.get("input_share", 0.70),
         "output_share": cost.get("output_share", 0.30),
         "cache_hit_rate": cost.get("cache_hit_rate", 0.50),
+        "cache_write_ratio": cost.get("cache_write_ratio", 0.20),
         "provider_cache_rates": rates,
     }
 
@@ -154,6 +155,11 @@ def validate_config(cfg: Dict[str, Any]) -> bool:
         raise ConfigError(
             f"cost.cache_hit_rate must be in [0, 1], "
             f"got {cost.get('cache_hit_rate')}"
+        )
+    if not 0 <= cost.get("cache_write_ratio", -1) <= 1:
+        raise ConfigError(
+            f"cost.cache_write_ratio must be in [0, 1], "
+            f"got {cost.get('cache_write_ratio')}"
         )
     for creator, rate in (cost.get("provider_cache_rates") or {}).items():
         if not 0 <= float(rate) <= 1:

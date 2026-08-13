@@ -239,6 +239,32 @@ def test_effective_cost_falls_back_to_creator_mean_cache_price():
         float(by_model["B"]["Effective $/1M"])
 
 
+def test_effective_cost_blends_cache_write_price():
+    """Providers with a Cache Write Price pay write_ratio × write +
+    (1-write_ratio) × hit for cached input; without one, hit only."""
+    cost = dict(_COST_EFF)
+    cost["cache_write_ratio"] = 0.2
+    eng = FakeEngine()
+    eng.raw = {"m1": [80.0, 20.0], "m2": [40.0, 10.0]}
+    eng.cur = dict(eng.raw)
+    rows = [
+        {"Model": "W", "Creator": "Anthropic",
+         "Price 1M Input": "5.0", "Price 1M Output": "25.0",
+         "Cache Hit Price": "0.5", "Cache Write Price": "6.25"},
+        {"Model": "H", "Creator": "Anthropic",
+         "Price 1M Input": "5.0", "Price 1M Output": "25.0",
+         "Cache Hit Price": "0.5", "Cache Write Price": ""},
+    ]
+    out, _ = score_board(rows, _BOARD, eng, cost, 0.1, 0.0)
+    by_model = {r["Model"]: r for r in out}
+    # W: blend = 0.2×6.25 + 0.8×0.5 = 1.65; H: hit only = 0.5
+    assert abs(float(by_model["W"]["Cache Hit"]) - 1.65) < 1e-6
+    assert abs(float(by_model["H"]["Cache Hit"]) - 0.5) < 1e-6
+    # higher cache input price -> W costs more than H
+    assert float(by_model["W"]["Effective $/1M"]) > \
+        float(by_model["H"]["Effective $/1M"])
+
+
 def test_value_board_ranks_by_score_per_dollar():
     """rank_by='value' sorts by Weighted Total / Effective $/1M and
     drops rows without a price."""

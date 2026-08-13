@@ -66,10 +66,17 @@ def _cost_terms(r, cost, cache_multiplier, cache_price_fallback, plans):
     - effective: per-creator cache-hit rate + real cache price
       (fallback: per-creator mean, then input × cache_multiplier)
       × subscription-plan discount.
+
+    Cache input is priced as a blend of first-write and reuse reads:
+    ``cache_write_ratio`` of cached input pays the Cache Write Price
+    (write cost is amortized over reuses), the rest pays the Cache Hit
+    Price. Providers without a published write price are treated as
+    bundling write into the miss price (cache input = hit price only).
     """
     pin = to_float(r.get("Price 1M Input"))
     pout = to_float(r.get("Price 1M Output"))
     pcache = to_float(r.get("Cache Hit Price"))
+    pwrite = to_float(r.get("Cache Write Price"))
     creator = (r.get("Creator") or "").strip()
     if None in (pin, pout):
         return None, None, None, "", pin, pout, None
@@ -79,6 +86,11 @@ def _cost_terms(r, cost, cache_multiplier, cache_price_fallback, plans):
         pcache_eff = cache_price_fallback[creator]
     if pcache_eff is None and pin is not None:
         pcache_eff = pin * cache_multiplier
+    # blend write + read for cached input; no write price -> hit only
+    write_ratio = float(cost.get("cache_write_ratio", 0.20))
+    if pwrite is not None and write_ratio > 0:
+        pcache_eff = (write_ratio * pwrite
+                      + (1 - write_ratio) * pcache_eff)
 
     in_share = cost["input_share"]
     out_share = cost["output_share"]
