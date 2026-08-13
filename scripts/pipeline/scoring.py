@@ -1,7 +1,6 @@
 """Scoring: min-max norm, weighted total, cost, ranking + threshold."""
 from __future__ import annotations
 
-import re
 from typing import Any, Dict, List, Optional, Tuple
 
 from .config import board_weights, to_float
@@ -22,48 +21,6 @@ def fmt_val(val, is_imputed, is_low):
     if is_imputed:
         return s + "*"
     return s
-
-
-_THINKING_LEVEL_RE = re.compile(
-    r"\((max|xhigh|high|medium|low|minimal)\)", re.IGNORECASE)
-
-
-def resolve_reasoning_multiplier(row, cost):
-    """Effective output-term multiplier from reasoning effort.
-
-    Reasoning tokens are billed as *output* tokens, so a thinking
-    model's real $/1M is materially higher than a non-reasoning model
-    with the same list price. We model that as a multiplier K on the
-    output cost term:
-
-    - non-reasoning (flag False, or name carries "non-reasoning" /
-      "no reasoning")           -> K = 1.0
-    - reasoning, recognized level (max/high/...) -> thinking_multipliers[lvl]
-    - reasoning, no recognized level          -> reasoning_output_multiplier
-
-    This makes the estimated cost vary with thinking effort instead of
-    being identical across reasoning vs non-reasoning variants.
-    """
-    base = float(cost.get("reasoning_output_multiplier", 1.0) or 1.0)
-    lvl_map = cost.get("thinking_multipliers") or {}
-
-    model = (row.get("Model") or "")
-    mlow = model.lower()
-    flag = str(row.get("Reasoning Model") or "").strip().lower()
-
-    is_reasoning = flag in ("true", "yes", "1", "y")
-    # explicit non-reasoning marker overrides a stray boolean
-    if "non-reasoning" in mlow or "no reasoning" in mlow:
-        is_reasoning = False
-
-    if not is_reasoning:
-        return 1.0
-
-    m = _THINKING_LEVEL_RE.search(model)
-    lvl = m.group(1).lower() if m else None
-    if lvl and lvl in lvl_map:
-        return float(lvl_map[lvl])
-    return base
 
 
 def score_board(rows, board, engine, cost, cache_multiplier, score_threshold):
@@ -111,12 +68,9 @@ def score_board(rows, board, engine, cost, cache_multiplier, score_threshold):
         if None in (pin, pout):
             cost_total = None
         else:
-            k = resolve_reasoning_multiplier(r, cost)
             cost_in = input_share * (1 - cache_share) * pin
             cost_cache = input_share * cache_share * pcache_eff
-            # reasoning tokens are output-priced; scale the output term
-            # by the thinking-effort multiplier so cost reflects thinking
-            cost_out = output_share * pout * k
+            cost_out = output_share * pout
             cost_total = round(cost_in + cost_cache + cost_out, 3)
 
         imputed_set = {m.split("(low)")[0] for m in imputed}
@@ -135,8 +89,6 @@ def score_board(rows, board, engine, cost, cache_multiplier, score_threshold):
             "Price 1M Out": pout,
             "Cache Hit": pcache_eff,
             "Total $/1M": cost_total,
-            "Reasoning Cost ×": (round(resolve_reasoning_multiplier(r, cost), 2)
-                                 if cost_total is not None else None),
             "Imputed": ", ".join(
                 f"{m}(reg)" if not m.endswith("(low)")
                 else f"{m[:-5]}(reg,low)"
@@ -158,8 +110,7 @@ def score_board(rows, board, engine, cost, cache_multiplier, score_threshold):
         row["Rank"] = idx
 
     headers = ["Rank", "Model", "Weighted Total", "Total $/1M",
-               "Reasoning Cost ×", "Creator",
-               "Reasoning", "Orig Intelligence Index"]
+               "Creator", "Reasoning", "Orig Intelligence Index"]
     for _, _, subs in cats:
         for m, _ in subs:
             headers.append(m)

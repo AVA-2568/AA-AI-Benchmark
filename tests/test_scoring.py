@@ -13,7 +13,6 @@ if _SCRIPTS not in sys.path:
     sys.path.insert(0, _SCRIPTS)
 
 from pipeline import fmt_val, norm, score_board  # noqa: E402
-from pipeline.scoring import resolve_reasoning_multiplier
 
 
 # ---- norm ----
@@ -123,52 +122,29 @@ def test_score_board_imputed_marker():
     assert "m1(reg,low)" in b["Imputed"]
 
 
-# ---- reasoning-aware cost ----
+# ---- cost is unit-price only (thinking effort NOT a factor) ----
 
-_COST_R = {
-    "input_share": 0.7, "output_share": 0.3, "cache_hit_rate": 0.5,
-    "reasoning_output_multiplier": 3.0,
-    "thinking_multipliers": {"low": 2.0, "high": 4.0, "max": 6.0},
-}
-
-
-def test_resolve_reasoning_multiplier_non_reasoning():
-    # explicit non-reasoning -> 1.0 regardless of Thinking suffix
-    row = {"Model": "X (high)", "Reasoning Model": "False"}
-    assert resolve_reasoning_multiplier(row, _COST_R) == 1.0
-    # "non-reasoning" in name overrides a stray True flag
-    row = {"Model": "X (Non-reasoning, high)", "Reasoning Model": "True"}
-    assert resolve_reasoning_multiplier(row, _COST_R) == 1.0
-
-
-def test_resolve_reasoning_multiplier_level_and_default():
-    # recognized thinking level -> mapped multiplier
-    assert resolve_reasoning_multiplier(
-        {"Model": "X (max)", "Reasoning Model": "True"}, _COST_R) == 6.0
-    # reasoning but no recognized suffix -> base multiplier
-    assert resolve_reasoning_multiplier(
-        {"Model": "Kimi K3", "Reasoning Model": "True"}, _COST_R) == 3.0
-
-
-def test_score_board_reasoning_scales_output():
-    """Same list price, reasoning variant must cost more than
-    non-reasoning — the bug the cost model fixes."""
-    cost = dict(_COST_R)
+def test_score_board_cost_independent_of_thinking_effort():
+    """Total $/1M is a per-token unit price: it must depend only on the
+    provider's list prices, never on reasoning flag or thinking level.
+    Same price -> same $/1M, no matter the (max)/(high) suffix."""
     eng = FakeEngine()
+    eng.raw = {"m1": [80.0, 20.0, 20.0], "m2": [40.0, 10.0, 10.0]}
+    eng.cur = dict(eng.raw)
     rows = [
         {"Model": "R (max)", "Reasoning Model": "True",
+         "Price 1M Input": "5.0", "Price 1M Output": "25.0",
+         "Cache Hit Price": "0.5"},
+        {"Model": "R (high)", "Reasoning Model": "True",
          "Price 1M Input": "5.0", "Price 1M Output": "25.0",
          "Cache Hit Price": "0.5"},
         {"Model": "N", "Reasoning Model": "False",
          "Price 1M Input": "5.0", "Price 1M Output": "25.0",
          "Cache Hit Price": "0.5"},
     ]
-    out, _ = score_board(rows, _BOARD, eng, cost, 0.1, 0.0)
+    out, headers = score_board(rows, _BOARD, eng, _COST, 0.1, 0.0)
     by_model = {r["Model"]: r for r in out}
-    r_cost = float(by_model["R (max)"]["Total $/1M"])
-    n_cost = float(by_model["N"]["Total $/1M"])
-    assert r_cost > n_cost
-    # reasoning cost factor is surfaced for transparency
-    assert by_model["R (max)"]["Reasoning Cost ×"] == 6.0
-    assert by_model["N"]["Reasoning Cost ×"] == 1.0
+    costs = {float(by_model[m]["Total $/1M"]) for m in by_model}
+    assert len(costs) == 1, "same list price must yield identical $/1M"
+    assert "Reasoning Cost ×" not in headers
 

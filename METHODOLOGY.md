@@ -257,51 +257,36 @@ def to_X(arr_pool, target_m):
 - **70% 输入 token + 30% 输出 token** — `cost.input_share` / `cost.output_share`
 - **50% 的输入 token 命中提示缓存** — `cost.cache_hit_rate`
 
-### 推理感知（关键修正）
+### 思考强度不参与单价估算（口径说明）
 
-> **同一服务商对同一模型的"每 token 单价"在 max / high / low 等思考档位下是相同的**——AA 只公布一个 list price，思考档位改变的是**生成的 token 数量**，不是单价。因此旧公式（只看单价×固定份额）会让推理模型与非推理模型、或同一模型的不同思考档位算出**完全相同的 $/1M**，这在物理上不可能成立：推理（思考）token 按**输出价**计费，思考越多、输出 token 越多、账单越高。
+`Total $/1M` 是**每百万 token 的单价**（unit price），不是"完成一次任务的账单"。AA 对同一模型只公布一个 list price——**思考档位（max / high / low）改变的是完成任务实际消耗的 token 数量，不是每 token 单价**。因此：
 
-修正方法：对输出项乘一个**思考倍率 K**，使成本随思考变化：
+- 同一模型的不同思考档位变体，`Total $/1M` **完全相同**（价格相同）。
+- 推理模型与非推理模型只有在**单价不同**时才呈现成本差异。
+- 早期版本曾在输出项上乘"思考倍率 K"（`thinking_multipliers` / `reasoning_output_multiplier`），把"思考越多账单越高"这一 token 数量效应硬塞进单价，混用了两个维度，已移除。
 
-```
-Total $/1M = (1 - cache_hit_rate) × input_share × 输入价
-            + cache_hit_rate × input_share × 缓存命中价
-            + output_share × 输出价 × K
-```
+若需要比较"完成某任务的实际成本"，应在单价之外再乘各模型的实际 token 消耗量——那不是本榜单 `$/1M` 列的职责。
 
-`K` 的取值（全部在 `config.json` 可调）：
-
-| 判定 | K |
-|---|---|
-| 非推理模型（`Reasoning Model=False`，或名称含 `non-reasoning` / `no reasoning`） | `1.0` |
-| 推理模型 + 名称识别到档位（max / xhigh / high / medium / low / minimal） | `cost.thinking_multipliers[档位]` |
-| 推理模型但无识别档位（如 `Kimi K3`） | `cost.reasoning_output_multiplier`（默认 `3.0`） |
-
-- 输入 token / 缓存命中价**不**乘 K——思考 token 是生成的输出，不是被缓存的提示。
-- 实际倍率取决于具体模型的推理 token 产出比，属**估算值**，按场景在 `config.json` 调大调小。默认档位倍率：`minimal 1.5 / low 2.0 / medium 3.0 / high 4.0 / xhigh 5.0 / max 6.0`。
-- 该修正让"同价不同思考"的模型在榜单上呈现不同成本，修复了成本列失真。
-
-### 成本公式（完整）
+### 成本公式
 
 ```
 Total $/1M = (1 - cache_hit_rate) × input_share × 输入价
             + cache_hit_rate × input_share × 缓存命中价
-            + output_share × 输出价 × K(reasoning)
+            + output_share × 输出价
 ```
 
 - `输入价` / `输出价`：来自服务商在 AA leaderboard 标注的 API 定价
 - `缓存命中价`：优先从 leaderboard 的 `cacheHitPrice` 字段读取（多数 provider 没公布）
 - **`缓存命中价` 缺失时，按 `config.json` 的 `cost_fallback.cache_hit_multiplier` 回退**，默认 `输入价 × 0.1`。如果场景偏 OpenAI，fallback 可能高估；偏 Anthropic/DeepSeek 则接近实际。
 - 单位：USD / 百万 token
-- **可调参数**（在 `config.json`）：`input_share` / `output_share` / `cache_hit_rate` / `cost_fallback.cache_hit_multiplier` / `reasoning_output_multiplier` / `thinking_multipliers`
-- 计分结果额外给出 **`Reasoning Cost ×`** 列，直接显示该行使用的 K，便于核对"为何思考越多越贵"。
+- **可调参数**（在 `config.json`）：`input_share` / `output_share` / `cache_hit_rate` / `cost_fallback.cache_hit_multiplier`
 
 ### 参考意义
 
 成本估算让你在同分段模型间做性价比取舍。但注意：
 - 价格为快照，实际可能变动
 - 大客户通常有批发折扣，榜单未体现
-- 推理倍率 K 是估算（非 AA 公布字段），思考档位的真实 token 增量因模型而异；如需更精确，调 `thinking_multipliers`
+- `$/1M` 只反映单价：思考越多的模型在单价上不占劣势，实际账单差异由 token 消耗量决定，需结合用量估算
 
 ## 注意事项
 
