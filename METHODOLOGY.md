@@ -18,7 +18,7 @@
 | 源 | 提供指标 | 维护方 | 抓取方式 |
 |---|---|---|---|
 | LiveBench | Coding / Agentic Coding / Instruction Following / Language | Abacus.AI + 学界 | `table_<release>.csv` + `categories_<release>.json` |
-| DeepSWE | Pass@1（长程工程 agent） | Datacurve | 静态 HTML |
+| DeepSWE | Pass@1（长程工程 agent） | Datacurve | `/artifacts/v1.1/leaderboard-live.json`（JSON API，每模型取最高 pass_rate 档） |
 | EQ-Bench | Creative Writing Elo | 独立 | `creative_writing.js` 内嵌 CSV |
 | Artificial Analysis | LCR / Omniscience Index / GPQA Diamond / HLE | 独立评测机构 | RSC 流（三级解析链） |
 | Frankfurter | USD→CNY 汇率（ECB 官方） | 开源 | v2 rates API（备源 open.er-api.com） |
@@ -31,11 +31,13 @@
 
 各源模型命名风格各异（如 LiveBench `claude-opus-4-7-xhigh-effort`、DeepSWE `claude-opus-4.7`、AA `claude-opus-4-7`）。`model_registry.json` 为每个统一 slug 维护各源别名，`merge.py` 按别名合并。**新增模型需同步维护别名映射**。
 
-### 新模型自动发现
+### 新模型自动发现与别名漏配检测
 
-`merge.py` 以 `model_registry.json` 为白名单，源里出现的新模型会被静默丢弃。为不漏掉新发布的主力模型，`detect_new_models.py` 在每次构建时对比 LiveBench / DeepSWE 两个「第一梯队评测源」的模型名与 registry 全部别名，把未覆盖的候选写入 `results/new_model_candidates.json` 并打印告警。
+`merge.py` 以 `model_registry.json` 为白名单，registry 维护不当会静默丢数据。`detect_new_models.py` 在每次构建时做两类检测，结果写入 `results/new_model_candidates.json` 并打印告警：
 
-- **只扫 LiveBench + DeepSWE**：这两个源只测主流模型、命名规范、几乎无长尾噪音（实测 LiveBench 42 个模型仅 1 个未覆盖、DeepSWE 22 个全覆盖）；EQ-Bench / SWE-bench / AA 因含大量 open-weights 长尾与旧模型（未覆盖率分别约 79% / 97% / 34%）不纳入自动扫描。
+1. **新模型**：源里出现、registry 完全没有收录的模型。只扫 LiveBench + DeepSWE 两个「第一梯队评测源」（命名规范、几乎无长尾噪音）；EQ-Bench / SWE-bench / AA 因含大量 open-weights 长尾与旧模型不纳入。
+2. **别名漏配**：registry 已收录但某源字段为 null，而该源里存在「规范化 slug」（点/连字符互换）对应的数据 —— 数据其实有，只是别名没配。这类检测覆盖 aa / eqbench / deepswe / livebench 四源，用 registry slug 做确定性反向匹配，无长尾噪音问题。
+
 - **只发现、不自动改 registry**：第一梯队筛选与别名确认是人工判断，候选经人工确认后补录 `model_registry.json`。
 - **发现候选不视为构建失败**：新模型上线是正常事件，不应阻塞榜单刷新。
 
@@ -102,6 +104,7 @@ AA 解析沿用三级降级链（RSC 流 → `__next_f.push` → `__NEXT_DATA__`
 - 结果范围 0–100，代表「原始值在理论范围中的位置」，即**真实能力分**而非**名次分**
 - 保留绝对难度信息：DeepSWE 最高 74%（基准难）就是 74 分，GPQA 最高 92%（快饱和）就是 92 分，两者不再被同等拍成 100
 - 加新模型不影响已有模型的分数（锚点固定，不随样本漂移）
+- **越界裁剪**：原始值超出锚点范围时裁剪到 0–100（如 EQ-Bench Elo 超过 2200 上限不再产生 >100 的异常分）
 
 各指标锚点：
 
@@ -151,6 +154,14 @@ AA 解析沿用三级降级链（RSC 流 → `__next_f.push` → `__NEXT_DATA__`
 
 - CSV 中 `Imputed` 列标注 `指标名(reg)` 或 `指标名(reg,low)`
 - README 排名表中「Imputed」列直接显示
+
+### 填补降权（可配置）
+
+填补值可信度低于真实值（留一验证 MAE 越大越不可靠）。`score_board` 支持对填补指标的权重打折：填补指标的权重 × `imputed_weight_discount`，其余真实指标权重不变，再**重新归一化**到总权重 1，保证总分仍落在 0–100 可比。
+
+- `imputed_weight_discount = 1.0`（默认）= 不降权，与旧版一致。
+- `discount < 1` 时，填补指标对总分贡献降低、真实指标权重相对上升——用于抑制填补误差（如 DeepSWE MAE≈10）对排名的干扰。
+- 参数在 `config.json` 顶层 `imputed_weight_discount` 配置，缺失时默认 1.0。
 
 ## 留一验证
 

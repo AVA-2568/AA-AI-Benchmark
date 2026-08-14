@@ -122,19 +122,33 @@ def fetch_livebench():
 # ---------- DeepSWE ----------
 
 def fetch_deepswe():
-    html = _get("https://deepswe.datacurve.ai/").decode("utf-8", errors="replace")
-    # 每行: <span>model</span> <span>[effort]</span> ... <span>74<!-- -->%</span>
-    rows = []
-    for m in re.finditer(
-            r'>([a-z0-9][a-z0-9.-]*)</span>\s*<span[^>]*>\[[^]]*\]</span>', html):
-        model = m.group(1)
-        # 该模型名之后最近的一个百分比
-        tail = html[m.end():m.end() + 2000]
-        pm = re.search(r'>(\d+(?:\.\d+)?)\s*<!-- -->\s*%</span>', tail)
-        if pm:
-            rows.append([model, pm.group(1)])
-    path = _write_csv("deepswe.csv", ["model", "Pass@1"], rows)
-    print(f"deepswe: {len(rows)} 模型 -> {os.path.basename(path)}")
+    """DeepSWE 从 JSON API 抓完整 leaderboard。
+
+    页面改版后 HTML 只渲染 top 17，完整数据在
+    ``/artifacts/v1.1/leaderboard-live.json``（rows = (model, effort) 组合）。
+    每个模型取 pass_rate 最高的档（与旧 HTML 按分数降序取首个一致）。
+    model 名把版本号连字符转点号（claude-opus-4-8 -> claude-opus-4.8、
+    kimi-k2-7-code -> kimi-k2.7-code）以对齐 registry slug。
+    """
+    data = json.loads(_get(
+        "https://deepswe.datacurve.ai/artifacts/v1.1/leaderboard-live.json"
+    ).decode("utf-8"))
+    best = {}
+    for r in data.get("rows") or []:
+        model = r.get("model")
+        pr = r.get("pass_rate")
+        if not model or pr is None:
+            continue
+        pr = float(pr)
+        if model not in best or pr > best[model]:
+            best[model] = pr
+
+    def _normalize(m):
+        return re.sub(r"(\d+)-(\d+)", r"\1.\2", m)
+
+    out = [[_normalize(m), round(pr * 100)] for m, pr in sorted(best.items())]
+    path = _write_csv("deepswe.csv", ["model", "Pass@1"], out)
+    print(f"deepswe: {len(out)} 模型 -> {os.path.basename(path)}")
     return path
 
 

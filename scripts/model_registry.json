@@ -130,7 +130,7 @@
     {
       "slug": "gpt-5.4-nano",
       "creator": "OpenAI",
-      "aa": null,
+      "aa": "gpt-5-4-nano",
       "livebench": "gpt-5.4-nano-xhigh",
       "deepswe": null,
       "swebench": null,
@@ -159,7 +159,7 @@
       "creator": "Google",
       "aa": "gemini-3-1-pro-preview",
       "livebench": "gemini-3.1-pro-preview-high",
-      "deepswe": "gemini-3.1-pro",
+      "deepswe": "gemini-3.1-pro-preview",
       "swebench": null,
       "eqbench": "gemini-3.1-pro-preview"
     },
@@ -193,16 +193,16 @@
     {
       "slug": "gemini-3.5-flash-lite",
       "creator": "Google",
-      "aa": null,
+      "aa": "gemini-3-5-flash-lite",
       "livebench": "gemini-3.5-flash-lite-high",
       "deepswe": null,
       "swebench": null,
-      "eqbench": null
+      "eqbench": "gemini-3.5-flash-lite"
     },
     {
       "slug": "grok-4.6",
       "creator": "xAI",
-      "aa": null,
+      "aa": "grok-4-6",
       "livebench": ["grok-4.6-xhigh", "grok-4.6"],
       "deepswe": "grok-4.6",
       "swebench": null,
@@ -220,7 +220,7 @@
     {
       "slug": "grok-4.3",
       "creator": "xAI",
-      "aa": null,
+      "aa": "grok-4-3",
       "livebench": "grok-4.3",
       "deepswe": null,
       "swebench": null,
@@ -238,7 +238,7 @@
     {
       "slug": "muse-spark-1.2",
       "creator": "Meta",
-      "aa": null,
+      "aa": "muse-spark-1-2",
       "livebench": "muse-spark-1.2-xhigh",
       "deepswe": "muse-spark-1.2",
       "swebench": null,
@@ -316,7 +316,7 @@
     {
       "slug": "qwen3.8-max",
       "creator": "Alibaba",
-      "aa": null,
+      "aa": "qwen3-8-max",
       "livebench": "qwen3.8-max",
       "deepswe": "qwen3.8-max",
       "swebench": null,
@@ -343,7 +343,7 @@
     {
       "slug": "qwen3.6-27b",
       "creator": "Alibaba",
-      "aa": null,
+      "aa": "qwen3-6-27b",
       "livebench": "qwen3.6-27b",
       "deepswe": null,
       "swebench": null,
@@ -374,7 +374,7 @@
       "livebench": null,
       "deepswe": null,
       "swebench": null,
-      "eqbench": null
+      "eqbench": "XiaomiMiMo/MiMo-V2.5-Pro"
     },
     {
       "slug": "hy3",

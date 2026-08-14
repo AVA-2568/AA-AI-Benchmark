@@ -15,6 +15,7 @@ if _SCRIPTS not in sys.path:
 
 import build as build_mod  # noqa: E402
 import score_aa as score  # noqa: E402
+from pipeline.scoring import _weighted_total  # noqa: E402
 
 
 # ---- to_float ----
@@ -47,6 +48,29 @@ def test_norm_bounds():
 
 def test_norm_flat_range():
     assert score.norm(7, 3, 3) == 50.0
+
+
+def test_norm_clips_out_of_range():
+    # 越界原始值必须裁剪到 [0, 100]，不得产生 >100 或 <0 的异常分
+    assert score.norm(150, 0, 100) == 100.0
+    assert score.norm(-50, 0, 100) == 0.0
+    assert score.norm(2300, 800, 2200) == 100.0
+
+
+# ---- _weighted_total ----
+
+def test_weighted_total_no_discount_equals_plain():
+    glob = {"a": 0.6, "b": 0.4}
+    nrm = {"a": 80.0, "b": 60.0}
+    assert _weighted_total(glob, nrm, set(), 1.0) == 0.6 * 80 + 0.4 * 60
+
+
+def test_weighted_total_discount_downweights_imputed():
+    glob = {"a": 0.6, "b": 0.4}
+    nrm = {"a": 80.0, "b": 60.0}
+    # b 为填补：权重 0.4 -> 0.2；a 真实 0.6；重归一化后总权重 0.8
+    # total = (0.6*80 + 0.2*60) / 0.8 = 75.0
+    assert _weighted_total(glob, nrm, {"b"}, 0.5) == 75.0
 
 
 # ---- fmt_val ----

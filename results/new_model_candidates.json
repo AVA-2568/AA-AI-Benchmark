@@ -1,6 +1,14 @@
 {
-  "livebench.csv": [
-    "smaug-agentic"
-  ],
-  "deepswe.csv": []
+  "new_models": {
+    "livebench.csv": [
+      "smaug-agentic"
+    ],
+    "deepswe.csv": []
+  },
+  "missing_aliases": {
+    "aa": [],
+    "eqbench": [],
+    "deepswe": [],
+    "livebench": []
+  }
 }

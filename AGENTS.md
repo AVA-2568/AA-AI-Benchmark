@@ -30,7 +30,7 @@ fetch(多源) -> merge(跨源合并) -> detect(新模型候选) -> imputation ->
 - 抓取失败时默认失败；`--allow-stale` 仅用于显式诊断，且不刷新 README。
 - 每次构建生成 `results/manifest.json`，记录输入哈希、配置哈希和 stale 状态。
 - 模型池与别名映射在 `scripts/model_registry.json`，新增模型需同步维护。
-- `detect_new_models.py` 只读不写 registry，仅对比 LiveBench/DeepSWE 与 registry 别名、输出 `results/new_model_candidates.json` 候选清单；发现候选不视为构建失败。
+- `detect_new_models.py` 只读不写 registry，输出 `results/new_model_candidates.json` 候选清单（新模型 + 别名漏配两类）；发现候选不视为构建失败。
 
 ## 修改规则
 - 修改算法必须同步更新 METHODOLOGY.md。

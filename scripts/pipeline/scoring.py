@@ -8,10 +8,14 @@ from .models import ScoredModel
 
 
 def norm(v, lo, hi):
-    """Min-max normalize v into 0-100 using [lo, hi]. Flat range -> 50."""
+    """Min-max normalize v into 0-100 using [lo, hi]. Flat range -> 50.
+
+    Clipped to [0, 100]: an out-of-anchor raw value (e.g. EQ-Bench Elo
+    above the 2200 upper anchor) must not produce a >100 or <0 score.
+    """
     if hi == lo:
         return 50.0
-    return (v - lo) / (hi - lo) * 100.0
+    return max(0.0, min(100.0, (v - lo) / (hi - lo) * 100.0))
 
 
 def fmt_val(val, is_imputed, is_low):
@@ -108,9 +112,23 @@ def _cost_terms(r, cost, cache_multiplier, cache_price_fallback, plans):
             pin, pout, pcache_eff)
 
 
+def _weighted_total(glob, nrm, imputed_set, discount):
+    """加权总分；填补指标的权重按 discount 打折后重新归一化。
+
+    discount >= 1 时退化为普通加权和（不降权）。填补不可信时 discount<1，
+    填补指标对总分贡献降低、其余真实指标权重相对上升，总分仍落在
+    0-100 可比较（权重重归一化，总和恒为 1）。
+    """
+    if discount >= 1.0:
+        return sum(glob[m] * nrm[m] for m in nrm)
+    w = {m: glob[m] * (discount if m in imputed_set else 1.0) for m in nrm}
+    ws = sum(w.values())
+    return sum(w[m] * nrm[m] for m in nrm) / ws if ws else 0.0
+
+
 def score_board(rows, board, engine, cost, cache_multiplier, score_threshold,
                 plans=None, cache_price_fallback=None, scales=None,
-                fx_rate=None):
+                fx_rate=None, imputed_weight_discount=1.0):
     """Score one leaderboard. Returns (scored_rows, headers).
 
     ``engine`` provides stats / cur / raw / imputation_quality and
@@ -149,7 +167,9 @@ def score_board(rows, board, engine, cost, cache_multiplier, score_threshold,
                 else:
                     imputed.append(m)
         nrm = {m: norm(eff[m], scales[m][0], scales[m][1]) for m in metrics}
-        total = sum(glob[m] * nrm[m] for m in metrics)
+        imputed_set = {m.split("(low)")[0] for m in imputed}
+        total = _weighted_total(glob, nrm, imputed_set,
+                                imputed_weight_discount)
 
         std_cost, eff_cost, cache_rate, plan_name, pin, pout, pcache_eff = \
             _cost_terms(r, cost, cache_multiplier, cache_price_fallback,
@@ -160,7 +180,6 @@ def score_board(rows, board, engine, cost, cache_multiplier, score_threshold,
         std_cny = round(std_cost * fx_rate, 3) if (std_cost and fx_rate) else None
         eff_cny = round(eff_cost * fx_rate, 3) if (eff_cost and fx_rate) else None
 
-        imputed_set = {m.split("(low)")[0] for m in imputed}
         low_set = {m.split("(low)")[0] for m in imputed if m.endswith("(low)")}
 
         out.append({
