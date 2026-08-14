@@ -21,7 +21,7 @@
     "Omniscience Index": [-50, 50],
     "GPQA Diamond": [0, 1],
     "HLE": [0, 1],
-    "EQ-Bench Creative Writing": [800, 2200]
+    "EQ-Bench Creative Writing": [1400, 2200]
   },
   "leaderboards": {
     "general": {
@@ -29,7 +29,7 @@
       "output_csv": "general_scored.csv",
       "validation_json": "validation_general.json",
       "categories": [
-        {"name": "编码 Coding", "weight": 0.30, "metrics": [
+        {"name": "编码 Coding", "weight": 0.25, "metrics": [
           {"name": "LiveBench Coding", "sub_weight": 1.00}
         ]},
         {"name": "Agent 能力", "weight": 0.25, "metrics": [
@@ -42,12 +42,12 @@
         {"name": "长上下文", "weight": 0.10, "metrics": [
           {"name": "LCR", "sub_weight": 1.00}
         ]},
-        {"name": "事实准确性", "weight": 0.10, "metrics": [
+        {"name": "事实准确性", "weight": 0.15, "metrics": [
           {"name": "Omniscience Index", "sub_weight": 1.00}
         ]},
         {"name": "知识领域", "weight": 0.10, "metrics": [
-          {"name": "GPQA Diamond", "sub_weight": 0.60},
-          {"name": "HLE", "sub_weight": 0.40}
+          {"name": "GPQA Diamond", "sub_weight": 0.30},
+          {"name": "HLE", "sub_weight": 0.70}
         ]}
       ]
     },
@@ -67,8 +67,8 @@
           {"name": "LiveBench Instruction Following", "sub_weight": 1.00}
         ]},
         {"name": "知识领域", "weight": 0.20, "metrics": [
-          {"name": "GPQA Diamond", "sub_weight": 0.60},
-          {"name": "HLE", "sub_weight": 0.40}
+          {"name": "GPQA Diamond", "sub_weight": 0.30},
+          {"name": "HLE", "sub_weight": 0.70}
         ]},
         {"name": "长上下文", "weight": 0.15, "metrics": [
           {"name": "LCR", "sub_weight": 1.00}
@@ -81,7 +81,7 @@
       "validation_json": "validation_value.json",
       "rank_by": "value",
       "categories": [
-        {"name": "编码 Coding", "weight": 0.30, "metrics": [
+        {"name": "编码 Coding", "weight": 0.25, "metrics": [
           {"name": "LiveBench Coding", "sub_weight": 1.00}
         ]},
         {"name": "Agent 能力", "weight": 0.25, "metrics": [
@@ -94,12 +94,12 @@
         {"name": "长上下文", "weight": 0.10, "metrics": [
           {"name": "LCR", "sub_weight": 1.00}
         ]},
-        {"name": "事实准确性", "weight": 0.10, "metrics": [
+        {"name": "事实准确性", "weight": 0.15, "metrics": [
           {"name": "Omniscience Index", "sub_weight": 1.00}
         ]},
         {"name": "知识领域", "weight": 0.10, "metrics": [
-          {"name": "GPQA Diamond", "sub_weight": 0.60},
-          {"name": "HLE", "sub_weight": 0.40}
+          {"name": "GPQA Diamond", "sub_weight": 0.30},
+          {"name": "HLE", "sub_weight": 0.70}
         ]}
       ]
     }
