@@ -110,11 +110,17 @@
     "cache_hit_rate": 0.50,
     "cache_write_ratio": 0.20,
     "provider_cache_rates": {
-      "Anthropic": 0.90,
-      "OpenAI": 0.90,
-      "Google": 0.90,
-      "DeepSeek": 0.90,
-      "default": 0.30
+      "Moonshot AI": 0.90,
+      "DeepSeek": 0.88,
+      "Anthropic": 0.85,
+      "OpenAI": 0.80,
+      "Google": 0.80,
+      "Alibaba": 0.70,
+      "Z.AI": 0.70,
+      "MiniMax": 0.65,
+      "Tencent": 0.65,
+      "xAI": 0.65,
+      "default": 0.60
     }
   },
   "plans": [
