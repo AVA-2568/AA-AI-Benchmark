@@ -23,7 +23,7 @@
 
 <!--SNAPSHOT_GENERAL_START-->
 > 2026-08-14 抓取（42 第一梯队模型 -> 42 行）。
-> 填补验证：LiveBench Coding MAE=2.74 (>10%: 5.0%/40) ; DeepSWE MAE=5.06 (>10%: 29.4%/17) ; LiveBench Agentic Coding MAE=4.13 (>10%: 32.5%/40) ; LiveBench Instruction Following MAE=4.10 (>10%: 15.0%/40) ; LCR MAE=0.02 (>10%: 0.0%/35) ; Omniscience Index MAE=6.31 (>10%: 85.7%/35) ; GPQA Diamond MAE=0.01 (>10%: 0.0%/35) ; HLE MAE=0.03 (>10%: 28.6%/35)
+> 填补验证：LiveBench Coding MAE=2.82 (>10%: 2.5%/40) ; DeepSWE MAE=10.44 (>10%: 62.5%/24) ; LiveBench Agentic Coding MAE=3.86 (>10%: 20.0%/40) ; LiveBench Instruction Following MAE=4.24 (>10%: 17.5%/40) ; LCR MAE=0.03 (>10%: 4.8%/42) ; Omniscience Index MAE=9.28 (>10%: 92.9%/42) ; GPQA Diamond MAE=0.01 (>10%: 0.0%/42) ; HLE MAE=0.03 (>10%: 26.2%/42)
 <!--SNAPSHOT_GENERAL_END-->
 
 <!--TOP15_GENERAL_START-->
@@ -35,15 +35,15 @@
 | 4 | gemini-3.7-flash | Google | 74.5 | - |
 | 5 | kimi-k3 | Moonshot AI | 74.4 | - |
 | 6 | gpt-5.5 | OpenAI | 73.1 | - |
-| 7 | claude-opus-4.8 | Anthropic | 71.9 | - |
-| 8 | grok-4.6 | xAI | 70.3 | LCR(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg) |
-| 9 | claude-opus-4.7 | Anthropic | 70.2 | DeepSWE(reg) |
-| 10 | muse-spark-1.2 | Meta | 70.1 | LCR(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg) |
-| 11 | qwen3.8-max | Alibaba | 70.1 | LCR(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg) |
-| 12 | claude-sonnet-5 | Anthropic | 69.3 | - |
-| 13 | gpt-5.4 | OpenAI | 68.9 | DeepSWE(reg) |
-| 14 | gemini-3.1-pro | Google | 68.8 | DeepSWE(reg) |
-| 15 | gemini-3.6-flash | Google | 68.4 | - |
+| 7 | grok-4.6 | xAI | 72.5 | - |
+| 8 | claude-opus-4.8 | Anthropic | 71.9 | - |
+| 9 | muse-spark-1.2 | Meta | 71.7 | - |
+| 10 | muse-spark-1.1 | Meta | 70.6 | - |
+| 11 | claude-opus-4.7 | Anthropic | 70.2 | DeepSWE(reg) |
+| 12 | gpt-5.6-terra | OpenAI | 69.4 | - |
+| 13 | claude-sonnet-5 | Anthropic | 69.3 | - |
+| 14 | gemini-3.6-flash | Google | 68.4 | - |
+| 15 | deepseek-v4-pro | DeepSeek | 68.1 | - |
 <!--TOP15_GENERAL_END-->
 
 👉 [完整排名 CSV](results/general_scored.csv)
@@ -54,7 +54,7 @@
 
 <!--SNAPSHOT_TEXT_START-->
 > 2026-08-14 抓取（42 第一梯队模型 -> 42 行）。
-> 填补验证：EQ-Bench Creative Writing MAE=89.29 (>10%: 14.8%/27) ; LiveBench Language MAE=3.99 (>10%: 10.0%/40) ; Omniscience Index MAE=6.31 (>10%: 85.7%/35) ; LiveBench Instruction Following MAE=4.10 (>10%: 15.0%/40) ; GPQA Diamond MAE=0.01 (>10%: 0.0%/35) ; HLE MAE=0.03 (>10%: 28.6%/35) ; LCR MAE=0.02 (>10%: 0.0%/35)
+> 填补验证：EQ-Bench Creative Writing MAE=111.65 (>10%: 17.2%/29) ; LiveBench Language MAE=3.26 (>10%: 5.0%/40) ; Omniscience Index MAE=9.28 (>10%: 92.9%/42) ; LiveBench Instruction Following MAE=4.24 (>10%: 17.5%/40) ; GPQA Diamond MAE=0.01 (>10%: 0.0%/42) ; HLE MAE=0.03 (>10%: 26.2%/42) ; LCR MAE=0.03 (>10%: 4.8%/42)
 <!--SNAPSHOT_TEXT_END-->
 
 <!--TOP15_TEXT_START-->
@@ -65,14 +65,14 @@
 | 3 | kimi-k3 | Moonshot AI | 77.8 | - |
 | 4 | gpt-5.6-sol | OpenAI | 76.7 | - |
 | 5 | gemini-3.7-flash | Google | 76.4 | - |
-| 6 | muse-spark-1.1 | Meta | 75.7 | - |
-| 7 | claude-opus-4.8 | Anthropic | 74.9 | - |
-| 8 | gpt-5.5 | OpenAI | 74.6 | - |
-| 9 | qwen3.8-max | Alibaba | 74.3 | Omniscience Index(reg), GPQA Diamond(reg), HLE(reg), LCR(reg) |
-| 10 | claude-opus-4.7 | Anthropic | 74.1 | - |
-| 11 | gemini-3.1-pro | Google | 74.1 | - |
-| 12 | gemini-3.5-flash | Google | 73.0 | EQ-Bench Creative Writing(reg) |
-| 13 | muse-spark-1.2 | Meta | 72.6 | EQ-Bench Creative Writing(reg), Omniscience Index(reg), GPQA Diamond(reg), HLE(reg), LCR(reg) |
+| 6 | muse-spark-1.2 | Meta | 75.8 | EQ-Bench Creative Writing(reg) |
+| 7 | muse-spark-1.1 | Meta | 75.7 | - |
+| 8 | claude-opus-4.8 | Anthropic | 74.9 | - |
+| 9 | grok-4.6 | xAI | 74.9 | EQ-Bench Creative Writing(reg) |
+| 10 | gpt-5.5 | OpenAI | 74.6 | - |
+| 11 | claude-opus-4.7 | Anthropic | 74.1 | - |
+| 12 | gemini-3.1-pro | Google | 74.1 | - |
+| 13 | gemini-3.5-flash | Google | 73.1 | EQ-Bench Creative Writing(reg) |
 | 14 | gemini-3.6-flash | Google | 72.0 | - |
 | 15 | grok-4.5 | xAI | 71.0 | - |
 <!--TOP15_TEXT_END-->
@@ -84,28 +84,28 @@
 > **每美元 / 每人民币买到多少分** · `Value` = 综合分 ÷ Effective $/1M。有效成本含订阅折扣与缓存命中率；人民币价按实时汇率换算（本次 ¥6.741/$）。
 
 <!--SNAPSHOT_VALUE_START-->
-> 2026-08-14 抓取（42 第一梯队模型 -> 35 行）。
-> 填补验证：LiveBench Coding MAE=2.74 (>10%: 5.0%/40) ; DeepSWE MAE=5.06 (>10%: 29.4%/17) ; LiveBench Agentic Coding MAE=4.13 (>10%: 32.5%/40) ; LiveBench Instruction Following MAE=4.10 (>10%: 15.0%/40) ; LCR MAE=0.02 (>10%: 0.0%/35) ; Omniscience Index MAE=6.31 (>10%: 85.7%/35) ; GPQA Diamond MAE=0.01 (>10%: 0.0%/35) ; HLE MAE=0.03 (>10%: 28.6%/35)
+> 2026-08-14 抓取（42 第一梯队模型 -> 42 行）。
+> 填补验证：LiveBench Coding MAE=2.82 (>10%: 2.5%/40) ; DeepSWE MAE=10.44 (>10%: 62.5%/24) ; LiveBench Agentic Coding MAE=3.86 (>10%: 20.0%/40) ; LiveBench Instruction Following MAE=4.24 (>10%: 17.5%/40) ; LCR MAE=0.03 (>10%: 4.8%/42) ; Omniscience Index MAE=9.28 (>10%: 92.9%/42) ; GPQA Diamond MAE=0.01 (>10%: 0.0%/42) ; HLE MAE=0.03 (>10%: 26.2%/42)
 <!--SNAPSHOT_VALUE_END-->
 
 <!--TOP15_VALUE_START-->
 | # | Model | Creator | Score | $/1M | Effective $/1M | ¥/1M | Eff ¥/1M | Value | Imputed |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | minimax-m3 | MiniMax | 58.9 | 0.389 | 0.008 | 2.622 | 0.054 | 7357.24 | DeepSWE(reg) |
-| 2 | gpt-5.4-mini | OpenAI | 56.8 | 1.639 | 0.02 | 11.048 | 0.135 | 2840.1 | DeepSWE(reg) |
-| 3 | gpt-5.6-luna | OpenAI | 67.6 | 2.492 | 0.032 | 16.798 | 0.216 | 2113.31 | - |
-| 4 | gpt-5.2-codex | OpenAI | 67.4 | 4.874 | 0.062 | 32.855 | 0.418 | 1087.74 | DeepSWE(reg) |
-| 5 | gpt-5.2 | OpenAI | 62.9 | 4.874 | 0.062 | 32.855 | 0.418 | 1015.02 | DeepSWE(reg) |
-| 6 | gpt-5.4 | OpenAI | 68.9 | 5.463 | 0.068 | 36.825 | 0.458 | 1013.49 | DeepSWE(reg) |
-| 7 | gpt-5.6-terra | OpenAI | 68.3 | 6.232 | 0.08 | 42.009 | 0.539 | 853.15 | DeepSWE(reg) |
-| 8 | claude-sonnet-5 | Anthropic | 69.3 | 3.931 | 0.089 | 26.498 | 0.6 | 778.63 | - |
-| 9 | gpt-5.5 | OpenAI | 73.1 | 10.925 | 0.135 | 73.643 | 0.91 | 541.33 | - |
-| 10 | gpt-5.6-sol | OpenAI | 75.1 | 11.328 | 0.145 | 76.36 | 0.977 | 517.94 | - |
-| 11 | deepseek-v4-flash | DeepSeek | 63.0 | 0.148 | 0.122 | 0.998 | 0.822 | 515.99 | - |
-| 12 | claude-sonnet-4.6 | Anthropic | 63.1 | 5.896 | 0.133 | 39.744 | 0.897 | 474.77 | DeepSWE(reg) |
-| 13 | claude-opus-5 | Anthropic | 75.7 | 9.828 | 0.222 | 66.249 | 1.496 | 340.86 | - |
-| 14 | claude-opus-4.8 | Anthropic | 71.9 | 9.828 | 0.222 | 66.249 | 1.496 | 323.79 | - |
-| 15 | claude-opus-4.7 | Anthropic | 70.2 | 9.828 | 0.222 | 66.249 | 1.496 | 316.04 | DeepSWE(reg) |
+| 1 | gpt-5.4-nano | OpenAI | 53.2 | 0.452 | 0.006 | 3.047 | 0.04 | 8862.93 | DeepSWE(reg) |
+| 2 | minimax-m3 | MiniMax | 57.9 | 0.389 | 0.008 | 2.622 | 0.054 | 7233.86 | DeepSWE(reg) |
+| 3 | gpt-5.4-mini | OpenAI | 55.4 | 1.639 | 0.02 | 11.048 | 0.135 | 2767.81 | DeepSWE(reg) |
+| 4 | gpt-5.6-luna | OpenAI | 67.6 | 2.492 | 0.032 | 16.798 | 0.216 | 2113.31 | - |
+| 5 | gpt-5.2-codex | OpenAI | 67.8 | 4.874 | 0.062 | 32.855 | 0.418 | 1094.08 | DeepSWE(reg) |
+| 6 | gpt-5.2 | OpenAI | 63.8 | 4.874 | 0.062 | 32.855 | 0.418 | 1028.51 | DeepSWE(reg) |
+| 7 | gpt-5.4 | OpenAI | 67.6 | 5.463 | 0.068 | 36.826 | 0.458 | 993.76 | - |
+| 8 | gpt-5.6-terra | OpenAI | 69.4 | 6.232 | 0.08 | 42.009 | 0.539 | 867.24 | - |
+| 9 | claude-sonnet-5 | Anthropic | 69.3 | 3.931 | 0.089 | 26.498 | 0.6 | 778.63 | - |
+| 10 | gpt-5.5 | OpenAI | 73.1 | 10.925 | 0.135 | 73.644 | 0.91 | 541.33 | - |
+| 11 | gpt-5.6-sol | OpenAI | 75.1 | 11.328 | 0.145 | 76.361 | 0.977 | 517.94 | - |
+| 12 | deepseek-v4-flash | DeepSeek | 63.0 | 0.148 | 0.122 | 0.998 | 0.822 | 515.99 | - |
+| 13 | claude-sonnet-4.6 | Anthropic | 62.2 | 5.896 | 0.133 | 39.744 | 0.897 | 468.0 | - |
+| 14 | claude-opus-5 | Anthropic | 75.7 | 9.828 | 0.222 | 66.25 | 1.496 | 340.86 | - |
+| 15 | claude-opus-4.8 | Anthropic | 71.9 | 9.828 | 0.222 | 66.25 | 1.496 | 323.79 | - |
 <!--TOP15_VALUE_END-->
 
 👉 [完整排名 CSV](results/value_scored.csv)
