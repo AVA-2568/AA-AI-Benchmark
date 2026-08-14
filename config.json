@@ -105,10 +105,10 @@
     }
   },
   "cost": {
-    "input_share": 0.70,
-    "output_share": 0.30,
+    "input_share": 0.85,
+    "output_share": 0.15,
     "cache_hit_rate": 0.50,
-    "cache_write_ratio": 0.20,
+    "cache_write_ratio": 0,
     "provider_cache_rates": {
       "Moonshot AI": 0.90,
       "DeepSeek": 0.88,
