@@ -182,6 +182,15 @@
       "eqbench": "gemini-3.6-flash"
     },
     {
+      "slug": "gemini-3.7-flash",
+      "creator": "Google",
+      "aa": "gemini-3-7-flash",
+      "livebench": "gemini-3.7-flash-high",
+      "deepswe": "gemini-3.7-flash",
+      "swebench": null,
+      "eqbench": "gemini-3.7-flash"
+    },
+    {
       "slug": "gemini-3.5-flash-lite",
       "creator": "Google",
       "aa": null,
@@ -194,7 +203,7 @@
       "slug": "grok-4.6",
       "creator": "xAI",
       "aa": null,
-      "livebench": "grok-4.6-xhigh",
+      "livebench": ["grok-4.6-xhigh", "grok-4.6"],
       "deepswe": "grok-4.6",
       "swebench": null,
       "eqbench": "grok-4.6"

@@ -31,6 +31,14 @@
 
 各源模型命名风格各异（如 LiveBench `claude-opus-4-7-xhigh-effort`、DeepSWE `claude-opus-4.7`、AA `claude-opus-4-7`）。`model_registry.json` 为每个统一 slug 维护各源别名，`merge.py` 按别名合并。**新增模型需同步维护别名映射**。
 
+### 新模型自动发现
+
+`merge.py` 以 `model_registry.json` 为白名单，源里出现的新模型会被静默丢弃。为不漏掉新发布的主力模型，`detect_new_models.py` 在每次构建时对比 LiveBench / DeepSWE 两个「第一梯队评测源」的模型名与 registry 全部别名，把未覆盖的候选写入 `results/new_model_candidates.json` 并打印告警。
+
+- **只扫 LiveBench + DeepSWE**：这两个源只测主流模型、命名规范、几乎无长尾噪音（实测 LiveBench 42 个模型仅 1 个未覆盖、DeepSWE 22 个全覆盖）；EQ-Bench / SWE-bench / AA 因含大量 open-weights 长尾与旧模型（未覆盖率分别约 79% / 97% / 34%）不纳入自动扫描。
+- **只发现、不自动改 registry**：第一梯队筛选与别名确认是人工判断，候选经人工确认后补录 `model_registry.json`。
+- **发现候选不视为构建失败**：新模型上线是正常事件，不应阻塞榜单刷新。
+
 ## 指标选取与权重
 
 本仓库维护**三个榜单**（通用榜 / 文本榜 / 性价比榜），共用同一次抓取、合并与缺失值填补，仅评分权重不同（性价比榜与通用榜同权重，按 `综合分 ÷ Effective $/1M` 排序）。

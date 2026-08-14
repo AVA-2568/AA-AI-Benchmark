@@ -288,6 +288,7 @@ def main(argv=None):
         else:
             run("fetch_sources.py")
         run("merge.py")
+        run("detect_new_models.py")
         run("score_aa.py")
         if stale:
             print("stale input: skipping README update")
