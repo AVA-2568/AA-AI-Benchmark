@@ -24,6 +24,8 @@ sys.path.insert(0, BASE)
 
 from pipeline.config import plan_params  # noqa: E402
 from url_guard import assert_safe_url  # noqa: E402
+from plot_frontier import render as render_frontier  # noqa: E402
+
 RSC = os.path.join(BASE, "aa_providers.rsc")
 HTML = os.path.join(BASE, "aa_providers.html")
 URL = "https://artificialanalysis.ai/leaderboards/providers"
@@ -358,6 +360,18 @@ def update_readme():
         value_rows = list(csv.DictReader(f))
     plans_md = _plans_block(plan_params(cfg), value_rows, _read_fx())
     txt = _replace_block(txt, "PLANS_GUIDE", plans_md)
+
+    # 能力-成本前沿图：USD/CNY 双面板 SVG，随构建重生成
+    if not _has_markers(txt, "FRONTIER"):
+        raise BuildError("README marker missing for frontier chart")
+    fx = _read_fx()
+    svg = os.path.join(REPO_ROOT, "results", "value_frontier.svg")
+    frontier = render_frontier(value_rows, svg, fx)
+    print(f"frontier chart: {len(frontier)} models on the best-choice edge")
+    txt = _replace_block(
+        txt, "FRONTIER",
+        "![能力-成本前沿：给定每 1M token 预算时的最优模型]"
+        "(results/value_frontier.svg)")
 
     # Atomic write: stage to .tmp, then os.replace, so a crash mid-write
     # never leaves the repo with a half-written README.
