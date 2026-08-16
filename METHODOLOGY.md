@@ -40,6 +40,16 @@
 - **倍率 `multiplier` = value ÷ monthly**：每 1 元月费换到的 API 等价额度（如 ChatGPT Pro 20x = 70×）。从 value/monthly 直接计算而非 1/discount，避免 3 位小数折扣反算的舍入误差（0.014 → 71×，实际 70×）
 - **`Blended $/1M`**：无折扣的 per-creator 缓存混合价（`Effective $/1M` = Blended × discount 的基准），用于在任意套餐下重算等效价
 
+**≈Token/月（套餐购买指南列）**：优先用官方公布的 token 池（`plans[].tokens`，如 MiniMax 6 亿/18 亿/55 亿）；其余按 `API 等价价值 ÷ 最强模型官方混合价（Blended $/1M）` 折算——即把额度全部用于该最强模型时的 token 量级，实际使用便宜模型可换到更多。
+
+**三类套餐**（`plans` 表）：
+
+1. **implied_value 型**：订阅额度上限的 API 等价（SemiAnalysis 实测 ChatGPT/Claude 等）
+2. **token 池型**：官方公布月 token 额度 × 榜单该厂商最强模型混合价折成 implied_value（MiniMax / GLM / 混元 / MiMo，折算口径随构建快照人工更新）
+3. **Credit/积分计量型**（`discount = 1.0`，无 implied_value）：千问 Token Plan、WorkBuddy——官方未公布可靠的 Credits→token 系数，无法折算 API 等价倍率；`_plan_for` 跳过 `discount >= 1` 的套餐，它们只出现在套餐购买指南，不参与每模型的成本折算（主表对这类厂商按 API 按量展示）。token 量尽量给估算：WorkBuddy 按官方实得积分 × 社区实测（1 积分 ≈ 4,100 token）；千问社区口径分歧 5~10 倍，仅列官方积分额
+
+国内套餐人民币月费按固定口径 ÷7.2 折算为 USD（与构建时汇率独立，避免历史数据漂移）。
+
 **倍率按用满额度上限估算**——轻量用户实际折扣更少；无订阅套餐的厂商（DeepSeek / Qwen / GLM 等）按 API 按量计费（倍率 1×）。`url` 为官方购买直链（展示用，构建不请求）。
 
 ### 跨源模型名对齐

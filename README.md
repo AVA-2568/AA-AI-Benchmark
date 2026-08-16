@@ -91,20 +91,20 @@
 <!--TOP15_VALUE_START-->
 | # | Model | Creator | Score | API $/1M | 套餐 | 月费 | 倍率 | 套餐内 $/1M | 套餐内 ¥/1M | Value |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 1 | claude-fable-5 | Anthropic | 77.9 | 9.076 | [Claude Max 20x](https://claude.ai/pricing) | $200 | 40× | 0.227 | 1.53 | 343.23 |
-| 2 | claude-opus-5 | Anthropic | 74.8 | 4.749 | [Claude Max 20x](https://claude.ai/pricing) | $200 | 40× | 0.119 | 0.802 | 628.61 |
-| 3 | gpt-5.6-sol | OpenAI | 73.2 | 5.69 | [ChatGPT Pro 20x](https://chatgpt.com/#pricing) | $200 | 70× | 0.08 | 0.539 | 914.57 |
+| 1 | claude-fable-5 | Anthropic | 77.9 | 9.076 | [Claude Max 20x](https://claude.com/pricing) | $200 | 40× | 0.227 | 1.53 | 343.23 |
+| 2 | claude-opus-5 | Anthropic | 74.8 | 4.749 | [Claude Max 20x](https://claude.com/pricing) | $200 | 40× | 0.119 | 0.802 | 628.61 |
+| 3 | gpt-5.6-sol | OpenAI | 73.2 | 5.69 | [ChatGPT Pro 20x](https://chatgpt.com/pricing) | $200 | 70× | 0.08 | 0.539 | 914.57 |
 | 4 | gemini-3.7-flash | Google | 72.6 |  | API 按量 | - | 1× |  |  |  |
-| 5 | kimi-k3 | Moonshot AI | 72.4 | 4.102 | [Kimi 会员 Allegretto](https://www.kimi.com) | $27.6 | 4.5× | 0.902 | 6.08 | 80.31 |
+| 5 | kimi-k3 | Moonshot AI | 72.4 | 4.102 | [Kimi 会员 Allegretto](https://www.kimi.com/membership/pricing) | $27.6 | 4.5× | 0.902 | 6.08 | 80.31 |
 | 6 | grok-4.6 | xAI | 71.2 | 1.771 | [SuperGrok Heavy](https://x.ai/pricing) | $300 | 5.3× | 0.337 | 2.272 | 211.16 |
-| 7 | gpt-5.5 | OpenAI | 71.1 | 5.69 | [ChatGPT Pro 20x](https://chatgpt.com/#pricing) | $200 | 70× | 0.08 | 0.539 | 888.35 |
-| 8 | claude-opus-4.8 | Anthropic | 70.4 | 4.749 | [Claude Max 20x](https://claude.ai/pricing) | $200 | 40× | 0.119 | 0.802 | 591.84 |
+| 7 | gpt-5.5 | OpenAI | 71.1 | 5.69 | [ChatGPT Pro 20x](https://chatgpt.com/pricing) | $200 | 70× | 0.08 | 0.539 | 888.35 |
+| 8 | claude-opus-4.8 | Anthropic | 70.4 | 4.749 | [Claude Max 20x](https://claude.com/pricing) | $200 | 40× | 0.119 | 0.802 | 591.84 |
 | 9 | muse-spark-1.2 | Meta | 70.3 | 1.139 | API 按量 | - | 1× | 1.139 | 7.678 | 61.75 |
 | 10 | muse-spark-1.1 | Meta | 69.3 | 1.139 | API 按量 | - | 1× | 1.139 | 7.678 | 60.85 |
-| 11 | claude-opus-4.7 | Anthropic | 68.5 | 4.749 | [Claude Max 20x](https://claude.ai/pricing) | $200 | 40× | 0.119 | 0.802 | 575.28 |
-| 12 | claude-sonnet-5 | Anthropic | 67.1 | 1.899 | [Claude Max 20x](https://claude.ai/pricing) | $200 | 40× | 0.047 | 0.317 | 1427.47 |
+| 11 | claude-opus-4.7 | Anthropic | 68.5 | 4.749 | [Claude Max 20x](https://claude.com/pricing) | $200 | 40× | 0.119 | 0.802 | 575.28 |
+| 12 | claude-sonnet-5 | Anthropic | 67.1 | 1.899 | [Claude Max 20x](https://claude.com/pricing) | $200 | 40× | 0.047 | 0.317 | 1427.47 |
 | 13 | gemini-3.6-flash | Google | 66.5 | 1.482 | [GitHub Copilot Max](https://github.com/features/copilot/plans) | $100 | 2× | 0.741 | 4.995 | 89.79 |
-| 14 | gpt-5.6-terra | OpenAI | 66.5 | 3.133 | [ChatGPT Pro 20x](https://chatgpt.com/#pricing) | $200 | 70× | 0.044 | 0.297 | 1510.99 |
+| 14 | gpt-5.6-terra | OpenAI | 66.5 | 3.133 | [ChatGPT Pro 20x](https://chatgpt.com/pricing) | $200 | 70× | 0.044 | 0.297 | 1510.99 |
 | 15 | grok-4.5 | xAI | 66.1 | 1.661 | [SuperGrok Heavy](https://x.ai/pricing) | $300 | 5.3× | 0.316 | 2.13 | 209.19 |
 <!--TOP15_VALUE_END-->
 
@@ -114,27 +114,37 @@
 
 ## 🛒 套餐购买指南
 
-> **订阅套餐怎么选** · 每个套餐取其覆盖厂商在通用榜上的最强模型，按「套餐内 Value = 最强模型综合分 ÷ 该套餐下等效价」降序——同时反映套餐能用到的模型上限与折算价格。`倍率` = 每 1 元月费换到的 API 等价额度；`折扣` = 套餐内等效单价 ÷ 官方 API 单价；`套餐内 $/1M` = 最强模型在该套餐下的等效混合价。套餐名为官方购买直链（非推广链接）。
+> **订阅套餐怎么选** · 每个套餐取其覆盖厂商在通用榜上的最强模型，按「套餐内 Value = 最强模型综合分 ÷ 该套餐下等效价」降序——同时反映套餐能用到的模型上限与折算价格。`倍率` = 每 1 元月费换到的 API 等价额度；`折扣` = 套餐内等效单价 ÷ 官方 API 单价；`套餐内 $/1M` = 最强模型在该套餐下的等效混合价；`≈Token/月` = 官方公布的 token 池（MiniMax），或按「API 等价价值 ÷ 最强模型官方混合价」折算的量级估算（即额度全部用于该模型时的量，实际用便宜模型可换更多）。套餐名为官方购买直链（非推广链接）。
 >
-> 倍率数据来源：SemiAnalysis 2026-06 实测（ChatGPT / Claude）、GitHub 官方额度（Copilot）、agentplans.fyi 2026-06 估算（Grok）、社区实测（Kimi）、MiniMax 官方 token 池。**倍率按用满额度上限估算**，轻量用户实际折扣更少。国内套餐（Kimi ¥199、MiniMax ¥49–469）原价为人民币，¥/月 按实时汇率折算。Gemini 官方订阅（Google AI Pro/Ultra）不含 API 额度，未入表；其模型编程场景可由 GitHub Copilot 覆盖。
+> 倍率与 token 数据来源：SemiAnalysis 2026-06 实测（ChatGPT / Claude）、GitHub 官方额度（Copilot）、agentplans.fyi 2026-06 估算（Grok）、社区实测（Kimi）、各官方平台 2026-08 公布的 token 池（MiniMax / GLM / 混元 / MiMo，按榜单混合价折算成倍率）。**倍率按用满额度上限估算**，轻量用户实际折扣更少。国内套餐原价为人民币，¥/月 按实时汇率折算。**积分制套餐**：WorkBuddy 按「官方实得积分 × 社区实测 1 积分 ≈ 4,100 token」折算 token 量；千问 Token Plan 官方未公布 Credits→token 系数（社区口径分歧 5~10 倍），无法可靠折算，按官方积分额列示。Gemini 官方订阅（Google AI Pro/Ultra）不含 API 额度，未入表；其模型编程场景可由 GitHub Copilot 覆盖。DeepSeek 无订阅制，纯 API 按量。
 
 <!--PLANS_GUIDE_START-->
-| # | 套餐 | 月费 | ¥/月 | 倍率 | 折扣 | 最强模型（通用榜） | 模型分 | 套餐内 $/1M | Value |
-|---|---|---|---|---|---|---|---|---|---|
-| 1 | [MiniMax Max Token Plan](https://platform.minimaxi.com/subscribe/token-plan) | $16.5 | ¥111 | 53× | 1.9% | minimax-m3 (#35) | 55.1 | 0.005 | 11983.5 |
-| 2 | [MiniMax Plus Token Plan](https://platform.minimaxi.com/subscribe/token-plan) | $6.8 | ¥46 | 42.9× | 2.3% | minimax-m3 (#35) | 55.1 | 0.006 | 9899.4 |
-| 3 | [MiniMax Ultra Token Plan](https://platform.minimaxi.com/subscribe/token-plan) | $65.1 | ¥439 | 41.1× | 2.4% | minimax-m3 (#35) | 55.1 | 0.006 | 9486.9 |
-| 4 | [ChatGPT Pro 20x](https://chatgpt.com/#pricing) | $200 | ¥1348 | 70× | 1.4% | gpt-5.6-sol (#3) | 73.2 | 0.08 | 918.9 |
-| 5 | [ChatGPT Plus](https://chatgpt.com/#pricing) | $20 | ¥135 | 35× | 2.9% | gpt-5.6-sol (#3) | 73.2 | 0.165 | 443.6 |
-| 6 | [Claude Max 20x](https://claude.ai/pricing) | $200 | ¥1348 | 40× | 2.5% | claude-fable-5 (#1) | 77.9 | 0.227 | 343.3 |
-| 7 | [SuperGrok Heavy](https://x.ai/pricing) | $300 | ¥2022 | 5.3× | 19.0% | grok-4.6 (#6) | 71.2 | 0.336 | 211.6 |
-| 8 | [SuperGrok](https://x.ai/pricing) | $30 | ¥202 | 5.3× | 19.0% | grok-4.6 (#6) | 71.2 | 0.336 | 211.6 |
-| 9 | [Claude Max 5x](https://claude.ai/pricing) | $100 | ¥674 | 20× | 5.0% | claude-fable-5 (#1) | 77.9 | 0.454 | 171.7 |
-| 10 | [Claude Pro](https://claude.ai/pricing) | $20 | ¥135 | 20× | 5.0% | claude-fable-5 (#1) | 77.9 | 0.454 | 171.7 |
-| 11 | [Kimi 会员 Allegretto](https://www.kimi.com) | $27.6 | ¥186 | 4.5× | 22.0% | kimi-k3 (#5) | 72.4 | 0.902 | 80.2 |
-| 12 | [GitHub Copilot Max](https://github.com/features/copilot/plans) | $100 | ¥674 | 2× | 50.0% | claude-fable-5 (#1) | 77.9 | 4.538 | 17.2 |
-| 13 | [GitHub Copilot Pro+](https://github.com/features/copilot/plans) | $39 | ¥263 | 1.8× | 55.7% | claude-fable-5 (#1) | 77.9 | 5.055 | 15.4 |
-| 14 | [GitHub Copilot Pro](https://github.com/features/copilot/plans) | $10 | ¥67 | 1.5× | 66.7% | claude-fable-5 (#1) | 77.9 | 6.054 | 12.9 |
+| # | 套餐 | 月费 | ¥/月 | 倍率 | 折扣 | ≈Token/月 | 最强模型（通用榜） | 模型分 | 套餐内 $/1M | Value |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | [MiniMax Max Token Plan](https://platform.minimaxi.com/subscribe/token-plan) | $16.5 | ¥111 | 53× | 1.9% | 18亿+ | minimax-m3 (#35) | 55.1 | 0.005 | 11983.5 |
+| 2 | [MiniMax Plus Token Plan](https://platform.minimaxi.com/subscribe/token-plan) | $6.8 | ¥46 | 42.9× | 2.3% | 6亿+ | minimax-m3 (#35) | 55.1 | 0.006 | 9899.4 |
+| 3 | [MiniMax Ultra Token Plan](https://platform.minimaxi.com/subscribe/token-plan) | $65.1 | ¥439 | 41.1× | 2.4% | 55亿 | minimax-m3 (#35) | 55.1 | 0.006 | 9486.9 |
+| 4 | [GLM Coding Plan Pro](https://bigmodel.cn/pricing) | $20.7 | ¥140 | 91× | 1.1% | ≈11~23亿/月 | glm-5.2 (#24) | 62.4 | 0.012 | 5152.3 |
+| 5 | [GLM Coding Plan Lite](https://bigmodel.cn/pricing) | $6.8 | ¥46 | 45.3× | 2.2% | ≈2~4亿/月 | glm-5.2 (#24) | 62.4 | 0.024 | 2576.2 |
+| 6 | [MiMo Token Plan Max](https://mimo.mi.com/docs/zh-CN/price/token-plan) | $91.5 | ¥617 | 4.9× | 20.0% | 16亿/月 | mimo-v2.5-pro (#32) | 57.1 | 0.056 | 1019.6 |
+| 7 | [ChatGPT Pro 20x](https://chatgpt.com/pricing) | $200 | ¥1348 | 70× | 1.4% | ≈25亿 | gpt-5.6-sol (#3) | 73.2 | 0.08 | 918.9 |
+| 8 | [MiMo Token Plan Lite](https://mimo.mi.com/docs/zh-CN/price/token-plan) | $5.4 | ¥36 | 3.1× | 32.0% | 6000万/月 | mimo-v2.5-pro (#32) | 57.1 | 0.09 | 637.3 |
+| 9 | [Hy Token Plan Lite](https://cloud.tencent.com/act/pro/tokenplan) | $3.9 | ¥26 | 1.2× | 81.0% | 3500万/月 | hy3 (#37) | 54.6 | 0.11 | 495.6 |
+| 10 | [ChatGPT Plus](https://chatgpt.com/pricing) | $20 | ¥135 | 35× | 2.9% | ≈1亿 | gpt-5.6-sol (#3) | 73.2 | 0.165 | 443.6 |
+| 11 | [WorkBuddy 高级版](https://www.workbuddy.cn/docs/workbuddy/Pricing) | $27.6 | ¥186 | - | - | ≈3700万/月 | hy3 (#37) | 54.6 | 0.136 | 401.5 |
+| 12 | [WorkBuddy 标准版](https://www.workbuddy.cn/docs/workbuddy/Pricing) | $13.8 | ¥93 | - | - | ≈1600万/月 | hy3 (#37) | 54.6 | 0.136 | 401.5 |
+| 13 | [WorkBuddy 旗舰版](https://www.workbuddy.cn/docs/workbuddy/Pricing) | $138.8 | ¥936 | - | - | ≈2亿/月 | hy3 (#37) | 54.6 | 0.136 | 401.5 |
+| 14 | [Claude Max 20x](https://claude.com/pricing) | $200 | ¥1348 | 40× | 2.5% | ≈9亿 | claude-fable-5 (#1) | 77.9 | 0.227 | 343.3 |
+| 15 | [SuperGrok Heavy](https://x.ai/pricing) | $300 | ¥2022 | 5.3× | 19.0% | ≈9亿 | grok-4.6 (#6) | 71.2 | 0.336 | 211.6 |
+| 16 | [SuperGrok](https://x.ai/pricing) | $30 | ¥202 | 5.3× | 19.0% | ≈0.9亿 | grok-4.6 (#6) | 71.2 | 0.336 | 211.6 |
+| 17 | [Claude Max 5x](https://claude.com/pricing) | $100 | ¥674 | 20× | 5.0% | ≈2亿 | claude-fable-5 (#1) | 77.9 | 0.454 | 171.7 |
+| 18 | [Claude Pro](https://claude.com/pricing) | $20 | ¥135 | 20× | 5.0% | ≈0.4亿 | claude-fable-5 (#1) | 77.9 | 0.454 | 171.7 |
+| 19 | [Kimi 会员 Allegretto](https://www.kimi.com/membership/pricing) | $27.6 | ¥186 | 4.5× | 22.0% | ≈0.3亿 | kimi-k3 (#5) | 72.4 | 0.902 | 80.2 |
+| 20 | [Qwen Token Plan Lite](https://platform.qianwenai.com/pricing/token-plan) | $5.4 | ¥36 | - | - | 2,500 Credits/7天 | qwen3.8-max (#17) | 65.6 | 1.559 | 42.1 |
+| 21 | [Qwen Token Plan Standard](https://platform.qianwenai.com/pricing/token-plan) | $19.3 | ¥130 | - | - | 10,000 Credits/7天 | qwen3.8-max (#17) | 65.6 | 1.559 | 42.1 |
+| 22 | [GitHub Copilot Max](https://github.com/features/copilot/plans) | $100 | ¥674 | 2× | 50.0% | ≈0.2亿 | claude-fable-5 (#1) | 77.9 | 4.538 | 17.2 |
+| 23 | [GitHub Copilot Pro+](https://github.com/features/copilot/plans) | $39 | ¥263 | 1.8× | 55.7% | ≈8M | claude-fable-5 (#1) | 77.9 | 5.055 | 15.4 |
+| 24 | [GitHub Copilot Pro](https://github.com/features/copilot/plans) | $10 | ¥67 | 1.5× | 66.7% | ≈2M | claude-fable-5 (#1) | 77.9 | 6.054 | 12.9 |
 <!--PLANS_GUIDE_END-->
 
 ---

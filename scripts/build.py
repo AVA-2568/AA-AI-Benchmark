@@ -221,6 +221,15 @@ def _read_fx():
         return None
 
 
+def _fmt_tokens_m(m_tokens):
+    """百万 token 数 → 中文量级短表述（123 -> ≈1.2亿，2460 -> ≈25亿）。"""
+    if m_tokens >= 100:
+        return f"≈{m_tokens / 100:.0f}亿"
+    if m_tokens >= 10:
+        return f"≈{m_tokens / 100:.1f}亿"
+    return f"≈{m_tokens:.0f}M"
+
+
 def _plans_block(plans, rows, fx_rate):
     """生成套餐购买指南 markdown。
 
@@ -229,6 +238,10 @@ def _plans_block(plans, rows, fx_rate):
     Blended $/1M × 套餐折扣，套餐内 Value = 模型分 ÷ 等效价，按 Value
     降序——同时反映套餐能用到的最强模型与折算价格。套餐名为官方购买
     直链。
+
+    ≈Token/月：官方公布的 token 池（MiniMax）优先；否则按
+    API 等价价值 ÷ 最强模型官方混合价（Blended $/1M）折算——即把
+    额度全部用于该模型时的 token 量级。
     """
     entries = []
     for p in plans:
@@ -248,18 +261,30 @@ def _plans_block(plans, rows, fx_rate):
         eff = blended * discount
         monthly = p.get("monthly")
         mult = p.get("multiplier")
+        tokens_cell = (p.get("tokens") or "").strip()
+        if not tokens_cell:
+            value_usd = p.get("implied_value") or p.get("credit_value")
+            tokens_cell = (_fmt_tokens_m(value_usd / blended)
+                           if value_usd else "-")
+        # discount >= 1 的积分制套餐不折算倍率，倍率/折扣列显示 "-"
+        if discount >= 1.0:
+            mult_cell, disc_cell = "-", "-"
+        else:
+            mult_cell = f"{float(mult):g}×" if mult else "-"
+            disc_cell = f"{round(discount * 100, 1)}%"
         monthly_cny = round(monthly * fx_rate) if (monthly and fx_rate) else None
         name = p.get("name", "?")
         url = (p.get("url") or "").strip()
         name_cell = f"[{name}]({url})" if url else name
         entries.append({
             "value": score / eff,
-            "line": "{} | {} | {} | {}× | {}% | {} (#{}) | {} | {} | {}".format(
+            "line": "{} | {} | {} | {} | {} | {} | {} (#{}) | {} | {} | {}".format(
                 name_cell,
                 _fmt_usd(monthly) if monthly else "-",
                 f"¥{monthly_cny}" if monthly_cny else "-",
-                f"{float(mult):g}" if mult else "-",
-                round(discount * 100, 1),
+                mult_cell,
+                disc_cell,
+                tokens_cell,
                 best.get("Model"), best.get("Rank"),
                 best.get("Weighted Total"),
                 round(eff, 3),
@@ -268,8 +293,8 @@ def _plans_block(plans, rows, fx_rate):
         })
     entries.sort(key=lambda e: -e["value"])
     lines = [
-        "| # | 套餐 | 月费 | ¥/月 | 倍率 | 折扣 | 最强模型（通用榜） | 模型分 | 套餐内 $/1M | Value |",
-        "|---|---|---|---|---|---|---|---|---|---|",
+        "| # | 套餐 | 月费 | ¥/月 | 倍率 | 折扣 | ≈Token/月 | 最强模型（通用榜） | 模型分 | 套餐内 $/1M | Value |",
+        "|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for i, e in enumerate(entries, 1):
         lines.append(f"| {i} | {e['line']} |")

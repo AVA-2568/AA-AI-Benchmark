@@ -15,9 +15,11 @@ def _row(model, creator, blended, total, rank):
             "Blended $/1M": blended, "Weighted Total": total, "Rank": rank}
 
 
-def _plan(name, creators, discount, monthly, mult, url=""):
+def _plan(name, creators, discount, monthly, mult, url="", value=None,
+          tokens=""):
     return {"name": name, "creator_match": creators, "discount": discount,
-            "monthly": monthly, "multiplier": mult, "url": url}
+            "monthly": monthly, "multiplier": mult, "url": url,
+            "implied_value": value, "credit_value": None, "tokens": tokens}
 
 
 def test_sorts_by_plan_value_and_renders_links():
@@ -28,20 +30,42 @@ def test_sorts_by_plan_value_and_renders_links():
     ]
     plans = [
         _plan("Claude Max 20x", ["Anthropic"], 0.025, 200, 40.0,
-              "https://claude.ai/pricing"),
+              "https://claude.com/pricing", value=8000),
         _plan("ChatGPT Pro 20x", ["OpenAI"], 0.014, 200, 70.0,
-              "https://chatgpt.com/#pricing"),
+              "https://chatgpt.com/pricing", value=14000),
     ]
     md = _plans_block(plans, rows, fx_rate=7.0)
     lines = md.splitlines()
     # 套餐内 Value：ChatGPT = 73.2/(11×0.014)=475 > Claude = 77.9/(9×0.025)=346
     assert "ChatGPT" in lines[2]
     assert "Claude" in lines[3]
-    assert "[Claude Max 20x](https://claude.ai/pricing)" in md
+    assert "[Claude Max 20x](https://claude.com/pricing)" in md
     assert "¥1400" in md  # 200 × 7.0
     assert "40×" in md and "70×" in md
     assert "2.5%" in md and "1.4%" in md
     assert "fable-5 (#1)" in md and "gpt-sol (#2)" in md
+    # token 推算：8000/9.0=889M -> ≈9亿；14000/11.0=1273M -> ≈13亿
+    assert "≈9亿" in md
+    assert "≈13亿" in md
+
+
+def test_official_tokens_pool_shown_verbatim():
+    # 官方公布的 token 池直接展示，不做推算
+    rows = [_row("minimax-m3", "MiniMax", "0.01", "55.1", 35)]
+    plans = [_plan("MiniMax Max Token Plan", ["MiniMax"], 0.019, 16.5, 53.0,
+                   "https://platform.minimaxi.com/subscribe/token-plan",
+                   tokens="18亿+")]
+    md = _plans_block(plans, rows, fx_rate=7.0)
+    assert "18亿+" in md
+    assert "≈" not in md.splitlines()[2]  # 官方数字不带 ≈ 前缀
+
+
+def test_tokens_dashes_without_value_basis():
+    # 既无官方 token 池也无 implied/credit 价值 -> "-",
+    rows = [_row("fable-5", "Anthropic", "9.0", "77.9", 1)]
+    plans = [_plan("Claude Pro", ["Anthropic"], 0.05, 20, 20.0)]
+    md = _plans_block(plans, rows, fx_rate=7.0)
+    assert "| - |" in md
 
 
 def test_best_model_is_first_matching_rank():

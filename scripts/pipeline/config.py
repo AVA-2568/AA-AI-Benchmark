@@ -96,6 +96,7 @@ def plan_params(cfg: Dict[str, Any]) -> List[Dict[str, Any]]:
             "implied_value": to_float(p.get("implied_value")),
             "discount": to_float(p.get("discount")),
             "multiplier": _mult(p),
+            "tokens": p.get("tokens", ""),
             "source": p.get("source", ""),
             "note": p.get("note", ""),
             "url": p.get("url", ""),

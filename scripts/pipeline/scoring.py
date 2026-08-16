@@ -49,12 +49,17 @@ def _plan_for(plans, creator):
     A plan applies when the model's Creator is in its
     ``creator_match``; the lowest discount wins (cheapest effective
     price). Credit-value plans (e.g. GitHub Copilot) make API usage
-    effectively cheaper than the list price.
+    effectively cheaper than the list price. Plans with discount >= 1
+    (credit-metered, no reliable token conversion — e.g. Qwen Token
+    Plan / WorkBuddy) never apply: they belong in the plans guide
+    only, not in per-model cost math.
     """
     best = None
     for p in plans or []:
         if creator in (p.get("creator_match") or []):
             d = float(p.get("discount") or 1.0)
+            if d >= 1.0:
+                continue
             if best is None or d < float(best.get("discount") or 1.0):
                 best = p
     return best

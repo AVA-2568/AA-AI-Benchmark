@@ -301,6 +301,23 @@ def test_value_board_ranks_by_score_per_dollar():
     assert "Value Score" in headers and "Effective $/1M" in headers
 
 
+def test_plan_for_skips_credit_metered_plans():
+    """discount >= 1 的 Credit/积分计量套餐（Qwen Token Plan / WorkBuddy）
+    不参与主表最优套餐选择——它们只在套餐指南中展示。"""
+    from pipeline.scoring import _plan_for
+    plans = [
+        {"name": "Qwen Token Plan Lite", "creator_match": ["Alibaba"],
+         "discount": 1.0},
+        {"name": "Hy Token Plan Lite", "creator_match": ["Tencent"],
+         "discount": 0.81},
+        {"name": "WorkBuddy Pro", "creator_match": ["Tencent"],
+         "discount": 1.0},
+    ]
+    assert _plan_for(plans, "Alibaba") is None
+    best = _plan_for(plans, "Tencent")
+    assert best["name"] == "Hy Token Plan Lite"
+
+
 def test_value_board_follows_general_ranking():
     """rank_by='score'（value 榜默认）：按综合分排序（跟随通用榜名次），
     无价格行保留（Value Score 为 None 而不是被丢弃）。"""
