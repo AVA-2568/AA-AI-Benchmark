@@ -138,6 +138,13 @@ def test_validate_config_rejects_bad_runtime_parameter():
         score.validate_config(cfg)
 
 
+def test_validate_config_rejects_non_http_plan_url():
+    cfg = copy.deepcopy(_load_config())
+    cfg["plans"][0]["url"] = "javascript:alert(1)"
+    with pytest.raises(score.ConfigError, match="url must start with"):
+        score.validate_config(cfg)
+
+
 # ---- _replace_block ----
 
 def test_replace_block_both_markers():

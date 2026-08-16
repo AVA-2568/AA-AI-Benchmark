@@ -160,10 +160,12 @@ _COST_EFF = {
 _PLANS = [
     {"name": "GitHub Copilot Pro+",
      "creator_match": ["OpenAI", "Anthropic", "Google"],
-     "discount": 0.557},
+     "discount": 0.557, "monthly": 39, "credit_value": 70,
+     "multiplier": 1.8, "url": "https://github.com/features/copilot/plans"},
     {"name": "GitHub Copilot Max",
      "creator_match": ["OpenAI", "Anthropic", "Google"],
-     "discount": 0.50},
+     "discount": 0.50, "monthly": 100, "credit_value": 200,
+     "multiplier": 2.0, "url": "https://github.com/features/copilot/plans"},
 ]
 
 
@@ -186,10 +188,18 @@ def test_effective_cost_applies_subscription_discount():
     # OpenAI in Copilot catalog: Max (0.50) beats Pro+ (0.557)
     std = float(by_model["GPT"]["Total $/1M"])
     eff = float(by_model["GPT"]["Effective $/1M"])
+    blended = float(by_model["GPT"]["Blended $/1M"])
     assert abs(eff - std * 0.50) < 1e-3  # both rounded to 3 decimals
+    assert abs(eff - blended * 0.50) < 1e-3
     assert by_model["GPT"]["Plan"] == "GitHub Copilot Max"
+    assert by_model["GPT"]["Plan Monthly"] == 100
+    assert by_model["GPT"]["Plan Multiplier"] == 2.0
+    assert by_model["GPT"]["Plan Discount"] == 0.50
+    assert by_model["GPT"]["Plan URL"] == \
+        "https://github.com/features/copilot/plans"
     # DeepSeek: no plan -> discount 1.0; cache rate falls to default 0.1
     assert by_model["DS"]["Plan"] == ""
+    assert by_model["DS"]["Plan Multiplier"] is None
     assert float(by_model["DS"]["Cache Hit Rate"]) == 0.1
     # effective with hit-rate 0.1, no discount:
     # 0.7*0.9*0.5 + 0.7*0.1*0.005 + 0.3*1.0 = 0.615
@@ -289,4 +299,35 @@ def test_value_board_ranks_by_score_per_dollar():
     assert [r["Model"] for r in out] == ["Cheap", "Pricey"]
     assert out[0]["Value Score"] > out[1]["Value Score"]
     assert "Value Score" in headers and "Effective $/1M" in headers
+
+
+def test_value_board_follows_general_ranking():
+    """rank_by='score'（value 榜默认）：按综合分排序（跟随通用榜名次），
+    无价格行保留（Value Score 为 None 而不是被丢弃）。"""
+    board = dict(_BOARD)
+    board["rank_by"] = "score"
+    eng = FakeEngine()
+    eng.raw = {"m1": [80.0, 90.0, 20.0], "m2": [40.0, 30.0, 10.0]}
+    eng.cur = dict(eng.raw)
+    rows = [
+        {"Model": "Cheap", "Creator": "OpenAI",
+         "Price 1M Input": "0.5", "Price 1M Output": "1.0",
+         "Cache Hit Price": "0.05"},
+        {"Model": "TopNoPrice", "Creator": "DeepSeek",
+         "Price 1M Input": "", "Price 1M Output": ""},
+        {"Model": "Pricey", "Creator": "OpenAI",
+         "Price 1M Input": "5.0", "Price 1M Output": "25.0",
+         "Cache Hit Price": "0.5"},
+    ]
+    out, headers = score_board(rows, board, eng, _COST_EFF, 0.1, 0.0,
+                               plans=_PLANS)
+    # totals: Cheap=80, TopNoPrice=75, Pricey=20 -> score order
+    assert [r["Model"] for r in out] == ["Cheap", "TopNoPrice", "Pricey"]
+    assert out[1]["Value Score"] is None
+    assert out[1]["Plan"] == ""
+    for col in ("Blended $/1M", "Plan Monthly", "Plan Multiplier",
+                "Plan Discount", "Plan URL"):
+        assert col in headers
+    # cheapest plan wins for OpenAI rows
+    assert out[0]["Plan"] == "GitHub Copilot Max"
 

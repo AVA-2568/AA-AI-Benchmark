@@ -69,7 +69,23 @@ def plan_params(cfg: Dict[str, Any]) -> List[Dict[str, Any]]:
     models whose Creator is in ``creator_match``. Note: implied-value
     plans assume the plan is used to its cap — an upper-bound
     estimate, documented per plan.
+
+    ``url`` is the official purchase link (display-only, never
+    fetched by the build).
+
+    ``multiplier`` = value / monthly — API-equivalent dollars bought
+    per subscription dollar (70x on ChatGPT Pro 20x). Derived from
+    implied/credit value instead of 1/discount because the 3-decimal
+    discount inflates rounding (0.014 -> 71x vs the true 70x).
     """
+
+    def _mult(p):
+        val = to_float(p.get("implied_value")) or to_float(p.get("credit_value"))
+        monthly = to_float(p.get("monthly"))
+        if val and monthly:
+            return round(val / monthly, 1)
+        return None
+
     plans = cfg.get("plans") or []
     return [
         {
@@ -79,8 +95,10 @@ def plan_params(cfg: Dict[str, Any]) -> List[Dict[str, Any]]:
             "credit_value": to_float(p.get("credit_value")),
             "implied_value": to_float(p.get("implied_value")),
             "discount": to_float(p.get("discount")),
+            "multiplier": _mult(p),
             "source": p.get("source", ""),
             "note": p.get("note", ""),
+            "url": p.get("url", ""),
         }
         for p in plans
     ]
@@ -174,6 +192,11 @@ def validate_config(cfg: Dict[str, Any]) -> bool:
         d = p.get("discount")
         if d is None or not 0 < float(d) <= 1:
             raise ConfigError(f"plan '{name}' discount must be in (0, 1]")
+        url = p.get("url")
+        if url and not str(url).startswith(("http://", "https://")):
+            raise ConfigError(
+                f"plan '{name}' url must start with http:// or https://"
+            )
     for bkey, board in boards.items():
         if board.get("rank_by") not in (None, "score", "value"):
             raise ConfigError(

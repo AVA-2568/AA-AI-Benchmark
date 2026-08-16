@@ -20,6 +20,10 @@ import urllib.request
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(BASE)
+sys.path.insert(0, BASE)
+
+from pipeline.config import plan_params  # noqa: E402
+from url_guard import assert_safe_url  # noqa: E402
 RSC = os.path.join(BASE, "aa_providers.rsc")
 HTML = os.path.join(BASE, "aa_providers.html")
 URL = "https://artificialanalysis.ai/leaderboards/providers"
@@ -43,6 +47,7 @@ class StaleCacheError(BuildError):
 def _fetch(url, out_path, min_size, extra_headers=None):
     """curl 优先、urllib 回退的通用抓取。写临时文件成功后才覆盖目标，
     避免失败请求把上次的可用缓存冲掉。"""
+    assert_safe_url(url)
     tmp = out_path + ".tmp"
     headers = {"User-Agent": UA}
     headers.update(extra_headers or {})
@@ -128,8 +133,8 @@ def _load_config():
         return json.load(f)
 
 
-def _load_boards():
-    return _load_config()["leaderboards"]
+def _fmt_usd(v):
+    return f"${float(v):g}"
 
 
 def _board_blocks(bkey, board, n_models, today):
@@ -141,24 +146,36 @@ def _board_blocks(bkey, board, n_models, today):
     with open(scored, encoding="utf-8-sig", newline="") as f:
         rows = list(csv.DictReader(f))
     top = rows[:15]
-    if board.get("rank_by") == "value":
-        # 性价比榜：展示真实成本（订阅+缓存）与性价比分，含人民币价（实时汇率）
+    if bkey == "value":
+        # 性价比榜：跟随通用榜名次，展示官方订阅套餐折算成本与购买链接
         lines = [
-            "| # | Model | Creator | Score | $/1M | Effective $/1M | ¥/1M | Eff ¥/1M | Value | Imputed |",
-            "|---|---|---|---|---|---|---|---|---|---|",
+            "| # | Model | Creator | Score | API $/1M | 套餐 | 月费 | 倍率 | 套餐内 $/1M | 套餐内 ¥/1M | Value |",
+            "|---|---|---|---|---|---|---|---|---|---|---|",
         ]
         for r in top:
-            imp = (r["Imputed"] or "").strip()
-            lines.append("| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
-                r["Rank"], r["Model"], r["Creator"],
-                r.get("Weighted Total") or "",
-                r.get("Total $/1M") or "",
-                r.get("Effective $/1M") or "",
-                r.get("Total ¥/1M") or "",
-                r.get("Effective ¥/1M") or "",
-                r.get("Value Score") or "",
-                imp or "-",
-            ))
+            name = (r.get("Plan") or "").strip()
+            url = (r.get("Plan URL") or "").strip()
+            if name and url:
+                plan_cell = f"[{name}]({url})"
+            elif name:
+                plan_cell = name
+            else:
+                plan_cell = "API 按量"
+            monthly = r.get("Plan Monthly")
+            mult = r.get("Plan Multiplier")
+            lines.append(
+                "| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |"
+                .format(
+                    r["Rank"], r["Model"], r["Creator"],
+                    r.get("Weighted Total") or "",
+                    r.get("Blended $/1M") or "",
+                    plan_cell,
+                    _fmt_usd(monthly) if monthly else "-",
+                    f"{float(mult):g}×" if mult else "1×",
+                    r.get("Effective $/1M") or "",
+                    r.get("Effective ¥/1M") or "",
+                    r.get("Value Score") or "",
+                ))
     else:
         lines = [
             "| # | Model | Creator | Score | Imputed |",
@@ -192,17 +209,86 @@ def _board_blocks(bkey, board, n_models, today):
     return "\n".join(snapshot_parts), top15_md, n_out
 
 
+def _read_fx():
+    """读 .cache/fx.json 的 USD→CNY 汇率（缺失/非法时返回 None）。"""
+    path = os.path.join(BASE, ".cache", "fx.json")
+    if not os.path.exists(path):
+        return None
+    try:
+        with open(path, encoding="utf-8") as f:
+            return float(json.load(f).get("usd_cny") or 0) or None
+    except (OSError, ValueError):
+        return None
+
+
+def _plans_block(plans, rows, fx_rate):
+    """生成套餐购买指南 markdown。
+
+    rows 为 value_scored.csv 的行（按通用榜名次排序）：每个套餐取其
+    creator_match 覆盖范围内通用榜最强的模型，套餐内等效价 = 该模型
+    Blended $/1M × 套餐折扣，套餐内 Value = 模型分 ÷ 等效价，按 Value
+    降序——同时反映套餐能用到的最强模型与折算价格。套餐名为官方购买
+    直链。
+    """
+    entries = []
+    for p in plans:
+        creators = {c.strip() for c in p.get("creator_match") or []}
+        best = next((r for r in rows
+                     if (r.get("Creator") or "").strip() in creators), None)
+        if best is None:
+            continue
+        try:
+            blended = float(best.get("Blended $/1M") or 0)
+            discount = float(p.get("discount") or 0)
+            score = float(best.get("Weighted Total") or 0)
+        except ValueError:
+            continue
+        if not (blended > 0 and 0 < discount <= 1 and score > 0):
+            continue
+        eff = blended * discount
+        monthly = p.get("monthly")
+        mult = p.get("multiplier")
+        monthly_cny = round(monthly * fx_rate) if (monthly and fx_rate) else None
+        name = p.get("name", "?")
+        url = (p.get("url") or "").strip()
+        name_cell = f"[{name}]({url})" if url else name
+        entries.append({
+            "value": score / eff,
+            "line": "{} | {} | {} | {}× | {}% | {} (#{}) | {} | {} | {}".format(
+                name_cell,
+                _fmt_usd(monthly) if monthly else "-",
+                f"¥{monthly_cny}" if monthly_cny else "-",
+                f"{float(mult):g}" if mult else "-",
+                round(discount * 100, 1),
+                best.get("Model"), best.get("Rank"),
+                best.get("Weighted Total"),
+                round(eff, 3),
+                round(score / eff, 1),
+            ),
+        })
+    entries.sort(key=lambda e: -e["value"])
+    lines = [
+        "| # | 套餐 | 月费 | ¥/月 | 倍率 | 折扣 | 最强模型（通用榜） | 模型分 | 套餐内 $/1M | Value |",
+        "|---|---|---|---|---|---|---|---|---|---|",
+    ]
+    for i, e in enumerate(entries, 1):
+        lines.append(f"| {i} | {e['line']} |")
+    return "\n".join(lines)
+
+
 def update_readme():
-    """用最新 scored CSV 刷新 README：每个榜单一组 SNAPSHOT/TOP15 区块。"""
+    """用最新 scored CSV 刷新 README：每榜单一组 SNAPSHOT/TOP15 区块 +
+    套餐购买指南 PLANS_GUIDE 区块。"""
     merged_csv = os.path.join(BASE, "merged.csv")
     today = datetime.date.today().isoformat()
     n_models = _count(merged_csv)
+    cfg = _load_config()
 
     readme = os.path.join(REPO_ROOT, "README.md")
     txt = open(readme, encoding="utf-8").read()
 
     counts = {}
-    for bkey, board in _load_boards().items():
+    for bkey, board in cfg["leaderboards"].items():
         snapshot_md, top15_md, n_out = _board_blocks(
             bkey, board, n_models, today)
         tag = bkey.upper()
@@ -213,6 +299,16 @@ def update_readme():
         txt = _replace_block(txt, snapshot_name, snapshot_md)
         txt = _replace_block(txt, top15_name, top15_md)
         counts[bkey] = n_out
+
+    # 套餐购买指南：以 value_scored.csv（通用榜名次）为数据源
+    if not _has_markers(txt, "PLANS_GUIDE"):
+        raise BuildError("README marker missing for plans guide")
+    value_csv = os.path.join(
+        REPO_ROOT, "results", cfg["leaderboards"]["value"]["output_csv"])
+    with open(value_csv, encoding="utf-8-sig", newline="") as f:
+        value_rows = list(csv.DictReader(f))
+    plans_md = _plans_block(plan_params(cfg), value_rows, _read_fx())
+    txt = _replace_block(txt, "PLANS_GUIDE", plans_md)
 
     # Atomic write: stage to .tmp, then os.replace, so a crash mid-write
     # never leaves the repo with a half-written README.

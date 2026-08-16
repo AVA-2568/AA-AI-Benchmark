@@ -27,6 +27,21 @@
 
 性价比榜同时输出美元与人民币价格：`Total ¥/1M` / `Effective ¥/1M` = 对应美元价 × 实时 USD→CNY 汇率。汇率每次构建实时抓取（Frankfurter 主、open.er-api 备），写入 `scripts/.cache/fx.json`，不硬编码。
 
+### 订阅套餐与倍率
+
+官方订阅套餐定义在 `config.json` 的 `plans` 表（每条含 `creator_match` / `monthly` / `implied_value` 或 `credit_value` / `discount` / `url`）。两种价值基准：
+
+- **`credit_value`**：官方随附的 API 额度（如 GitHub Copilot——月费直接买到等额 API 美元）
+- **`implied_value`**：社区实测的订阅额度上限 API 等价（如 SemiAnalysis 2026-06 对 ChatGPT/Claude 各档跑满上限的实测）
+
+三个派生量：
+
+- **折扣 `discount` = monthly ÷ value**：乘在无折扣混合价上得到套餐内等效价
+- **倍率 `multiplier` = value ÷ monthly**：每 1 元月费换到的 API 等价额度（如 ChatGPT Pro 20x = 70×）。从 value/monthly 直接计算而非 1/discount，避免 3 位小数折扣反算的舍入误差（0.014 → 71×，实际 70×）
+- **`Blended $/1M`**：无折扣的 per-creator 缓存混合价（`Effective $/1M` = Blended × discount 的基准），用于在任意套餐下重算等效价
+
+**倍率按用满额度上限估算**——轻量用户实际折扣更少；无订阅套餐的厂商（DeepSeek / Qwen / GLM 等）按 API 按量计费（倍率 1×）。`url` 为官方购买直链（展示用，构建不请求）。
+
 ### 跨源模型名对齐
 
 各源模型命名风格各异（如 LiveBench `claude-opus-4-7-xhigh-effort`、DeepSWE `claude-opus-4.7`、AA `claude-opus-4-7`）。`model_registry.json` 为每个统一 slug 维护各源别名，`merge.py` 按别名合并。**新增模型需同步维护别名映射**。
@@ -43,7 +58,7 @@
 
 ## 指标选取与权重
 
-本仓库维护**三个榜单**（通用榜 / 文本榜 / 性价比榜），共用同一次抓取、合并与缺失值填补，仅评分权重不同（性价比榜与通用榜同权重，按 `综合分 ÷ Effective $/1M` 排序）。
+本仓库维护**三个榜单**（通用榜 / 文本榜 / 性价比榜），共用同一次抓取、合并与缺失值填补，仅评分权重不同。性价比榜与通用榜同权重、同名次（`rank_by: "score"`，按综合分排序，避免便宜小模型霸榜），每行展示官方 API 混合价、最优订阅套餐的月费 / 倍率 / 套餐内等效价与购买链接；`Value = 综合分 ÷ 套餐内 $/1M` 仅作参考列。配套的「套餐购买指南」按套餐维度汇总：每个套餐取其覆盖厂商在通用榜上的最强模型，`套餐内 Value = 最强模型综合分 ÷ (Blended $/1M × 折扣)`，按该值降序——同时反映套餐可用的模型上限与折算价格（详见「订阅套餐与倍率」一节）。
 
 ### 通用榜 General（六维）
 

@@ -44,32 +44,33 @@ def _cache_rate_for(cost, creator):
 
 
 def _plan_for(plans, creator):
-    """Best (lowest-discount) matching subscription plan, else (1.0, "").
+    """Best (lowest-discount) matching subscription plan, else None.
 
     A plan applies when the model's Creator is in its
     ``creator_match``; the lowest discount wins (cheapest effective
     price). Credit-value plans (e.g. GitHub Copilot) make API usage
     effectively cheaper than the list price.
     """
-    best_d, best_name = 1.0, ""
+    best = None
     for p in plans or []:
         if creator in (p.get("creator_match") or []):
             d = float(p.get("discount") or 1.0)
-            if d < best_d:
-                best_d, best_name = d, p.get("name", "")
-    return best_d, best_name
+            if best is None or d < float(best.get("discount") or 1.0):
+                best = p
+    return best
 
 
 def _cost_terms(r, cost, cache_multiplier, cache_price_fallback, plans):
     """Compute standard vs real-world cost for one row.
 
-    Returns (standard_total, effective_total, cache_rate, plan_name,
-    pin, pout, pcache_eff):
+    Returns (standard_total, effective_total, blended_total, cache_rate,
+    plan, pin, pout, pcache_eff):
     - standard: unit-price baseline (global cache_hit_rate, real cache
       price when known, else input × cache_multiplier).
-    - effective: per-creator cache-hit rate + real cache price
-      (fallback: per-creator mean, then input × cache_multiplier)
-      × subscription-plan discount.
+    - blended: per-creator cache-hit-rate mix at list prices, before
+      any subscription discount (base for recomputing the price under
+      an arbitrary plan).
+    - effective: blended × subscription-plan discount.
 
     Cache input is priced as a blend of first-write and reuse reads:
     ``cache_write_ratio`` of cached input pays the Cache Write Price
@@ -83,7 +84,7 @@ def _cost_terms(r, cost, cache_multiplier, cache_price_fallback, plans):
     pwrite = to_float(r.get("Cache Write Price"))
     creator = (r.get("Creator") or "").strip()
     if None in (pin, pout):
-        return None, None, None, "", pin, pout, None
+        return None, None, None, None, None, pin, pout, None
 
     pcache_eff = pcache
     if pcache_eff is None and (cache_price_fallback or {}).get(creator):
@@ -100,16 +101,18 @@ def _cost_terms(r, cost, cache_multiplier, cache_price_fallback, plans):
     out_share = cost["output_share"]
     glob_hit = float(cost["cache_hit_rate"])
     eff_hit = _cache_rate_for(cost, creator)
-    discount, plan_name = _plan_for(plans, creator)
+    plan = _plan_for(plans, creator)
+    discount = float(plan["discount"]) if plan else 1.0
 
     standard = (in_share * (1 - glob_hit) * pin
                 + in_share * glob_hit * pcache_eff
                 + out_share * pout)
-    effective = (in_share * (1 - eff_hit) * pin
-                 + in_share * eff_hit * pcache_eff
-                 + out_share * pout) * discount
-    return (round(standard, 3), round(effective, 3), eff_hit, plan_name,
-            pin, pout, pcache_eff)
+    blended = (in_share * (1 - eff_hit) * pin
+               + in_share * eff_hit * pcache_eff
+               + out_share * pout)
+    effective = blended * discount
+    return (round(standard, 3), round(effective, 3), round(blended, 3),
+            eff_hit, plan, pin, pout, pcache_eff)
 
 
 def _weighted_total(glob, nrm, imputed_set, discount):
@@ -171,14 +174,18 @@ def score_board(rows, board, engine, cost, cache_multiplier, score_threshold,
         total = _weighted_total(glob, nrm, imputed_set,
                                 imputed_weight_discount)
 
-        std_cost, eff_cost, cache_rate, plan_name, pin, pout, pcache_eff = \
-            _cost_terms(r, cost, cache_multiplier, cache_price_fallback,
-                        plans)
+        std_cost, eff_cost, blended, cache_rate, plan, pin, pout, \
+            pcache_eff = _cost_terms(r, cost, cache_multiplier,
+                                     cache_price_fallback, plans)
         value_score = (round(total / eff_cost, 2)
                        if eff_cost else None)
         # 人民币价格（汇率实时抓取；缺失时不输出）
         std_cny = round(std_cost * fx_rate, 3) if (std_cost and fx_rate) else None
         eff_cny = round(eff_cost * fx_rate, 3) if (eff_cost and fx_rate) else None
+        plan_monthly = plan.get("monthly") if plan else None
+        plan_mult = plan.get("multiplier") if plan else None
+        plan_discount = plan.get("discount") if plan else None
+        plan_url = (plan.get("url") or "") if plan else ""
 
         low_set = {m.split("(low)")[0] for m in imputed if m.endswith("(low)")}
 
@@ -195,12 +202,17 @@ def score_board(rows, board, engine, cost, cache_multiplier, score_threshold,
             "Price 1M Out": pout,
             "Cache Hit": pcache_eff,
             "Total $/1M": std_cost,
+            "Blended $/1M": blended,
             "Effective $/1M": eff_cost,
             "Total ¥/1M": std_cny,
             "Effective ¥/1M": eff_cny,
             "Value Score": value_score,
             "Cache Hit Rate": cache_rate,
-            "Plan": plan_name,
+            "Plan": plan.get("name", "") if plan else "",
+            "Plan Monthly": plan_monthly,
+            "Plan Multiplier": plan_mult,
+            "Plan Discount": plan_discount,
+            "Plan URL": plan_url,
             "AA Cost/Task": to_float(r.get("Cost Per Task")),
             "Imputed": ", ".join(
                 f"{m}(reg)" if not m.endswith("(low)")
@@ -229,10 +241,11 @@ def score_board(rows, board, engine, cost, cache_multiplier, score_threshold,
         row["Rank"] = idx
 
     headers = ["Rank", "Model", "Weighted Total", "Total $/1M",
-               "Effective $/1M", "Total ¥/1M", "Effective ¥/1M",
-               "Value Score", "Cache Hit Rate", "Plan",
-               "AA Cost/Task", "Creator", "Reasoning",
-               "Orig Intelligence Index"]
+               "Blended $/1M", "Effective $/1M", "Total ¥/1M",
+               "Effective ¥/1M", "Value Score", "Cache Hit Rate",
+               "Plan", "Plan Monthly", "Plan Multiplier",
+               "Plan Discount", "Plan URL", "AA Cost/Task", "Creator",
+               "Reasoning", "Orig Intelligence Index"]
     for _, _, subs in cats:
         for m, _ in subs:
             headers.append(m)

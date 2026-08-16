@@ -17,6 +17,8 @@ import os
 import re
 import urllib.request
 
+from url_guard import assert_safe_url
+
 BASE = os.path.dirname(os.path.abspath(__file__))
 CACHE = os.path.join(BASE, ".cache")
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -36,6 +38,7 @@ LB_CATEGORIES = {
 
 def _get(url):
     """GET 返回 bytes；失败抛异常。"""
+    assert_safe_url(url)
     req = urllib.request.Request(url, headers={"User-Agent": UA})
     with urllib.request.urlopen(req, timeout=60) as resp:
         return resp.read()
