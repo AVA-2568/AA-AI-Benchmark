@@ -7,6 +7,8 @@
 预算 x 处的高度即该预算能买到的最强模型。输出单面板 SVG（人民币
 计价），标签用英文以兼容无中文字体的构建环境。
 """
+import math
+
 import matplotlib
 
 matplotlib.use("Agg")
@@ -15,6 +17,7 @@ matplotlib.rcParams["font.sans-serif"] = [
     "Noto Sans CJK SC", "Microsoft YaHei", "SimHei", "DejaVu Sans"]
 
 import matplotlib.pyplot as plt  # noqa: E402
+import matplotlib.text as mtext  # noqa: E402
 
 
 def pareto_frontier(points):
@@ -31,6 +34,120 @@ def pareto_frontier(points):
             out.append((price, score, label))
             best = score
     return out
+
+
+def _label_frontier(ax, frontier):
+    """为前沿点放置不重叠的模型名标注，必要时带引线。
+
+    必须在轴刻度/范围设置与 tight_layout 之后调用。流程三段分离：
+    用纯 Text 量出模型名的真实宽高（Annotation 的 bbox 会把引线
+    patch 也算进去，不能用于布局）；在 display 像素空间按水平投影
+    分簇、簇内按锚点高度贪心垂直排布并回退到画布内；最后按算好的
+    位置一次性创建标注，被推离锚点较远的加细引线和白底框。
+    """
+    fig = ax.figure
+    trans = ax.transData
+    inv_trans = trans.inverted()
+    dpi = fig.dpi
+
+    FS = 8.5  # 字号 pt
+    min_gap = 3.0 * dpi / 72  # 标签间最小垂直间隙（px）
+    leader_thresh = 14.0 * dpi / 72  # 超此距离加引线
+    init_dx = 8.0 * dpi / 72
+    init_dy = 11.0 * dpi / 72
+
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    ax_bbox = ax.get_window_extent(renderer)
+
+    # 1. 测量：纯 Text 的真实宽高（不受引线 patch 污染）
+    meas = mtext.Text(0, 0, "", fontsize=FS)
+    meas.set_figure(fig)
+    sizes = []
+    for _, _, name in frontier:
+        meas.set_text(name)
+        b = meas.get_window_extent(renderer)
+        sizes.append((b.width, b.height))
+    del meas
+
+    n = len(frontier)
+    anchors = [trans.transform((p, s)) for p, s, _ in frontier]
+    ws = [w for w, _ in sizes]
+    hs = [h for _, h in sizes]
+    x0s = [anchors[k][0] + init_dx for k in range(n)]
+
+    # 2a. 簇分组：x 升序，水平投影重叠的连成一簇
+    order = sorted(range(n), key=lambda k: anchors[k][0])
+    clusters, cur, cur_right = [], [order[0]], x0s[order[0]] + ws[order[0]]
+    for k in order[1:]:
+        if x0s[k] < cur_right:
+            cur.append(k)
+            cur_right = max(cur_right, x0s[k] + ws[k])
+        else:
+            clusters.append(cur)
+            cur, cur_right = [k], x0s[k] + ws[k]
+    clusters.append(cur)
+
+    # 2b. 簇内贪心垂直排布：锚点 y 升序放置，冲突沿初始方向单调外推
+    ys = [0.0] * n
+    for cluster in clusters:
+        placed = []  # (x0, x1, y0, y1)
+        for k in sorted(cluster, key=lambda k: anchors[k][1]):
+            sign = -1 if k % 2 == 0 else 1  # 初始方向：偶下奇上
+            y = anchors[k][1] + sign * init_dy
+            for _ in range(50):  # 保险上限；+0.5px 余量防浮点推不动
+                hits = [b for b in placed
+                        if x0s[k] < b[1] and b[0] < x0s[k] + ws[k]
+                        and y - hs[k] / 2 < b[3] + min_gap
+                        and y + hs[k] / 2 > b[2] - min_gap]
+                if not hits:
+                    break
+                if sign < 0:
+                    y = min(b[2] for b in hits) - min_gap - hs[k] / 2 - 0.5
+                else:
+                    y = max(b[3] for b in hits) + min_gap + hs[k] / 2 + 0.5
+            ys[k] = y
+            placed.append((x0s[k], x0s[k] + ws[k], y - hs[k] / 2, y + hs[k] / 2))
+
+    # 2c. 边界回退 + 全对复核（纯数字盒；正常一轮收敛）
+    def clamp(k):
+        ys[k] = min(max(ys[k], ax_bbox.y0 + 2 + hs[k] / 2),
+                    ax_bbox.y1 - 2 - hs[k] / 2)
+
+    for k in range(n):
+        clamp(k)
+    boxes = [(x0s[k], x0s[k] + ws[k], ys[k] - hs[k] / 2, ys[k] + hs[k] / 2)
+             for k in range(n)]
+    for _ in range(60):
+        pairs = [(i, j) for i in range(n) for j in range(i + 1, n)
+                 if boxes[i][0] < boxes[j][1] and boxes[j][0] < boxes[i][1]
+                 and boxes[i][2] < boxes[j][3] + min_gap
+                 and boxes[j][2] < boxes[i][3] + min_gap]
+        if not pairs:
+            break
+        for i, j in pairs:
+            up, dn = (i, j) if boxes[i][2] >= boxes[j][2] else (j, i)
+            overlap = min(boxes[i][3], boxes[j][3]) - max(boxes[i][2], boxes[j][2])
+            for m, d in ((up, 1), (dn, -1)):
+                ys[m] += d * (overlap / 2 + min_gap + 0.5)
+                clamp(m)
+                boxes[m] = (boxes[m][0], boxes[m][1],
+                            ys[m] - hs[m] / 2, ys[m] + hs[m] / 2)
+
+    # 3. 按算好的位置创建标注；被推离锚点较远的带引线和白底框
+    texts = []
+    for k, (price, score, name) in enumerate(frontier):
+        tx, ty = inv_trans.transform((x0s[k], ys[k]))
+        far = math.hypot(x0s[k] - anchors[k][0],
+                         ys[k] - anchors[k][1]) > leader_thresh
+        texts.append(ax.annotate(
+            name, xy=(price, score), xytext=(tx, ty), fontsize=FS,
+            ha="left", va="center", color="#222", zorder=5,
+            arrowprops=dict(arrowstyle="-", color="#888", lw=0.6,
+                            shrinkA=2, shrinkB=4) if far else None,
+            bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none",
+                      alpha=0.75) if far else None))
+    return texts
 
 
 def render(rows, out_path, fx_rate=None):
@@ -65,16 +182,6 @@ def render(rows, out_path, fx_rate=None):
             where="post", color="#d62728", linewidth=2.4, zorder=2,
             label="最优选择前沿 best choice")
     ax.scatter(fx_p, scores, s=55, color="#d62728", zorder=3)
-    # 上下交替标注，避免中段密集区的模型名互相重叠
-    for i, (p, s, label) in enumerate(frontier):
-        if i % 2 == 0:
-            ax.annotate(label, (p, s), xytext=(6, -5),
-                        textcoords="offset points", fontsize=9.5,
-                        rotation=18, ha="left", va="top", color="#222")
-        else:
-            ax.annotate(label, (p, s), xytext=(6, 9),
-                        textcoords="offset points", fontsize=9.5,
-                        rotation=18, ha="left", va="bottom", color="#222")
     ax.set_xscale("log")
     ticks = [0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50]
     ax.set_xticks(ticks)
@@ -87,7 +194,9 @@ def render(rows, out_path, fx_rate=None):
     ax.grid(True, which="major", alpha=0.25)
     ax.tick_params(axis="y", labelsize=10.5)
     ax.legend(fontsize=10, loc="lower right", framealpha=0.9)
+    # 标注布局依赖最终坐标变换，必须在所有轴设置与 tight_layout 之后
     fig.tight_layout()
+    _label_frontier(ax, frontier)
     fig.savefig(out_path, format="svg")
     plt.close(fig)
     return frontier
