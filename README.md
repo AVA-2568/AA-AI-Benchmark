@@ -89,8 +89,8 @@
 | 2 | claude-opus-5 | Anthropic | 74.8 | 4.749 | [Claude Max 20x](https://claude.com/pricing) | $200 | 40× | 0.119 | 0.802 | 628.61 |
 | 3 | gpt-5.6-sol | OpenAI | 73.2 | 5.69 | [ChatGPT Pro 20x](https://chatgpt.com/pricing) | $200 | 70× | 0.08 | 0.539 | 914.57 |
 | 4 | gemini-3.7-flash | Google | 72.6 |  | API 按量 | - | 1× |  |  |  |
-| 5 | kimi-k3 | Moonshot AI | 72.4 | 4.102 | [Kimi 会员 Allegretto](https://www.kimi.com/membership/pricing) | $27.6 | 4.5× | 0.902 | 6.08 | 80.31 |
-| 6 | grok-4.6 | xAI | 71.2 | 1.771 | [SuperGrok Heavy](https://x.ai/pricing) | $300 | 5.3× | 0.337 | 2.272 | 211.16 |
+| 5 | kimi-k3 | Moonshot AI | 72.4 | 4.102 | [OpenCode Go](https://opencode.ai/go) | $10 | 6× | 0.685 | 4.618 | 105.75 |
+| 6 | grok-4.6 | xAI | 71.2 | 1.771 | [OpenCode Go](https://opencode.ai/go) | $10 | 6× | 0.296 | 1.995 | 240.4 |
 | 7 | gpt-5.5 | OpenAI | 71.1 | 5.69 | [ChatGPT Pro 20x](https://chatgpt.com/pricing) | $200 | 70× | 0.08 | 0.539 | 888.35 |
 | 8 | claude-opus-4.8 | Anthropic | 70.4 | 4.749 | [Claude Max 20x](https://claude.com/pricing) | $200 | 40× | 0.119 | 0.802 | 591.84 |
 | 9 | muse-spark-1.2 | Meta | 70.3 | 1.139 | API 按量 | - | 1× | 1.139 | 7.678 | 61.75 |
@@ -99,7 +99,7 @@
 | 12 | claude-sonnet-5 | Anthropic | 67.1 | 1.899 | [Claude Max 20x](https://claude.com/pricing) | $200 | 40× | 0.047 | 0.317 | 1427.47 |
 | 13 | gemini-3.6-flash | Google | 66.5 | 1.482 | [GitHub Copilot Max](https://github.com/features/copilot/plans) | $100 | 2× | 0.741 | 4.995 | 89.79 |
 | 14 | gpt-5.6-terra | OpenAI | 66.5 | 3.133 | [ChatGPT Pro 20x](https://chatgpt.com/pricing) | $200 | 70× | 0.044 | 0.297 | 1510.99 |
-| 15 | grok-4.5 | xAI | 66.1 | 1.661 | [SuperGrok Heavy](https://x.ai/pricing) | $300 | 5.3× | 0.316 | 2.13 | 209.19 |
+| 15 | grok-4.5 | xAI | 66.1 | 1.661 | [OpenCode Go](https://opencode.ai/go) | $10 | 6× | 0.277 | 1.867 | 238.64 |
 <!--TOP15_VALUE_END-->
 
 [完整排名 CSV](results/value_scored.csv)
@@ -115,7 +115,7 @@ Imputed 列：`-` 表示全部真实值，`指标(reg)` 是岭回归填补，`�
 - 倍率 = 每 1 元月费换到的 API 等价额度；折扣 = 套餐内单价 ÷ 官方单价
 - ≈Token/月：官方公布了 token 池的直接引用（MiniMax、GLM、混元、MiMo）；没公布的按「API 等价价值 ÷ 最强模型官方混合价」估算，即额度全部用于该模型时的量，实际用便宜模型能换到更多
 
-数据来源与时点：ChatGPT / Claude 倍率来自 SemiAnalysis 2026-06 实测，Copilot 是 GitHub 官方额度，Grok 为 agentplans.fyi 2026-06 估算，Kimi 为社区实测，国内各家为 2026-08 官方页面实查。倍率一律按用满额度上限计算，轻度用户实际拿不到这么多。国内套餐标价为人民币，¥/月 按实时汇率折算。
+数据来源与时点：ChatGPT / Claude 倍率来自 SemiAnalysis 2026-06 实测，Copilot 是 GitHub 官方额度，Grok 为 agentplans.fyi 2026-06 估算，Kimi 为社区实测，国内各家为 2026-08 官方页面实查，聚合与 IDE 类（OpenCode Go、Factory、Trae、Cursor）为 awesome-coding-plan 2026-08 第三方实测。倍率一律按用满额度上限计算，轻度用户实际拿不到这么多。国内套餐标价为人民币，¥/月 按实时汇率折算。
 
 两类没给倍率的需要说明。千问 Token Plan 和 WorkBuddy 是积分制，官方没公布积分换 token 的系数，社区两套口径相差 5 到 10 倍，给数字等于编数，所以只列官方积分额度；WorkBuddy 的 token 量按社区实测「1 积分 ≈ 4,100 token」折了个大概，仅供参考。另外，Gemini 官方订阅不含 API 额度，不进表，编程需求可以由 GitHub Copilot 覆盖；DeepSeek 没有自有订阅制（腾讯通用 Token Plan 提供第三方折扣）。
 
@@ -141,15 +141,20 @@ Imputed 列：`-` 表示全部真实值，`指标(reg)` 是岭回归填补，`�
 | 17 | [Claude Max 5x](https://claude.com/pricing) | $100 | ¥674 | 20× | 5.0% | ≈2亿 | claude-fable-5 (#1) | 77.9 | 0.454 | 171.7 |
 | 18 | [Claude Pro](https://claude.com/pricing) | $20 | ¥135 | 20× | 5.0% | ≈0.4亿 | claude-fable-5 (#1) | 77.9 | 0.454 | 171.7 |
 | 19 | [Kimi 会员 Allegretto](https://www.kimi.com/membership/pricing) | $27.6 | ¥186 | 4.5× | 22.0% | ≈0.3亿 | kimi-k3 (#5) | 72.4 | 0.902 | 80.2 |
-| 20 | [GitHub Copilot Max](https://github.com/features/copilot/plans) | $100 | ¥674 | 2× | 50.0% | ≈0.2亿 | claude-fable-5 (#1) | 77.9 | 4.538 | 17.2 |
-| 21 | [GitHub Copilot Pro+](https://github.com/features/copilot/plans) | $39 | ¥263 | 1.8× | 55.7% | ≈8M | claude-fable-5 (#1) | 77.9 | 5.055 | 15.4 |
-| 22 | [GitHub Copilot Pro](https://github.com/features/copilot/plans) | $10 | ¥67 | 1.5× | 66.7% | ≈2M | claude-fable-5 (#1) | 77.9 | 6.054 | 12.9 |
+| 20 | [OpenCode Go](https://opencode.ai/go) | $10 | ¥67 | 6× | 16.7% | ≈月 $60 用量（第三方实测） | gpt-5.6-sol (#3) | 73.2 | 0.95 | 77.0 |
+| 21 | [Kimi Andante](https://www.kimi.com/membership/pricing) | $6.8 | ¥46 | 2.5× | 40.5% | 8400万/月（K2.5） | kimi-k3 (#5) | 72.4 | 1.661 | 43.6 |
+| 22 | [Factory Droid Pro](https://factory.ai) | $20 | ¥135 | 2.4× | 41.7% | 2000万标准token | claude-fable-5 (#1) | 77.9 | 3.785 | 20.6 |
+| 23 | [GitHub Copilot Max](https://github.com/features/copilot/plans) | $100 | ¥674 | 2× | 50.0% | ≈0.2亿 | claude-fable-5 (#1) | 77.9 | 4.538 | 17.2 |
+| 24 | [Trae Pro](https://www.trae.ai) | $10 | ¥67 | 2× | 50.0% | $20 基础用量 | claude-fable-5 (#1) | 77.9 | 4.538 | 17.2 |
+| 25 | [GitHub Copilot Pro+](https://github.com/features/copilot/plans) | $39 | ¥263 | 1.8× | 55.7% | ≈8M | claude-fable-5 (#1) | 77.9 | 5.055 | 15.4 |
+| 26 | [GitHub Copilot Pro](https://github.com/features/copilot/plans) | $10 | ¥67 | 1.5× | 66.7% | ≈2M | claude-fable-5 (#1) | 77.9 | 6.054 | 12.9 |
 | | *—— 以下为积分/任务制套餐（官方未公布 Credits→token 换算，不参与倍率排序）——* | | | | | | | | | |
-| 23 | [Qwen Token Plan Lite](https://platform.qianwenai.com/pricing/token-plan) | $5.4 | ¥36 | - | - | 2,500 Credits/7天 | qwen3.8-max (#17) | 65.6 | 1.559 | 42.1 |
-| 24 | [WorkBuddy 标准版](https://www.workbuddy.cn/docs/workbuddy/Pricing) | $13.8 | ¥93 | - | - | ≈1600万/月 | hy3 (#37) | 54.6 | 0.136 | 401.5 |
-| 25 | [Qwen Token Plan Standard](https://platform.qianwenai.com/pricing/token-plan) | $19.3 | ¥130 | - | - | 10,000 Credits/7天 | qwen3.8-max (#17) | 65.6 | 1.559 | 42.1 |
-| 26 | [WorkBuddy 高级版](https://www.workbuddy.cn/docs/workbuddy/Pricing) | $27.6 | ¥186 | - | - | ≈3700万/月 | hy3 (#37) | 54.6 | 0.136 | 401.5 |
-| 27 | [WorkBuddy 旗舰版](https://www.workbuddy.cn/docs/workbuddy/Pricing) | $138.8 | ¥936 | - | - | ≈2亿/月 | hy3 (#37) | 54.6 | 0.136 | 401.5 |
+| 27 | [Qwen Token Plan Lite](https://platform.qianwenai.com/pricing/token-plan) | $5.4 | ¥36 | - | - | 2,500 Credits/7天 | qwen3.8-max (#17) | 65.6 | 1.559 | 42.1 |
+| 28 | [WorkBuddy 标准版](https://www.workbuddy.cn/docs/workbuddy/Pricing) | $13.8 | ¥93 | - | - | ≈1600万/月 | hy3 (#37) | 54.6 | 0.136 | 401.5 |
+| 29 | [Qwen Token Plan Standard](https://platform.qianwenai.com/pricing/token-plan) | $19.3 | ¥130 | - | - | 10,000 Credits/7天 | qwen3.8-max (#17) | 65.6 | 1.559 | 42.1 |
+| 30 | [Cursor Pro](https://cursor.com/pricing) | $20 | ¥135 | - | - | $20 API 用量 | claude-fable-5 (#1) | 77.9 | 9.076 | 8.6 |
+| 31 | [WorkBuddy 高级版](https://www.workbuddy.cn/docs/workbuddy/Pricing) | $27.6 | ¥186 | - | - | ≈3700万/月 | hy3 (#37) | 54.6 | 0.136 | 401.5 |
+| 32 | [WorkBuddy 旗舰版](https://www.workbuddy.cn/docs/workbuddy/Pricing) | $138.8 | ¥936 | - | - | ≈2亿/月 | hy3 (#37) | 54.6 | 0.136 | 401.5 |
 <!--PLANS_GUIDE_END-->
 
 ---

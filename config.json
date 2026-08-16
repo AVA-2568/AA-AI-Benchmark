@@ -634,6 +634,84 @@
       "note": "聚合 DeepSeek-V4（正式版）/Kimi-K2.5/GLM-5.1/MiniMax-M2.7 等上代模型；折扣取官方「低 50%」口径；Lite ¥39/3500万",
       "tokens": "1亿/月",
       "url": "https://cloud.tencent.com/act/pro/tokenplan"
+    },
+    {
+      "name": "OpenCode Go",
+      "creator_match": [
+        "Moonshot AI",
+        "Alibaba",
+        "Z.AI",
+        "MiniMax",
+        "DeepSeek",
+        "Tencent",
+        "Xiaomi",
+        "xAI",
+        "OpenAI"
+      ],
+      "monthly": 10.0,
+      "credit_value": 60,
+      "discount": 0.167,
+      "source": "OpenCode 官方 opencode.ai/go 2026-08（$10/月，首月 $5，按请求次数/5h 计）；月额度价值 $60 为 awesome-coding-plan 2026-08 第三方实测折算",
+      "note": "聚合 Kimi K3 / GLM-5.2 / MiniMax M3 / DeepSeek-V4 / Qwen3.8-Max / Hy3 / MiMo / Grok-4.5 / GPT-5.6-Luna 等，可用于任意编程 Agent；支持支付宝",
+      "tokens": "≈月 $60 用量（第三方实测）",
+      "url": "https://opencode.ai/go"
+    },
+    {
+      "name": "Kimi Andante",
+      "creator_match": [
+        "Moonshot AI"
+      ],
+      "monthly": 6.8,
+      "implied_value": 16.8,
+      "discount": 0.405,
+      "source": "Kimi 官网会员页 2026-08（¥49/月，含 Kimi Code 调用）；月约 8,400 万 token（K2.5 口径）× awesome-coding-plan 实测价值 ¥121",
+      "note": "入门档；Moderato ¥99 / Allegro ¥699 另有档位；年付约 8 折",
+      "tokens": "8400万/月（K2.5）",
+      "url": "https://www.kimi.com/membership/pricing"
+    },
+    {
+      "name": "Factory Droid Pro",
+      "creator_match": [
+        "Anthropic",
+        "OpenAI"
+      ],
+      "monthly": 20.0,
+      "implied_value": 48,
+      "discount": 0.417,
+      "source": "awesome-coding-plan 2026-08 实测（2,000 万 Standard tokens，按 claude-opus 折月价值约 $48）",
+      "note": "AI IDE 订阅；缓存 10 token 计 1 标准 token",
+      "tokens": "2000万标准token",
+      "url": "https://factory.ai"
+    },
+    {
+      "name": "Trae Pro",
+      "creator_match": [
+        "Anthropic",
+        "OpenAI"
+      ],
+      "monthly": 10.0,
+      "credit_value": 20,
+      "discount": 0.5,
+      "source": "awesome-coding-plan 2026-08（字节 Trae，$10/月含 $20 基础用量，另有 Bonus）",
+      "note": "字节 AI IDE；7 天免费试用，国内版 trae.cn",
+      "tokens": "$20 基础用量",
+      "url": "https://www.trae.ai"
+    },
+    {
+      "name": "Cursor Pro",
+      "creator_match": [
+        "Anthropic",
+        "OpenAI",
+        "Google",
+        "xAI"
+      ],
+      "monthly": 20.0,
+      "credit_value": 20,
+      "discount": 1.0,
+      "source": "awesome-coding-plan 2026-08（$20/月含 $20 API 用量 + 无限 Auto 模型）",
+      "note": "额度等价月费，倍率 1×；Ultra $200 档另有",
+      "tokens": "$20 API 用量",
+      "url": "https://cursor.com/pricing"
     }
   ],
   "score_threshold": 0,
