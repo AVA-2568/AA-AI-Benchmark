@@ -46,6 +46,12 @@ def test_render_smoke(tmp_path):
     assert [lbl for _, _, lbl in frontier] == ["a", "b", "c"]
 
 
+def test_render_requires_fx_rate():
+    with pytest.raises(ValueError, match="fx_rate"):
+        render([{"Model": "a", "Effective $/1M": "1", "Weighted Total": "5"}],
+               "unused.svg", fx_rate=None)
+
+
 def test_render_raises_on_empty():
     with pytest.raises(ValueError):
-        render([], "unused.svg", fx_rate=None)
+        render([], "unused.svg", fx_rate=7.0)

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """能力-成本 Pareto 前沿图：给定每 1M token 预算时的最优模型选择。
 
-读 value_scored.csv 的行（通用榜名次序），横轴取 Effective $/1M（最优
-订阅套餐折算后的实际支付价，无订阅厂商即官方按量混合价），纵轴取
-Weighted Total。前沿 = 价格升序中能力递增的模型；阶梯线在预算 x 处的
-高度即该预算能买到的最强模型。左图美元、右图人民币（实时汇率）。
-输出 SVG，标签用英文以兼容无中文字体的构建环境。
+读 value_scored.csv 的行（通用榜名次序），横轴取实际支付价（最优订阅
+套餐折算后的等效价，无订阅厂商即官方按量混合价）× 汇率折人民币，
+纵轴取 Weighted Total。前沿 = 价格升序中能力递增的模型；阶梯线在
+预算 x 处的高度即该预算能买到的最强模型。输出单面板 SVG（人民币
+计价），标签用英文以兼容无中文字体的构建环境。
 """
 import matplotlib
 
@@ -31,14 +31,16 @@ def pareto_frontier(points):
 
 
 def render(rows, out_path, fx_rate=None):
-    """渲染双面板（USD / CNY）前沿图到 out_path（SVG）。
+    """渲染单面板（人民币）前沿图到 out_path（SVG）。
 
-    rows 为 value_scored.csv 的行；fx_rate 缺失时只画美元面板。
+    rows 为 value_scored.csv 的行；fx_rate（USD→CNY）必需。
     """
+    if not fx_rate:
+        raise ValueError("fx_rate is required: the chart is priced in CNY")
     points = []
     for r in rows:
         try:
-            price = float(r.get("Effective $/1M") or 0)
+            price = float(r.get("Effective $/1M") or 0) * fx_rate
             score = float(r.get("Weighted Total") or 0)
         except ValueError:
             continue
@@ -48,40 +50,29 @@ def render(rows, out_path, fx_rate=None):
     if not frontier:
         raise ValueError("no plottable models: empty frontier")
 
-    panels = [("Effective $/1M (incl. best plan)", 1.0, "USD")]
-    if fx_rate:
-        panels.append((f"¥/1M (1 USD = {fx_rate} CNY)", fx_rate, "CNY"))
-
-    fig, axes = plt.subplots(1, len(panels), figsize=(6.4 * len(panels), 4.8),
-                             sharey=True)
-    if len(panels) == 1:
-        axes = [axes]
-    fx_prices = [p * fx_rate for p, _, _ in frontier] if fx_rate else None
-
-    for ax, (xlabel, mult, _tag) in zip(axes, panels):
-        ax.scatter([p * mult for p, _, _ in points],
-                   [s for _, s, _ in points],
-                   s=14, color="#b8bcc2", zorder=1,
-                   label="all models")
-        fx_p = [p * mult for p, _, _ in frontier]
-        scores = [s for _, s, _ in frontier]
-        ax.step(fx_p + [fx_p[-1] * 1.6], scores + [scores[-1]],
-                where="post", color="#d62728", linewidth=1.6, zorder=2,
-                label="best-choice frontier")
-        ax.scatter(fx_p, scores, s=26, color="#d62728", zorder=3)
-        for (p, s, label), x in zip(frontier, fx_p):
-            ax.annotate(label, (x, s), xytext=(4, -2),
-                        textcoords="offset points", fontsize=6.5,
-                        rotation=35, ha="left", va="top", color="#333")
-        ax.set_xscale("log")
-        ax.set_xlabel(xlabel, fontsize=9)
-        ax.grid(True, which="both", alpha=0.18)
-        ax.tick_params(labelsize=8)
-    axes[0].set_ylabel("Weighted Total (General)", fontsize=9)
-    axes[0].legend(fontsize=8, loc="lower right")
-    fig.suptitle("Capability vs Cost — pick the frontier at your budget",
-                 fontsize=11)
-    fig.tight_layout(rect=[0, 0, 1, 0.96])
+    fig, ax = plt.subplots(figsize=(10, 5.4))
+    ax.scatter([p for p, _, _ in points], [s for _, s, _ in points],
+               s=22, color="#b8bcc2", zorder=1, label="all models")
+    fx_p = [p for p, _, _ in frontier]
+    scores = [s for _, s, _ in frontier]
+    ax.step(fx_p + [fx_p[-1] * 1.6], scores + [scores[-1]],
+            where="post", color="#d62728", linewidth=2.0, zorder=2,
+            label="best-choice frontier")
+    ax.scatter(fx_p, scores, s=42, color="#d62728", zorder=3)
+    for p, s, label in frontier:
+        ax.annotate(label, (p, s), xytext=(5, -3),
+                    textcoords="offset points", fontsize=8,
+                    rotation=30, ha="left", va="top", color="#333")
+    ax.set_xscale("log")
+    ax.set_xlabel(f"Effective ¥/1M (log, incl. best plan · 1 USD = {fx_rate})",
+                  fontsize=10.5)
+    ax.set_ylabel("Weighted Total (General)", fontsize=10.5)
+    ax.grid(True, which="both", alpha=0.18)
+    ax.tick_params(labelsize=9)
+    ax.legend(fontsize=9, loc="lower right")
+    fig.suptitle("Capability vs Cost — best choice at your budget",
+                 fontsize=12)
+    fig.tight_layout(rect=[0, 0, 1, 0.95])
     fig.savefig(out_path, format="svg")
     plt.close(fig)
     return frontier
