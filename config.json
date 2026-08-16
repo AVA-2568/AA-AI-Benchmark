@@ -638,22 +638,16 @@
     {
       "name": "OpenCode Go",
       "creator_match": [
-        "Moonshot AI",
-        "Alibaba",
         "Z.AI",
         "MiniMax",
-        "DeepSeek",
-        "Tencent",
-        "Xiaomi",
-        "xAI",
-        "OpenAI"
+        "Tencent"
       ],
       "monthly": 10.0,
       "credit_value": 60,
       "discount": 0.167,
-      "source": "OpenCode 官方 opencode.ai/go 2026-08（$10/月，首月 $5，按请求次数/5h 计）；月额度价值 $60 为 awesome-coding-plan 2026-08 第三方实测折算",
-      "note": "聚合 Kimi K3 / GLM-5.2 / MiniMax M3 / DeepSeek-V4 / Qwen3.8-Max / Hy3 / MiMo / Grok-4.5 / GPT-5.6-Luna 等，可用于任意编程 Agent；支持支付宝",
-      "tokens": "≈月 $60 用量（第三方实测）",
+      "source": "OpenCode 官方 docs 2026-08-16 模型价格表：月使用额度分档 （GLM-5.2/MiniMax-M3/Hy3/DeepSeek-V4-Flash/Qwen3.7 系/Kimi-K2.6/2.7/MiMo-V2.5 = $60；Kimi-K3/Grok-4.5/GPT-5.6-Luna/GLM-5.3/Qwen3.8-Max/MiMo-V2.5-Pro/DeepSeek-V4-Pro = $15）",
+      "note": "$10/月（首月 $5），可用于任意编程 Agent，支持支付宝；额度 $12/5h · $30/周 · $60 或 $15/月（按模型分档，Go 内定价与官方 API 价基本一致）；本表倍率 6× 仅对其 $60 档模型成立（glm-5.2 / minimax-m3 / hy3 等），$15 档模型（kimi-k3 / qwen3.8-max / deepseek-v4-pro 等）实际 1.5×，故不列入其覆盖",
+      "tokens": "$60/月（$60 档模型）",
       "url": "https://opencode.ai/go"
     },
     {
