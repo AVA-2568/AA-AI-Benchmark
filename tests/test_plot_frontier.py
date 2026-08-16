@@ -46,6 +46,21 @@ def test_render_smoke(tmp_path):
     assert [lbl for _, _, lbl in frontier] == ["a", "b", "c"]
 
 
+def test_render_text_board_ylabel_and_adaptive_ylim(tmp_path):
+    # 文本榜分数整体低于通用榜：y 轴须自适应下探，ylabel 透传
+    rows = [
+        {"Model": "a", "Effective $/1M": "0.1", "Weighted Total": "43.9"},
+        {"Model": "b", "Effective $/1M": "1.0", "Weighted Total": "55"},
+        {"Model": "c", "Effective $/1M": "5.0", "Weighted Total": "77.1"},
+    ]
+    out = tmp_path / "text.svg"
+    frontier = render(rows, str(out), fx_rate=7.0, ylabel="文本榜综合分")
+    assert out.exists() and out.stat().st_size > 0
+    assert [lbl for _, _, lbl in frontier] == ["a", "b", "c"]
+    svg = out.read_text(encoding="utf-8")
+    assert "文本榜综合分" in svg
+
+
 def test_render_requires_fx_rate():
     with pytest.raises(ValueError, match="fx_rate"):
         render([{"Model": "a", "Effective $/1M": "1", "Weighted Total": "5"}],

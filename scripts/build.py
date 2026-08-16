@@ -361,7 +361,7 @@ def update_readme():
     plans_md = _plans_block(plan_params(cfg), value_rows, _read_fx())
     txt = _replace_block(txt, "PLANS_GUIDE", plans_md)
 
-    # 能力-成本前沿图：USD/CNY 双面板 SVG，随构建重生成
+    # 能力-成本前沿图（人民币单面板），随构建重生成
     if not _has_markers(txt, "FRONTIER"):
         raise BuildError("README marker missing for frontier chart")
     fx = _read_fx()
@@ -372,6 +372,22 @@ def update_readme():
         txt, "FRONTIER",
         "![能力-成本前沿：给定每 1M token 预算时的最优模型]"
         "(results/value_frontier.svg)")
+
+    # 文本榜同款前沿图：纵轴换文本榜综合分
+    if not _has_markers(txt, "TEXT_FRONTIER"):
+        raise BuildError("README marker missing for text frontier chart")
+    text_csv = os.path.join(
+        REPO_ROOT, "results", cfg["leaderboards"]["text"]["output_csv"])
+    with open(text_csv, encoding="utf-8-sig", newline="") as f:
+        text_rows = list(csv.DictReader(f))
+    text_svg = os.path.join(REPO_ROOT, "results", "text_frontier.svg")
+    text_frontier = render_frontier(
+        text_rows, text_svg, fx, ylabel="文本榜综合分")
+    print(f"text frontier chart: {len(text_frontier)} models on the edge")
+    txt = _replace_block(
+        txt, "TEXT_FRONTIER",
+        "![文本榜能力-成本前沿：给定每 1M token 预算时的最优写作模型]"
+        "(results/text_frontier.svg)")
 
     # Atomic write: stage to .tmp, then os.replace, so a crash mid-write
     # never leaves the repo with a half-written README.

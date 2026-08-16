@@ -150,12 +150,16 @@ def _label_frontier(ax, frontier):
     return texts
 
 
-def render(rows, out_path, fx_rate=None):
+def render(rows, out_path, fx_rate=None, ylabel="通用榜综合分"):
     """渲染单面板（人民币）前沿图到 out_path（SVG）。
 
-    rows 为 value_scored.csv 的行；fx_rate（USD→CNY）必需。
+    rows 为 *_scored.csv 的行（各榜同构）；fx_rate（USD→CNY）必需；
+    ylabel 为纵轴名称（如「通用榜综合分」「文本榜综合分」）。
     画幅与字号按 GitHub README ~780px 的显示宽度校准：字号相对放大、
     x 轴用手动刻度直标 ¥ 数值（不出现 10^n 或 USD 字样）。
+    y 轴范围按数据自适应：下界 floor(min/5)*5，上界 ceil(max/5)*5+2
+    （顶部余量给最高点的标签），刻度间隔 5——通用榜数据下与历史
+    硬编码 (45, 82) / [50..80] 完全一致。
     """
     if not fx_rate:
         raise ValueError("fx_rate is required: the chart is priced in CNY")
@@ -187,10 +191,14 @@ def render(rows, out_path, fx_rate=None):
     ax.set_xticks(ticks)
     ax.set_xticklabels([f"¥{t:g}" for t in ticks], fontsize=10.5)
     ax.set_xlim(0.015, 60)
-    ax.set_ylim(45, 82)
-    ax.set_yticks([50, 55, 60, 65, 70, 75, 80])
+    all_scores = [s for _, s, _ in points]
+    y_lo = math.floor(min(all_scores) / 5) * 5
+    y_hi = math.ceil(max(all_scores) / 5) * 5 + 2
+    ax.set_ylim(y_lo, y_hi)
+    ax.set_yticks(range(math.ceil(min(all_scores) / 5) * 5,
+                        math.ceil(max(all_scores) / 5) * 5 + 1, 5))
     ax.set_xlabel("实际等效价 / 1M tokens（¥，对数刻度）", fontsize=12)
-    ax.set_ylabel("通用榜综合分", fontsize=12)
+    ax.set_ylabel(ylabel, fontsize=12)
     ax.grid(True, which="major", alpha=0.25)
     ax.tick_params(axis="y", labelsize=10.5)
     ax.legend(fontsize=10, loc="lower right", framealpha=0.9)
