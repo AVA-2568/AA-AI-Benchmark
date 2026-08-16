@@ -303,19 +303,27 @@ def test_value_board_ranks_by_score_per_dollar():
 
 def test_plan_for_skips_credit_metered_plans():
     """discount >= 1 的 Credit/积分计量套餐（Qwen Token Plan / WorkBuddy）
-    不参与主表最优套餐选择——它们只在套餐指南中展示。"""
+    不参与成本折算：有折扣套餐时折扣优先；仅有积分制时返回最便宜的
+    名义套餐（折扣 1.0 = 官方价），保证榜单能显示套餐存在。"""
     from pipeline.scoring import _plan_for
     plans = [
         {"name": "Qwen Token Plan Lite", "creator_match": ["Alibaba"],
-         "discount": 1.0},
+         "discount": 1.0, "monthly": 5.4},
+        {"name": "Qwen Token Plan Standard", "creator_match": ["Alibaba"],
+         "discount": 1.0, "monthly": 19.3},
         {"name": "Hy Token Plan Lite", "creator_match": ["Tencent"],
-         "discount": 0.81},
+         "discount": 0.81, "monthly": 3.9},
         {"name": "WorkBuddy Pro", "creator_match": ["Tencent"],
-         "discount": 1.0},
+         "discount": 1.0, "monthly": 27.6},
     ]
-    assert _plan_for(plans, "Alibaba") is None
+    # Alibaba 仅有积分制 -> 最便宜的名义套餐
+    nominal = _plan_for(plans, "Alibaba")
+    assert nominal["name"] == "Qwen Token Plan Lite"
+    assert float(nominal["discount"]) == 1.0
+    # Tencent 有折扣套餐 -> 折扣优先，积分制不干扰
     best = _plan_for(plans, "Tencent")
     assert best["name"] == "Hy Token Plan Lite"
+    assert _plan_for(plans, "DeepSeek") is None
 
 
 def test_value_board_follows_general_ranking():

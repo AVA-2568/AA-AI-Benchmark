@@ -163,6 +163,15 @@ def _board_blocks(bkey, board, n_models, today):
                 plan_cell = "API 按量"
             monthly = r.get("Plan Monthly")
             mult = r.get("Plan Multiplier")
+            disc = r.get("Plan Discount")
+            if not name:
+                mult_cell = "1×"
+            elif disc and float(disc) >= 1.0:
+                mult_cell = "积分"  # 积分/任务制：官方未公布 token 换算
+            elif mult:
+                mult_cell = f"{float(mult):g}×"
+            else:
+                mult_cell = "-"
             lines.append(
                 "| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |"
                 .format(
@@ -171,7 +180,7 @@ def _board_blocks(bkey, board, n_models, today):
                     r.get("Blended $/1M") or "",
                     plan_cell,
                     _fmt_usd(monthly) if monthly else "-",
-                    f"{float(mult):g}×" if mult else "1×",
+                    mult_cell,
                     r.get("Effective $/1M") or "",
                     r.get("Effective ¥/1M") or "",
                     r.get("Value Score") or "",
@@ -244,6 +253,7 @@ def _plans_block(plans, rows, fx_rate):
     额度全部用于该模型时的 token 量级。
     """
     entries = []
+    credit_entries = []
     for p in plans:
         creators = {c.strip() for c in p.get("creator_match") or []}
         best = next((r for r in rows
@@ -276,7 +286,9 @@ def _plans_block(plans, rows, fx_rate):
         name = p.get("name", "?")
         url = (p.get("url") or "").strip()
         name_cell = f"[{name}]({url})" if url else name
-        entries.append({
+        entry = {
+            "credit": discount >= 1.0,
+            "monthly": monthly or 0,
             "value": score / eff,
             "line": "{} | {} | {} | {} | {} | {} | {} (#{}) | {} | {} | {}".format(
                 name_cell,
@@ -290,14 +302,24 @@ def _plans_block(plans, rows, fx_rate):
                 round(eff, 3),
                 round(score / eff, 1),
             ),
-        })
+        }
+        (credit_entries if entry["credit"] else entries).append(entry)
+    # 可折算套餐按套餐内 Value 降序；积分/任务制单独分组列于表尾
+    # （官方未公布 token 换算，按月费升序），避免淹没在混合排序里
     entries.sort(key=lambda e: -e["value"])
+    credit_entries.sort(key=lambda e: (e["monthly"], e["line"]))
     lines = [
         "| # | 套餐 | 月费 | ¥/月 | 倍率 | 折扣 | ≈Token/月 | 最强模型（通用榜） | 模型分 | 套餐内 $/1M | Value |",
         "|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for i, e in enumerate(entries, 1):
         lines.append(f"| {i} | {e['line']} |")
+    if credit_entries:
+        lines.append(
+            "| | *—— 以下为积分/任务制套餐（官方未公布 Credits→token 换算，"
+            "不参与倍率排序）——* | | | | | | | | | |")
+        for i, e in enumerate(credit_entries, len(entries) + 1):
+            lines.append(f"| {i} | {e['line']} |")
     return "\n".join(lines)
 
 
