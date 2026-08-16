@@ -326,6 +326,27 @@ def test_plan_for_skips_credit_metered_plans():
     assert _plan_for(plans, "DeepSeek") is None
 
 
+def test_plan_for_model_level_match():
+    """model_match（模型级）与 creator_match（厂商级）并集匹配：
+    OpenCode Go 对 $60 档模型 6x、对同厂 $15 档模型不适用。"""
+    from pipeline.scoring import _plan_for
+    plans = [
+        {"name": "OpenCode Go", "creator_match": ["Z.AI", "MiniMax", "Tencent"],
+         "model_match": ["deepseek-v4-flash"], "discount": 0.167,
+         "monthly": 10},
+        {"name": "腾讯通用 Token Plan Standard", "creator_match": ["DeepSeek"],
+         "discount": 0.5, "monthly": 13.8},
+    ]
+    # flash 命中 model_match（0.167 < 0.5 胜出）
+    assert _plan_for(plans, "DeepSeek", "deepseek-v4-flash")["name"] == \
+        "OpenCode Go"
+    # 同厂 pro 不在 model_match -> 只剩腾讯通用
+    assert _plan_for(plans, "DeepSeek", "deepseek-v4-pro")["name"] == \
+        "腾讯通用 Token Plan Standard"
+    # creator_match 仍生效
+    assert _plan_for(plans, "Tencent", "hy3")["name"] == "OpenCode Go"
+
+
 def test_value_board_follows_general_ranking():
     """rank_by='score'（value 榜默认）：按综合分排序（跟随通用榜名次），
     无价格行保留（Value Score 为 None 而不是被丢弃）。"""

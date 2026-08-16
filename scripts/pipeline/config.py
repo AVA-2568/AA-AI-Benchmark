@@ -91,6 +91,7 @@ def plan_params(cfg: Dict[str, Any]) -> List[Dict[str, Any]]:
         {
             "name": p.get("name", "?"),
             "creator_match": p.get("creator_match") or [],
+            "model_match": p.get("model_match") or [],
             "monthly": to_float(p.get("monthly")),
             "credit_value": to_float(p.get("credit_value")),
             "implied_value": to_float(p.get("implied_value")),

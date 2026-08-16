@@ -256,8 +256,10 @@ def _plans_block(plans, rows, fx_rate):
     credit_entries = []
     for p in plans:
         creators = {c.strip() for c in p.get("creator_match") or []}
+        models = {m.strip() for m in p.get("model_match") or []}
         best = next((r for r in rows
-                     if (r.get("Creator") or "").strip() in creators), None)
+                     if (r.get("Creator") or "").strip() in creators
+                     or (r.get("Model") or "").strip() in models), None)
         if best is None:
             continue
         try:

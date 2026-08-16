@@ -43,31 +43,36 @@ def _cache_rate_for(cost, creator):
     return float(cost.get("cache_hit_rate", 0.50))
 
 
-def _plan_for(plans, creator):
+def _plan_for(plans, creator, model=None):
     """Best (lowest-discount) matching subscription plan, else None.
 
-    A plan applies when the model's Creator is in its
-    ``creator_match``; the lowest discount wins (cheapest effective
-    price). Credit-value plans (e.g. GitHub Copilot) make API usage
+    A plan matches when the row's Creator is in its ``creator_match``
+    OR the model slug is in its ``model_match`` (per-model override —
+    e.g. OpenCode Go only grants its 6x multiplier on specific
+    models). The lowest discount wins (cheapest effective price).
+    Credit-value plans (e.g. GitHub Copilot) make API usage
     effectively cheaper than the list price. Plans with discount >= 1
-    (credit-metered, no reliable token conversion — e.g. Qwen Token
-    Plan / WorkBuddy) never change the cost math; when no real
-    discount plan exists for a creator, the cheapest credit-metered
-    one is still returned as the *nominal* plan so the leaderboard
-    can show it exists (discount 1.0 = list price).
+    (credit-metered, no reliable token conversion) never change the
+    cost math; when no real discount plan matches, the cheapest
+    credit-metered one is still returned as the *nominal* plan so the
+    leaderboard can show it exists (discount 1.0 = list price).
     """
     best = None
     nominal = None
     for p in plans or []:
-        if creator in (p.get("creator_match") or []):
-            d = float(p.get("discount") or 1.0)
-            if d >= 1.0:
-                if nominal is None or float(p.get("monthly") or 0) < \
-                        float(nominal.get("monthly") or 0):
-                    nominal = p
-                continue
-            if best is None or d < float(best.get("discount") or 1.0):
-                best = p
+        matched = creator in (p.get("creator_match") or [])
+        if not matched and model and p.get("model_match"):
+            matched = model in p["model_match"]
+        if not matched:
+            continue
+        d = float(p.get("discount") or 1.0)
+        if d >= 1.0:
+            if nominal is None or float(p.get("monthly") or 0) < \
+                    float(nominal.get("monthly") or 0):
+                nominal = p
+            continue
+        if best is None or d < float(best.get("discount") or 1.0):
+            best = p
     return best or nominal
 
 
@@ -112,7 +117,7 @@ def _cost_terms(r, cost, cache_multiplier, cache_price_fallback, plans):
     out_share = cost["output_share"]
     glob_hit = float(cost["cache_hit_rate"])
     eff_hit = _cache_rate_for(cost, creator)
-    plan = _plan_for(plans, creator)
+    plan = _plan_for(plans, creator, r.get("Model"))
     discount = float(plan["discount"]) if plan else 1.0
 
     standard = (in_share * (1 - glob_hit) * pin
