@@ -8,12 +8,12 @@ merge.py 以 registry 为白名单，registry 维护不当会静默丢数据。�
 2. **别名漏配**（missing_aliases）：registry 已收录但某源字段为 null，而该
    源里存在「规范化 slug」对应的数据 —— 数据其实有，只是别名没配。
 
-只读不写 registry —— 第一梯队筛选与别名确认是人工判断。候选写入
+只读不写 registry —— 入选筛选与别名确认是人工判断。候选写入
 results/new_model_candidates.json 并打印告警；发现候选不视为失败
 （新模型上线是正常事件，不应阻塞榜单刷新）。
 
 关于扫描范围：
-- 新模型只扫 LiveBench + DeepSWE（第一梯队评测源，命名规范、几乎无长尾
+- 新模型只扫 LiveBench + DeepSWE（前沿模型评测源，命名规范、几乎无长尾
   噪音）。EQ-Bench / SWE-bench / AA 含大量 open-weights 长尾与旧模型，
   不纳入新模型扫描。
 - 别名漏配检测覆盖 aa / eqbench / deepswe / livebench 四个源：这里用

@@ -1,5 +1,5 @@
 {
-  "note": "第一梯队模型注册表：统一 slug + 各源别名。slug 规范=全小写、连字符分词、版本号保留点(如 claude-opus-4.8)。每个模型取各源最高推理档。aa=AA Model Slug(max档)；livebench=LiveBench CSV rawName(可列表,多个时取最高分)；deepswe/swebench/eqbench=各源 leaderboard 模型名。null 表示该源未评测。",
+  "note": "主流旗舰模型注册表：统一 slug + 各源别名。slug 规范=全小写、连字符分词、版本号保留点(如 claude-opus-4.8)。每个模型取各源最高推理档。aa=AA Model Slug(max档)；livebench=LiveBench CSV rawName(可列表,多个时取最高分)；deepswe/swebench/eqbench=各源 leaderboard 模型名。null 表示该源未评测。",
   "models": [
     {
       "slug": "claude-fable-5",

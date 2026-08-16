@@ -4,9 +4,9 @@
 
 ## 数据源与模型池
 
-### 模型池：第一梯队精选
+### 模型池：主流旗舰精选
 
-榜单只收录**国际 + 国内第一梯队**模型（当前 41 个），而非全量长尾。模型池定义在 [`scripts/model_registry.json`](scripts/model_registry.json)：
+榜单只收录**国际 + 国内主流厂商旗舰**模型（当前 41 个），而非全量长尾。模型池定义在 [`scripts/model_registry.json`](scripts/model_registry.json)：
 
 - **国际**：OpenAI（GPT-5.6/5.5/5.4/5.2）、Anthropic（Claude Fable 5 / Opus 5 / Opus 4.x / Sonnet）、Google（Gemini 3.x）、xAI（Grok 4.x）、Meta（Muse Spark）、Thinking Machines（Inkling）
 - **国内**：DeepSeek（V4）、Kimi（K3/K2.6/K2.7）、Qwen（3.8/3.7/3.6）、GLM（5.2）、MiniMax（M3）
@@ -60,10 +60,10 @@
 
 `merge.py` 以 `model_registry.json` 为白名单，registry 维护不当会静默丢数据。`detect_new_models.py` 在每次构建时做两类检测，结果写入 `results/new_model_candidates.json` 并打印告警：
 
-1. **新模型**：源里出现、registry 完全没有收录的模型。只扫 LiveBench + DeepSWE 两个「第一梯队评测源」（命名规范、几乎无长尾噪音）；EQ-Bench / SWE-bench / AA 因含大量 open-weights 长尾与旧模型不纳入。
+1. **新模型**：源里出现、registry 完全没有收录的模型。只扫 LiveBench + DeepSWE 两个「前沿模型评测源」（命名规范、几乎无长尾噪音）；EQ-Bench / SWE-bench / AA 因含大量 open-weights 长尾与旧模型不纳入。
 2. **别名漏配**：registry 已收录但某源字段为 null，而该源里存在「规范化 slug」（点/连字符互换）对应的数据 —— 数据其实有，只是别名没配。这类检测覆盖 aa / eqbench / deepswe / livebench 四源，用 registry slug 做确定性反向匹配，无长尾噪音问题。
 
-- **只发现、不自动改 registry**：第一梯队筛选与别名确认是人工判断，候选经人工确认后补录 `model_registry.json`。
+- **只发现、不自动改 registry**：入选筛选与别名确认是人工判断，候选经人工确认后补录 `model_registry.json`。
 - **发现候选不视为构建失败**：新模型上线是正常事件，不应阻塞榜单刷新。
 
 ## 指标选取与权重
@@ -203,5 +203,5 @@ AA 解析沿用三级降级链（RSC 流 → `__next_f.push` → `__NEXT_DATA__`
 1. **非绝对排名**：分数是相对排名，不代表能力绝对值
 2. **填补值可信度**：留一验证 MAE 越低的指标填补越可靠；`(reg,low)` 填补仅供参考
 3. **权重可自定义**：权重设计反映「编程 + 智能体 + 日常对话」的平衡，可通过 `config.json` 调整
-4. **模型池需维护**：第一梯队模型池与别名映射在 `model_registry.json`，新增模型需同步
+4. **模型池需维护**：主流旗舰模型池与别名映射在 `model_registry.json`，新增模型需同步
 5. **特征独立性**：填补仅用评分指标交叉预测，不含任何合成综合分，避免循环论证

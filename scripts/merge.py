@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """跨源合并：model_registry.json + 各源 CSV -> merged.csv（统一宽表）。
 
-行 = 注册表里的第一梯队模型（统一 slug），列 = config.imputation_pool 的
+行 = 注册表里的模型（统一 slug），列 = config.imputation_pool 的
 11 个指标 + Model/Creator。各源分数通过别名匹配；livebench 别名可为列表，
 多个匹配时取分数最高者。缺失值留空，交由评分阶段的岭回归填补。
 

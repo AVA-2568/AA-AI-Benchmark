@@ -200,7 +200,7 @@ def _board_blocks(bkey, board, n_models, today):
     top15_md = "\n".join(lines)
 
     snapshot_parts = [
-        f"> {today} 抓取（{n_models} 第一梯队模型 -> {n_out} 行）。"
+        f"> {today} 抓取（{n_models} 精选模型 -> {n_out} 行）。"
     ]
     if os.path.exists(val_json):
         with open(val_json, encoding="utf-8") as f:
