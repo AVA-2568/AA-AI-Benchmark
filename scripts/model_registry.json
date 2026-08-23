@@ -384,6 +384,24 @@
       "deepswe": null,
       "swebench": null,
       "eqbench": null
+    },
+    {
+      "slug": "qwen3.8-27b",
+      "creator": "Alibaba",
+      "aa": "qwen3-8-27b",
+      "livebench": "qwen3.8-27b",
+      "deepswe": null,
+      "swebench": null,
+      "eqbench": null
+    },
+    {
+      "slug": "glm-5.3",
+      "creator": "Z.AI",
+      "aa": "glm-5-3",
+      "livebench": null,
+      "deepswe": "glm-5.3",
+      "swebench": null,
+      "eqbench": null
     }
   ]
 }

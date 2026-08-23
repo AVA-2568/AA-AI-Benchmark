@@ -1,6 +1,8 @@
 {
   "new_models": {
     "livebench.csv": [
+      "deepseek-v4-flash-vision-exp",
+      "ox-alpha-max",
       "smaug-agentic"
     ],
     "deepswe.csv": []
