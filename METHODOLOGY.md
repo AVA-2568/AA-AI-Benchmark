@@ -63,7 +63,12 @@
 1. **新模型**：源里出现、registry 完全没有收录的模型。只扫 LiveBench + DeepSWE 两个「前沿模型评测源」（命名规范、几乎无长尾噪音）；EQ-Bench / SWE-bench / AA 因含大量 open-weights 长尾与旧模型不纳入。
 2. **别名漏配**：registry 已收录但某源字段为 null，而该源里存在「规范化 slug」（点/连字符互换）对应的数据 —— 数据其实有，只是别名没配。这类检测覆盖 aa / eqbench / deepswe / livebench 四源，用 registry slug 做确定性反向匹配，无长尾噪音问题。
 
-- **只发现、不自动改 registry**：入选筛选与别名确认是人工判断，候选经人工确认后补录 `model_registry.json`。
+构建以 `detect_new_models.py --apply` 运行，对「新模型」做**自动入池**：
+
+- **双源确认门槛**：候选需在 livebench / deepswe / aa 三个独立信号中至少出现两处才自动写入 registry；单源孤立条目（特评项、内部实验名等）只留在候选清单并标注 `insufficient_confirmation`，避免错误模型污染榜单。
+- **确定性 slug/别名**：slug 由源名小写并剥离 effort 后缀派生（裸 `-max` 有歧义——`qwen3.8-max` 是型号名、`gpt-5.6-luna-max` 的 max 是档位——仅当前段非版本数字才剥离）；各源别名只取源数据里真实存在的名字，livebench 别名保留 effort 后缀原文。
+- **creator 推断**：AA 命中时取其 Creator（经 `Z AI→Z.AI` 等修正表归一），未命中时按 slug 前缀推断主流厂商，均不中则 `Unknown`。
+- **审计与回滚**：入池条目带 `auto_added` 日期标记，可随时 `grep auto_added scripts/model_registry.json` 定位；registry 顶层可选 `auto_add_exclude`（fnmatch 通配）永久排除误报名称；未入池候选连同原因一并写入候选 JSON。
 - **发现候选不视为构建失败**：新模型上线是正常事件，不应阻塞榜单刷新。
 
 ## 指标选取与权重

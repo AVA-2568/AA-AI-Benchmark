@@ -19,7 +19,7 @@ python -m pytest -q
 ```
 
 ## 数据流
-fetch(多源) -> merge(跨源合并) -> detect(新模型候选) -> imputation -> validation -> scoring -> README
+fetch(多源) -> detect(新模型发现，`--apply` 自动入池) -> merge(跨源合并) -> imputation -> validation -> scoring -> README
 
 ## 核心不变量
 - leaderboard 权重总和必须为 1。
@@ -30,7 +30,7 @@ fetch(多源) -> merge(跨源合并) -> detect(新模型候选) -> imputation ->
 - 抓取失败时默认失败；`--allow-stale` 仅用于显式诊断，且不刷新 README。
 - 每次构建生成 `results/manifest.json`，记录输入哈希、配置哈希和 stale 状态。
 - 模型池与别名映射在 `scripts/model_registry.json`，新增模型需同步维护。
-- `detect_new_models.py` 只读不写 registry，输出 `results/new_model_candidates.json` 候选清单（新模型 + 别名漏配两类）；发现候选不视为构建失败。
+- `detect_new_models.py` 默认只读，输出 `results/new_model_candidates.json` 候选清单（新模型 + 别名漏配两类）；build 以 `--apply` 运行：双源确认（livebench/deepswe/aa 任二出现）的新模型自动入池，条目带 `auto_added` 日期标记；单源孤立候选只报告不入池；registry 顶层可选 `auto_add_exclude`（fnmatch 通配）永久排除误报名称；发现候选不视为构建失败。
 
 ## 修改规则
 - 修改算法必须同步更新 METHODOLOGY.md。

@@ -191,7 +191,7 @@ def test_main_succeeds_fresh_and_records_stale_false():
 def test_main_skips_readme_on_stale():
     readme_called = {"v": False}
 
-    def fake_run(script):
+    def fake_run(script, *args):
         pass
 
     def fake_readme():

@@ -110,8 +110,8 @@ def fetch_data(allow_stale=False, offline=False):
     return False, False
 
 
-def run(script):
-    subprocess.run([sys.executable, os.path.join(BASE, script)],
+def run(script, *args):
+    subprocess.run([sys.executable, os.path.join(BASE, script), *args],
                    cwd=BASE, check=True)
 
 
@@ -462,8 +462,9 @@ def main(argv=None):
             print("offline mode: skipping independent-source fetch (using cache)")
         else:
             run("fetch_sources.py")
+        # 新模型发现先于合并：--apply 入池后 merge 即可带上新模型行
+        run("detect_new_models.py", "--apply")
         run("merge.py")
-        run("detect_new_models.py")
         run("score_aa.py")
         if stale:
             print("stale input: skipping README update")
