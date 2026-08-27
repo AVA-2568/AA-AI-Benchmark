@@ -52,6 +52,8 @@
 
 **倍率按用满额度上限估算**——轻量用户实际折扣更少；无订阅套餐的厂商（DeepSeek / Qwen / GLM 等）按 API 按量计费（倍率 1×）。`url` 为官方购买直链（展示用，构建不请求）。
 
+**分模型成本修正 `model_cost_scale`**：积分/Credits 制套餐对不同模型的抵扣密度可能不同——套餐折扣以旗舰锚点折出，对积分系数不同的衍生模型会系统性偏差。典型案例：智谱 GLM Coding Plan 的积分以 GLM-5.3 标准版标定（In 690/Cached 170/Out 2400 积分每 M token），而 glm-5.3-flash 的积分系数恰为标准版 1/3（230/56/800），但 flash 的 API 牌价约为标准版 1/9~1/10，导致直接沿用标准版折扣时 flash 的 effective 价格系统性虚低约 3 倍。config 在 plan 上以 `model_cost_scale` 给出经官方积分系数核实的乘数（如 `{"glm-5.3-flash": 3.0}`），`_cost_terms` 将 `discount = min(discount × scale, 1.0)` 后用于 effective 计算，**只影响 cost 侧展示，不影响 plan 选择**。其他厂商（OpenAI / Anthropic / xAI / Copilot）未公布分模型配额，属不可修黑盒，维持锚点折扣。
+
 ### 跨源模型名对齐
 
 各源模型命名风格各异（如 LiveBench `claude-opus-4-7-xhigh-effort`、DeepSWE `claude-opus-4.7`、AA `claude-opus-4-7`）。`model_registry.json` 为每个统一 slug 维护各源别名，`merge.py` 按别名合并。**新增模型需同步维护别名映射**。

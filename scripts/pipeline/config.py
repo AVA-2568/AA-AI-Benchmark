@@ -101,6 +101,7 @@ def plan_params(cfg: Dict[str, Any]) -> List[Dict[str, Any]]:
             "source": p.get("source", ""),
             "note": p.get("note", ""),
             "url": p.get("url", ""),
+            "model_cost_scale": p.get("model_cost_scale") or {},
         }
         for p in plans
     ]

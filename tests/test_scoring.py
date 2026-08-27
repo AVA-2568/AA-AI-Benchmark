@@ -347,6 +347,58 @@ def test_plan_for_model_level_match():
     assert _plan_for(plans, "Tencent", "hy3")["name"] == "OpenCode Go"
 
 
+def test_effective_cost_model_cost_scale():
+    """model_cost_scale：积分制套餐对特定模型的抵扣密度差异按 config
+    乘数修正有效折扣（如 glm-5.3-flash 系数为标准版 1/3 → ×3.0），
+    只影响 cost 侧展示，不影响 plan 选择和其他模型。"""
+    eng = FakeEngine()
+    eng.raw = {"m1": [80.0, 20.0], "m2": [40.0, 10.0]}
+    eng.cur = dict(eng.raw)
+    plans = [
+        {"name": "GLM Coding Plan Max", "creator_match": ["Z.AI"],
+         "discount": 0.029, "monthly": 149.7,
+         "model_cost_scale": {"glm-5.3-flash": 3.0},
+         "url": "https://bigmodel.cn/glm-coding"},
+    ]
+    rows = [
+        {"Model": "glm-5.3-flash", "Creator": "Z.AI",
+         "Price 1M Input": "0.8", "Price 1M Output": "2.8",
+         "Cache Hit Price": "0.23"},
+        {"Model": "glm-5.3", "Creator": "Z.AI",
+         "Price 1M Input": "8", "Price 1M Output": "28",
+         "Cache Hit Price": "2"},
+    ]
+    out, _ = score_board(rows, _BOARD, eng, _COST_EFF, 0.1, 0.0, plans=plans)
+    by_model = {r["Model"]: r for r in out}
+    # flash: discount 0.029 × 3.0 = 0.087
+    assert by_model["glm-5.3-flash"]["Plan Discount"] == 0.087
+    # standard: no scale entry -> discount unchanged
+    assert by_model["glm-5.3"]["Plan Discount"] == 0.029
+    # both matched the same plan (scale doesn't affect plan selection)
+    assert by_model["glm-5.3-flash"]["Plan"] == "GLM Coding Plan Max"
+    assert by_model["glm-5.3"]["Plan"] == "GLM Coding Plan Max"
+
+
+def test_model_cost_scale_capped_at_one():
+    """model_cost_scale 乘后折扣封顶 1.0（不倒贴）。"""
+    eng = FakeEngine()
+    eng.raw = {"m1": [80.0, 20.0], "m2": [40.0, 10.0]}
+    eng.cur = dict(eng.raw)
+    plans = [
+        {"name": "CheapPlan", "creator_match": ["TestLab"],
+         "discount": 0.4, "monthly": 10,
+         "model_cost_scale": {"model-x": 3.0}},
+    ]
+    rows = [
+        {"Model": "model-x", "Creator": "TestLab",
+         "Price 1M Input": "1", "Price 1M Output": "2",
+         "Cache Hit Price": "0.1"},
+    ]
+    out, _ = score_board(rows, _BOARD, eng, _COST_EFF, 0.1, 0.0, plans=plans)
+    # 0.4 × 3.0 = 1.2 -> capped at 1.0
+    assert out[0]["Plan Discount"] == 1.0
+
+
 def test_value_board_follows_general_ranking():
     """rank_by='score'（value 榜默认）：按综合分排序（跟随通用榜名次），
     无价格行保留（Value Score 为 None 而不是被丢弃）。"""

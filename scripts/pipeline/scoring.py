@@ -119,6 +119,16 @@ def _cost_terms(r, cost, cache_multiplier, cache_price_fallback, plans):
     eff_hit = _cache_rate_for(cost, creator)
     plan = _plan_for(plans, creator, r.get("Model"))
     discount = float(plan["discount"]) if plan else 1.0
+    # 分模型成本标定：积分/Credits 制套餐对不同模型的抵扣密度可能不同
+    # （如智谱 glm-5.3-flash 的积分系数恰为 GLM-5.3 标准版的 1/3，
+    # 而其 API 牌价差近一个数量级），旗舰锚点折出的折扣对这类模型
+    # 会系统性虚低。config 在 plan 上以 model_cost_scale 给出经官方
+    # 系数核实的乘数，只影响 cost 侧展示（计划选择仍按基础折扣）。
+    if plan and discount < 1.0:
+        m_scale = (plan.get("model_cost_scale") or {}).get(r.get("Model"))
+        if m_scale:
+            discount = min(discount * float(m_scale), 1.0)
+            plan = {**plan, "discount": round(discount, 4)}
 
     standard = (in_share * (1 - glob_hit) * pin
                 + in_share * glob_hit * pcache_eff
