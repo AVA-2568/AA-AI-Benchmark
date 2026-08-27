@@ -203,7 +203,10 @@
       "slug": "grok-4.6",
       "creator": "xAI",
       "aa": "grok-4-6",
-      "livebench": ["grok-4.6-xhigh", "grok-4.6"],
+      "livebench": [
+        "grok-4.6-xhigh",
+        "grok-4.6"
+      ],
       "deepswe": "grok-4.6",
       "swebench": null,
       "eqbench": "grok-4.6"
@@ -402,6 +405,16 @@
       "deepswe": "glm-5.3",
       "swebench": null,
       "eqbench": null
+    },
+    {
+      "slug": "glm-5.3-flash",
+      "creator": "Z.AI",
+      "aa": "glm-5-3-flash",
+      "livebench": "glm-5.3-flash",
+      "deepswe": "glm-5.3-flash",
+      "swebench": null,
+      "eqbench": null,
+      "auto_added": "2026-08-27"
     }
   ]
 }

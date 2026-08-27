@@ -477,11 +477,11 @@
         "Z.AI"
       ],
       "monthly": 16.4,
-      "implied_value": 308,
-      "discount": 0.053,
-      "source": "智谱官方 bigmodel.cn/glm-coding 2026-08-16 实测（改版后积分制定价）；token 按官方口径 10000 积分/周 ≈ 0.43~0.87 亿 × 榜单 GLM-5.2 混合价折算",
-      "note": "¥118/月（包季 8 折 / 包年 7 折），每周 10,000 积分 ≈ 0.43~0.87 亿 token",
-      "tokens": "≈2~4亿/月",
+      "implied_value": 368,
+      "discount": 0.045,
+      "source": "智谱官方 docs.bigmodel.cn/cn/coding-plan/overview「可用额度参考」2026-08-27：GLM-5.3 按 95% 缓存命中率档周 token 区间折算月度（×52/12）× 榜单 GLM-5.3 混合价折算；区间下限=全高峰（1×抵扣）、上限=全非高峰（0.5×抵扣）",
+      "note": "¥118/月（包季 8 折 / 包年 7 折），每周 10,000 积分 ≈ 0.48~0.97 亿 token",
+      "tokens": "≈2.1~4.2亿/月",
       "url": "https://bigmodel.cn/glm-coding"
     },
     {
@@ -490,11 +490,11 @@
         "Z.AI"
       ],
       "monthly": 74.7,
-      "implied_value": 1883,
-      "discount": 0.04,
-      "source": "智谱官方 bigmodel.cn/glm-coding 2026-08-16 实测（改版后积分制定价）；token 按官方口径 10000 积分/周 ≈ 0.43~0.87 亿 × 榜单 GLM-5.2 混合价折算",
-      "note": "¥538/月，6× Lite 用量 ≈ 2.6~5.2 亿 token/周",
-      "tokens": "≈11~23亿/月",
+      "implied_value": 2209,
+      "discount": 0.034,
+      "source": "智谱官方 docs.bigmodel.cn/cn/coding-plan/overview「可用额度参考」2026-08-27：GLM-5.3 按 95% 缓存命中率档周 token 区间折算月度（×52/12）× 榜单 GLM-5.3 混合价折算；区间下限=全高峰（1×抵扣）、上限=全非高峰（0.5×抵扣）",
+      "note": "¥538/月，每周 60,000 积分 ≈ 2.90~5.80 亿 token",
+      "tokens": "≈12.6~25.1亿/月",
       "url": "https://bigmodel.cn/glm-coding"
     },
     {
@@ -503,11 +503,11 @@
         "Z.AI"
       ],
       "monthly": 149.7,
-      "implied_value": 4338,
-      "discount": 0.034,
-      "source": "智谱官方 bigmodel.cn/glm-coding 2026-08-16 实测（改版后积分制定价）；token 按官方口径 10000 积分/周 ≈ 0.43~0.87 亿 × 榜单 GLM-5.2 混合价折算",
-      "note": "¥1078/月，14× Lite 用量 ≈ 6~12 亿 token/周，首发接入最新旗舰模型",
-      "tokens": "≈26~53亿/月",
+      "implied_value": 5150,
+      "discount": 0.029,
+      "source": "智谱官方 docs.bigmodel.cn/cn/coding-plan/overview「可用额度参考」2026-08-27：GLM-5.3 按 95% 缓存命中率档周 token 区间折算月度（×52/12）× 榜单 GLM-5.3 混合价折算；区间下限=全高峰（1×抵扣）、上限=全非高峰（0.5×抵扣）",
+      "note": "¥1078/月，每周 140,000 积分 ≈ 6.76~13.52 亿 token",
+      "tokens": "≈29.3~58.6亿/月",
       "url": "https://bigmodel.cn/glm-coding"
     },
     {

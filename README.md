@@ -107,7 +107,7 @@
 | 8 | claude-opus-4.8 | Anthropic | 70.4 | 4.749 | [Claude Max 20x](https://claude.com/pricing) | $200 | 40× | 0.119 | 0.799 | 591.84 |
 | 9 | muse-spark-1.2 | Meta | 70.3 | 1.139 | API 按量 | - | 1× | 1.139 | 7.652 | 61.75 |
 | 10 | muse-spark-1.1 | Meta | 69.3 | 1.139 | API 按量 | - | 1× | 1.139 | 7.652 | 60.85 |
-| 11 | glm-5.3 | Z.AI | 69.0 | 1.172 | [GLM Coding Plan Max](https://bigmodel.cn/glm-coding) | $149.7 | 29× | 0.04 | 0.269 | 1726.24 |
+| 11 | glm-5.3 | Z.AI | 69.0 | 1.172 | [GLM Coding Plan Max](https://bigmodel.cn/glm-coding) | $149.7 | 34.4× | 0.034 | 0.228 | 2030.87 |
 | 12 | claude-opus-4.7 | Anthropic | 68.5 | 4.749 | [Claude Max 20x](https://claude.com/pricing) | $200 | 40× | 0.119 | 0.799 | 575.9 |
 | 13 | claude-sonnet-5 | Anthropic | 67.1 | 1.899 | [Claude Max 20x](https://claude.com/pricing) | $200 | 40× | 0.047 | 0.316 | 1427.47 |
 | 14 | gemini-3.6-flash | Google | 66.5 | 0.792 | [GitHub Copilot Max](https://github.com/features/copilot/plans) | $100 | 2× | 0.396 | 2.66 | 168.02 |
@@ -137,10 +137,10 @@ Imputed 列：`-` 表示全部真实值，`指标(reg)` 是岭回归填补，`�
 | 1 | [MiniMax Max Token Plan](https://platform.minimaxi.com/subscribe/token-plan) | $16.5 | ¥111 | 53× | 1.9% | 18亿+ | minimax-m3 (#39) | 55.1 | 0.005 | 11983.5 |
 | 2 | [MiniMax Plus Token Plan](https://platform.minimaxi.com/subscribe/token-plan) | $6.8 | ¥46 | 42.9× | 2.3% | 6亿+ | minimax-m3 (#39) | 55.1 | 0.006 | 9899.4 |
 | 3 | [MiniMax Ultra Token Plan](https://platform.minimaxi.com/subscribe/token-plan) | $65.1 | ¥437 | 41.1× | 2.4% | 55亿 | minimax-m3 (#39) | 55.1 | 0.006 | 9486.9 |
-| 4 | [GLM Coding Plan Max](https://bigmodel.cn/glm-coding) | $149.7 | ¥1006 | 29× | 3.4% | ≈26~53亿/月 | glm-5.3 (#11) | 69.0 | 0.04 | 1731.6 |
-| 5 | [GLM Coding Plan Pro](https://bigmodel.cn/glm-coding) | $74.7 | ¥502 | 25.2× | 4.0% | ≈11~23亿/月 | glm-5.3 (#11) | 69.0 | 0.047 | 1471.8 |
+| 4 | [GLM Coding Plan Max](https://bigmodel.cn/glm-coding) | $149.7 | ¥1006 | 34.4× | 2.9% | ≈29.3~58.6亿/月 | glm-5.3 (#11) | 69.0 | 0.034 | 2030.1 |
+| 5 | [GLM Coding Plan Pro](https://bigmodel.cn/glm-coding) | $74.7 | ¥502 | 29.6× | 3.4% | ≈12.6~25.1亿/月 | glm-5.3 (#11) | 69.0 | 0.04 | 1731.6 |
 | 6 | [ChatGPT Pro 20x](https://chatgpt.com/pricing) | $200 | ¥1344 | 70× | 1.4% | ≈35亿 | gpt-5.6-sol (#3) | 73.2 | 0.055 | 1323.0 |
-| 7 | [GLM Coding Plan Lite](https://bigmodel.cn/glm-coding) | $16.4 | ¥110 | 18.8× | 5.3% | ≈2~4亿/月 | glm-5.3 (#11) | 69.0 | 0.062 | 1110.8 |
+| 7 | [GLM Coding Plan Lite](https://bigmodel.cn/glm-coding) | $16.4 | ¥110 | 22.4× | 4.5% | ≈2.1~4.2亿/月 | glm-5.3 (#11) | 69.0 | 0.053 | 1308.3 |
 | 8 | [ChatGPT Plus](https://chatgpt.com/pricing) | $20 | ¥134 | 35× | 2.9% | ≈2亿 | gpt-5.6-sol (#3) | 73.2 | 0.115 | 638.7 |
 | 9 | [Hy Token Plan Max](https://cloud.tencent.com/act/pro/tokenplan) | $65 | ¥437 | 1.4× | 73.5% | 6.5亿/月 | hy3 (#38) | 55.3 | 0.098 | 561.5 |
 | 10 | [Hy Token Plan Lite](https://cloud.tencent.com/act/pro/tokenplan) | $3.9 | ¥26 | 1.2× | 81.0% | 3500万/月 | hy3 (#38) | 55.3 | 0.109 | 509.5 |
