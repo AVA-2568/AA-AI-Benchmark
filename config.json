@@ -359,8 +359,8 @@
       "monthly": 16.5,
       "implied_value": 875,
       "discount": 0.019,
-      "source": "MiniMax 官方 token 池 2026-06，按 M3 榜单单价折算",
-      "note": "¥119/月 18 亿 token（多模态共享，含 API）",
+      "source": "MiniMax 官方订阅页 2026-08-27 浏览器复核，按 M3 榜单单价折算",
+      "note": "¥119/月 18 亿+ token（多模态共享，含 API）",
       "url": "https://platform.minimaxi.com/subscribe/token-plan",
       "tokens": "18亿+"
     },
@@ -370,12 +370,12 @@
         "MiniMax"
       ],
       "monthly": 65.1,
-      "implied_value": 2673,
-      "discount": 0.024,
-      "source": "MiniMax 官方 token 池 2026-06，按 M3 榜单单价折算",
-      "note": "¥469/月 55 亿 token",
+      "implied_value": 3451,
+      "discount": 0.019,
+      "source": "MiniMax 官方订阅页 2026-08-27 浏览器复核（Ultra 月度 M3 用量由 55 亿上调至 71 亿+），按 M3 榜单单价折算",
+      "note": "¥469/月 71 亿+ token（多模态共享，含 API）",
       "url": "https://platform.minimaxi.com/subscribe/token-plan",
-      "tokens": "55亿"
+      "tokens": "71亿+"
     },
     {
       "name": "MiniMax Plus Token Plan",
@@ -385,8 +385,8 @@
       "monthly": 6.8,
       "implied_value": 292,
       "discount": 0.023,
-      "source": "MiniMax 官方 token 池 2026-06，按 M3 榜单单价折算",
-      "note": "¥49/月 6 亿 token",
+      "source": "MiniMax 官方订阅页 2026-08-27 浏览器复核，按 M3 榜单单价折算",
+      "note": "¥49/月 6 亿+ token",
       "url": "https://platform.minimaxi.com/subscribe/token-plan",
       "tokens": "6亿+"
     },
@@ -400,7 +400,7 @@
       "implied_value": 125,
       "discount": 0.22,
       "source": "社区实测（zhiqiang.org 2026-07）",
-      "note": "¥199/月（年付折合 ¥159/月，各档年付均约 8 折）；共享 token 池，不抵扣 API，四档均含 Kimi Code；官方公告新会员体系即将上线（Kimi 与 Kimi Code 权益拆分，订阅中用户不受影响）",
+      "note": "¥199/月（年付折合 ¥159/月，各档年付均约 8 折）；共享 token 池，不抵扣 API，四档均含 Kimi Code（额度约为 Andante 档 1×/4×/20×/60× 中的 20×）；新会员体系即将上线（Kimi 与 Kimi Code 权益拆分，订阅中用户不受影响，新购入口已转为预约）",
       "url": "https://www.kimi.com/membership/pricing"
     },
     {
@@ -587,6 +587,18 @@
       "url": "https://platform.qianwenai.com/pricing/token-plan"
     },
     {
+      "name": "Qwen Token Plan Pro",
+      "creator_match": [
+        "Alibaba"
+      ],
+      "monthly": 69.3,
+      "discount": 1.0,
+      "source": "千问 AI 平台官方订阅页 2026-08-27 浏览器复核（40,000 Credits/7 天，原价 ¥600）",
+      "note": "¥499/月 40,000 Credits/7 天（16× Lite）；可同时支持 6~8 个 Agent 并发；同样无法可靠折算",
+      "tokens": "40,000 Credits/7天",
+      "url": "https://platform.qianwenai.com/pricing/token-plan"
+    },
+    {
       "name": "WorkBuddy 高级版",
       "creator_match": [
         "Tencent"
@@ -678,9 +690,9 @@
       "monthly": 6.8,
       "implied_value": 16.8,
       "discount": 0.405,
-      "source": "Kimi 官网会员页 2026-08（¥49/月，含 Kimi Code 调用）；月约 8,400 万 token（K2.5 口径）× awesome-coding-plan 实测价值 ¥121",
-      "note": "入门档；另有 Moderato ¥99 / Allegretto ¥199 / Allegro ¥699 档；以月付价计（年付折合约 8 折）",
-      "tokens": "8400万/月（K2.5）",
+      "source": "Kimi 官网会员页 2026-08-27 浏览器复核（¥49/月，含 Kimi Code 调用）；价值取 awesome-coding-plan K2.5 时点实测 ¥121；官方限额 2026-02 起按 uncached 计量（缓存命中部分不扣量）：每 5 小时 1M + 每周 4M uncached input/output",
+      "note": "入门档；另有 Moderato ¥99 / Allegretto ¥199 / Allegro ¥699 档；以月付价计（年付折合约 8 折）；各档 Kimi Code 额度约为 Andante 的 1×/4×/20×/60×",
+      "tokens": "周4M uncached in/out",
       "url": "https://www.kimi.com/membership/pricing"
     },
     {
