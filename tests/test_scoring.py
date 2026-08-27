@@ -327,24 +327,24 @@ def test_plan_for_skips_credit_metered_plans():
 
 
 def test_plan_for_model_level_match():
-    """model_match（模型级）与 creator_match（厂商级）并集匹配：
-    OpenCode Go 对 $60 档模型 6x、对同厂 $15 档模型不适用。"""
+    """OpenCode Go 仅按显式模型清单匹配，避免把同厂商其他模型
+    错套到 $60 档折扣。"""
     from pipeline.scoring import _plan_for
     plans = [
-        {"name": "OpenCode Go", "creator_match": ["Z.AI", "MiniMax", "Tencent"],
-         "model_match": ["deepseek-v4-flash"], "discount": 0.167,
-         "monthly": 10},
+        {"name": "OpenCode Go", "model_match": ["hy3", "deepseek-v4-flash",
+                                                   "deepseek-v4-pro"],
+         "discount": 0.167, "monthly": 10},
         {"name": "腾讯通用 Token Plan Standard", "creator_match": ["DeepSeek"],
          "discount": 0.5, "monthly": 13.8},
     ]
-    # flash 命中 model_match（0.167 < 0.5 胜出）
+    # 显式 model_match 命中
     assert _plan_for(plans, "DeepSeek", "deepseek-v4-flash")["name"] == \
         "OpenCode Go"
-    # 同厂 pro 不在 model_match -> 只剩腾讯通用
-    assert _plan_for(plans, "DeepSeek", "deepseek-v4-pro")["name"] == \
-        "腾讯通用 Token Plan Standard"
-    # creator_match 仍生效
     assert _plan_for(plans, "Tencent", "hy3")["name"] == "OpenCode Go"
+    # 同厂商但不在清单中的模型不会误匹配 OpenCode
+    assert _plan_for(plans, "Z.AI", "glm-5.3") is None
+    assert _plan_for(plans, "DeepSeek", "deepseek-v4-pro")["name"] == \
+        "OpenCode Go"
 
 
 def test_effective_cost_model_cost_scale():

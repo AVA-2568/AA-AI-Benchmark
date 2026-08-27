@@ -658,14 +658,13 @@
     {
       "name": "Hy Token Plan Standard",
       "creator_match": [
-        "Tencent",
-        "DeepSeek"
+        "Tencent"
       ],
       "monthly": 10.83,
       "implied_value": 13.7,
       "discount": 0.79,
-      "source": "腾讯云官方 cloud.tencent.com/act/pro/tokenplan 2026-08-27 实测（1 亿 token/月）× 榜单 hy3 混合价折算（系数同 Lite/Max）；原「通用 Token Plan ¥99/月、官方口径低 50%」产品线已并入 Hy 个人版聚合池",
-      "note": "¥78/月 1 亿 token；池内聚合 hy3/GLM/Kimi/DeepSeek 等多模型跨模型共享 token",
+      "source": "腾讯云官方 cloud.tencent.com/document/product/1823/133811 2026-08-27：Hy Token Plan 仅含 Hy3，Lite/Standard/Pro/Max 同档系数统一；1 亿 token/月 × 榜单 hy3 混合价折算",
+      "note": "¥78/月 1 亿 token；仅支持 Hy3，不与通用 Token Plan 的 DeepSeek/GLM/Kimi/MiniMax 模型混用",
       "tokens": "1亿/月",
       "url": "https://cloud.tencent.com/act/pro/tokenplan"
     },
@@ -684,23 +683,33 @@
     },
     {
       "name": "OpenCode Go",
-      "creator_match": [
-        "Z.AI",
-        "MiniMax",
-        "Tencent"
-      ],
       "monthly": 10.0,
       "credit_value": 60,
       "discount": 0.167,
-      "source": "OpenCode 官方 docs 2026-08-25 模型价格表：月使用额度分档 （GLM-5.2/GLM-5.1/MiniMax-M3/M2.7/Hy3/Qwen3.7 系/Qwen3.6-Plus/Kimi-K2.6/2.7-Code/MiMo-V2.5/LongCat-2.0/Muse-Spark-1.2 = $60；DeepSeek-V4-Flash = $30；Kimi-K3/Grok-4.5/GPT-5.6-Luna/GLM-5.3/Qwen3.8-Max/MiMo-V2.5-Pro/DeepSeek-V4-Pro/V4-Flash-Vision-Exp = $15）",
-      "note": "$10/月，可用于任意编程 Agent，支持支付宝；额度 $12/5h · $30/周 · $60/月（按模型分档）；6× 仅对 $60 档模型成立（glm-5.2 / minimax-m3 / hy3 / kimi-k2.6 / k2.7-code / qwen3.7-max / qwen3.6-plus / longcat-2.0 等），$30 档（deepseek-v4-flash）实际 3×，$15 档（kimi-k3 / qwen3.8-max / deepseek-v4-pro / mimo-v2.5-pro 等）实际 1.5×，故模型级匹配只收录 $60 档",
+      "model_cost_scale": {
+        "deepseek-v4-flash": 2.0,
+        "kimi-k3": 4.0,
+        "qwen3.8-max": 4.0,
+        "mimo-v2.5-pro": 4.0,
+        "deepseek-v4-pro": 4.0
+      },
+      "source": "OpenCode 官方 docs 2026-08-25 模型价格表：月使用额度分档（$60/$30/$15）",
+      "note": "$10/月，可用于任意编程 Agent；$60 档按 6× 基准，$30 档 deepseek-v4-flash 为 3×（相对基准 ×2），$15 档 kimi-k3/qwen3.8-max/mimo-v2.5-pro/deepseek-v4-pro 为 1.5×（相对基准 ×4）；仅收录当前榜单模型",
       "tokens": "$60/月（$60 档模型）",
       "url": "https://opencode.ai/go",
       "model_match": [
+        "glm-5.2",
+        "minimax-m3",
+        "hy3",
         "kimi-k2.6",
         "kimi-k2.7-code",
         "qwen3.7-max",
-        "qwen3.6-plus"
+        "qwen3.6-plus",
+        "deepseek-v4-flash",
+        "kimi-k3",
+        "qwen3.8-max",
+        "mimo-v2.5-pro",
+        "deepseek-v4-pro"
       ]
     },
     {

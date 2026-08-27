@@ -46,7 +46,7 @@
 
 1. **implied_value 型**：订阅额度上限的 API 等价（SemiAnalysis 实测 ChatGPT/Claude 等）
 2. **token 池型**：官方公布月 token 额度 × 榜单该厂商最强模型混合价折成 implied_value（MiniMax / GLM / 混元 / MiMo，折算口径随构建快照人工更新）。GLM 直接采用官方「可用额度参考」周 token 区间（GLM-5.3、95% 缓存命中率档；区间下限=全高峰 1×抵扣、上限=全非高峰 0.5×抵扣），×52/12 折月后再乘混合价
-3. **Credit/积分计量型**（`discount = 1.0`，无 implied_value）：千问 Token Plan、WorkBuddy——官方未公布可靠的 Credits→token 系数，无法折算 API 等价倍率；`_plan_for` 跳过 `discount >= 1` 的套餐，它们只出现在套餐购买指南，不参与每模型的成本折算（主表对这类厂商按 API 按量展示）。token 量尽量给估算：WorkBuddy 按官方实得积分 × 社区实测（1 积分 ≈ 4,100 token）；千问社区口径分歧 5~10 倍，仅列官方积分额
+3. **Credit/积分计量型**：千问 Token Plan、WorkBuddy 官方未公布可靠的 Credits→token 系数，使用 `discount = 1.0` 且无 `implied_value`，不折算 API 等价倍率；`_plan_for` 跳过这类套餐的成本折算，它们只出现在套餐购买指南。腾讯云需区分两条产品线：Hy Token Plan 仅含 Hy3，按 token 池折算；通用 Token Plan 的存量模型在同一档位内统一系数，新上架模型才可能按模型区分。OpenCode Go 虽称 Credits/额度制，但官方直接按模型分为 $60/$30/$15 三档，分别对应 6×/3×/1.5×；config 以 $60 档折扣为基准，通过 `model_cost_scale` 对 $30 档乘 2、$15 档乘 4。token 量尽量给估算：WorkBuddy 按官方实得积分 × 社区实测（1 积分 ≈ 4,100 token）；千问仅列官方积分额。
 
 国内套餐人民币月费按固定口径 ÷7.2 折算为 USD（与构建时汇率独立，避免历史数据漂移）。
 
