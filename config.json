@@ -400,7 +400,7 @@
       "implied_value": 125,
       "discount": 0.22,
       "source": "社区实测（zhiqiang.org 2026-07）",
-      "note": "¥199/月（促销 ¥159，另有 Andante ¥39 / Moderato ¥79 / Allegro ¥559 档）共享 token 池，不抵扣 API；官方公告新会员体系即将上线（Kimi 与 Kimi Code 权益拆分）",
+      "note": "¥199/月（年付折合 ¥159/月，各档年付均约 8 折）；共享 token 池，不抵扣 API，四档均含 Kimi Code；官方公告新会员体系即将上线（Kimi 与 Kimi Code 权益拆分，订阅中用户不受影响）",
       "url": "https://www.kimi.com/membership/pricing"
     },
     {
@@ -545,7 +545,7 @@
       "implied_value": 6.4,
       "discount": 0.94,
       "source": "小米官方 mimo.mi.com 2026-08-16 实测（Credits 制：pro 模型未命中输入 300/命中 2.5/输出 600 Credits per token，按榜单缓存假设折算，额度全部用于 pro 模型）",
-      "note": "官方 $6/¥39 月；4.1B Credits/月 ≈ 200 轮中等任务；夜间 0.8 倍消耗、首购 88 折",
+      "note": "官方 $6/¥39 月；4.1B Credits/月 ≈ 200 轮中等任务；夜间 0.8 倍消耗、首购 88 折；V2 已于 2026-06 底下线切 V2.5，套餐价格与 Credits 耗速沿用（另有 Standard $16 / Pro $50 档）",
       "tokens": "≈2300万/月",
       "url": "https://mimo.mi.com/docs/zh-CN/price/token-plan"
     },
@@ -558,7 +558,7 @@
       "implied_value": 127,
       "discount": 0.79,
       "source": "小米官方 mimo.mi.com 2026-08-16 实测（Credits 制：pro 模型未命中输入 300/命中 2.5/输出 600 Credits per token，按榜单缓存假设折算，额度全部用于 pro 模型）",
-      "note": "官方 $100/¥659 月；82B Credits/月 ≈ 12800 轮中等任务",
+      "note": "官方 $100/¥659 月；82B Credits/月 ≈ 12800 轮中等任务；V2 下线后套餐切至 mimo-v2.5-pro，耗速参数沿用",
       "tokens": "≈4.5亿/月",
       "url": "https://mimo.mi.com/docs/zh-CN/price/token-plan"
     },
@@ -623,16 +623,30 @@
       "url": "https://www.workbuddy.cn/docs/workbuddy/Pricing"
     },
     {
-      "name": "腾讯通用 Token Plan Standard",
+      "name": "Hy Token Plan Standard",
       "creator_match": [
+        "Tencent",
         "DeepSeek"
       ],
-      "monthly": 13.8,
-      "implied_value": 27.6,
-      "discount": 0.5,
-      "source": "腾讯云官方 2026-08-16：通用 Token Plan ¥99/月 1 亿 token，官方口径「同模型套餐价比直接调用低 50% 以上」",
-      "note": "聚合 DeepSeek-V4（正式版）/Kimi-K2.5/GLM-5.1/MiniMax-M2.7 等上代模型；折扣取官方「低 50%」口径；Lite ¥39/3500万",
+      "monthly": 10.83,
+      "implied_value": 13.7,
+      "discount": 0.79,
+      "source": "腾讯云官方 cloud.tencent.com/act/pro/tokenplan 2026-08-27 实测（1 亿 token/月）× 榜单 hy3 混合价折算（系数同 Lite/Max）；原「通用 Token Plan ¥99/月、官方口径低 50%」产品线已并入 Hy 个人版聚合池",
+      "note": "¥78/月 1 亿 token；池内聚合 hy3/GLM/Kimi/DeepSeek 等多模型跨模型共享 token",
       "tokens": "1亿/月",
+      "url": "https://cloud.tencent.com/act/pro/tokenplan"
+    },
+    {
+      "name": "Hy Token Plan Pro",
+      "creator_match": [
+        "Tencent"
+      ],
+      "monthly": 33.06,
+      "implied_value": 43.7,
+      "discount": 0.76,
+      "source": "腾讯云官方 cloud.tencent.com/act/pro/tokenplan 2026-08-27 实测（3.2 亿 token/月）× 榜单 hy3 混合价折算（系数同 Lite/Max）",
+      "note": "¥238/月 3.2 亿 token",
+      "tokens": "3.2亿/月",
       "url": "https://cloud.tencent.com/act/pro/tokenplan"
     },
     {
@@ -665,7 +679,7 @@
       "implied_value": 16.8,
       "discount": 0.405,
       "source": "Kimi 官网会员页 2026-08（¥49/月，含 Kimi Code 调用）；月约 8,400 万 token（K2.5 口径）× awesome-coding-plan 实测价值 ¥121",
-      "note": "入门档；Moderato ¥99 / Allegro ¥699 另有档位；年付约 8 折",
+      "note": "入门档；另有 Moderato ¥99 / Allegretto ¥199 / Allegro ¥699 档；以月付价计（年付折合约 8 折）",
       "tokens": "8400万/月（K2.5）",
       "url": "https://www.kimi.com/membership/pricing"
     },

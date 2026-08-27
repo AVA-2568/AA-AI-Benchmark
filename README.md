@@ -129,7 +129,7 @@ Imputed 列：`-` 表示全部真实值，`指标(reg)` 是岭回归填补，`�
 
 数据来源与时点：ChatGPT / Claude 倍率来自 SemiAnalysis 2026-06 实测，Copilot 是 GitHub 官方额度，Grok 为 agentplans.fyi 2026-06 估算，Kimi 为社区实测，国内各家为 2026-08 官方页面实查，聚合与 IDE 类（OpenCode Go、Factory、Trae、Cursor）为 awesome-coding-plan 2026-08 第三方实测。倍率一律按用满额度上限计算，轻度用户实际拿不到这么多。国内套餐标价为人民币，¥/月 按实时汇率折算。
 
-两类没给倍率的需要说明。千问 Token Plan 和 WorkBuddy 是积分制，官方没公布积分换 token 的系数，社区两套口径相差 5 到 10 倍，给数字等于编数，所以只列官方积分额度；WorkBuddy 的 token 量按社区实测「1 积分 ≈ 4,100 token」折了个大概，仅供参考。另外，Gemini 官方订阅不含 API 额度，不进表，编程需求可以由 GitHub Copilot 覆盖；DeepSeek 没有自有订阅制（腾讯通用 Token Plan 提供第三方折扣）。
+两类没给倍率的需要说明。千问 Token Plan 和 WorkBuddy 是积分制，官方没公布积分换 token 的系数，社区两套口径相差 5 到 10 倍，给数字等于编数，所以只列官方积分额度；WorkBuddy 的 token 量按社区实测「1 积分 ≈ 4,100 token」折了个大概，仅供参考。另外，Gemini 官方订阅不含 API 额度，不进表，编程需求可以由 GitHub Copilot 覆盖；DeepSeek 没有自有订阅制（腾讯云 Hy Token Plan Standard 聚合池提供第三方折扣）。
 
 <!--PLANS_GUIDE_START-->
 | # | 套餐 | 月费 | ¥/月 | 倍率 | 折扣 | ≈Token/月 | 最强模型（通用榜） | 模型分 | 套餐内 $/1M | Value |
@@ -143,30 +143,31 @@ Imputed 列：`-` 表示全部真实值，`指标(reg)` 是岭回归填补，`�
 | 7 | [GLM Coding Plan Lite](https://bigmodel.cn/glm-coding) | $16.4 | ¥110 | 22.4× | 4.5% | ≈2.1~4.2亿/月 | glm-5.3 (#11) | 69.0 | 0.053 | 1308.3 |
 | 8 | [ChatGPT Plus](https://chatgpt.com/pricing) | $20 | ¥134 | 35× | 2.9% | ≈2亿 | gpt-5.6-sol (#3) | 73.2 | 0.115 | 638.7 |
 | 9 | [Hy Token Plan Max](https://cloud.tencent.com/act/pro/tokenplan) | $65 | ¥437 | 1.4× | 73.5% | 6.5亿/月 | hy3 (#38) | 55.3 | 0.098 | 561.5 |
-| 10 | [Hy Token Plan Lite](https://cloud.tencent.com/act/pro/tokenplan) | $3.9 | ¥26 | 1.2× | 81.0% | 3500万/月 | hy3 (#38) | 55.3 | 0.109 | 509.5 |
-| 11 | [OpenCode Go](https://opencode.ai/go) | $10 | ¥67 | 6× | 16.7% | $60/月（$60 档模型） | glm-5.3 (#11) | 69.0 | 0.196 | 352.5 |
-| 12 | [Claude Max 20x](https://claude.com/pricing) | $200 | ¥1344 | 40× | 2.5% | ≈9亿 | claude-fable-5 (#1) | 77.9 | 0.227 | 343.3 |
-| 13 | [MiMo Token Plan Max](https://mimo.mi.com/docs/zh-CN/price/token-plan) | $100 | ¥672 | 1.3× | 79.0% | ≈4.5亿/月 | mimo-v2.5-pro (#35) | 57.1 | 0.221 | 258.1 |
-| 14 | [MiMo Token Plan Lite](https://mimo.mi.com/docs/zh-CN/price/token-plan) | $6 | ¥40 | 1.1× | 94.0% | ≈2300万/月 | mimo-v2.5-pro (#35) | 57.1 | 0.263 | 216.9 |
-| 15 | [SuperGrok Heavy](https://x.ai/pricing) | $300 | ¥2015 | 5.3× | 19.0% | ≈9亿 | grok-4.6 (#6) | 71.2 | 0.336 | 211.6 |
-| 16 | [SuperGrok](https://x.ai/pricing) | $30 | ¥202 | 5.3× | 19.0% | ≈0.9亿 | grok-4.6 (#6) | 71.2 | 0.336 | 211.6 |
-| 17 | [Claude Max 5x](https://claude.com/pricing) | $100 | ¥672 | 20× | 5.0% | ≈2亿 | claude-fable-5 (#1) | 77.9 | 0.454 | 171.7 |
-| 18 | [Claude Pro](https://claude.com/pricing) | $20 | ¥134 | 20× | 5.0% | ≈0.4亿 | claude-fable-5 (#1) | 77.9 | 0.454 | 171.7 |
-| 19 | [腾讯通用 Token Plan Standard](https://cloud.tencent.com/act/pro/tokenplan) | $13.8 | ¥93 | 2× | 50.0% | 1亿/月 | deepseek-v4-pro (#19) | 65.2 | 0.381 | 171.1 |
+| 10 | [Hy Token Plan Pro](https://cloud.tencent.com/act/pro/tokenplan) | $33.06 | ¥222 | 1.3× | 76.0% | 3.2亿/月 | hy3 (#38) | 55.3 | 0.102 | 543.0 |
+| 11 | [Hy Token Plan Lite](https://cloud.tencent.com/act/pro/tokenplan) | $3.9 | ¥26 | 1.2× | 81.0% | 3500万/月 | hy3 (#38) | 55.3 | 0.109 | 509.5 |
+| 12 | [OpenCode Go](https://opencode.ai/go) | $10 | ¥67 | 6× | 16.7% | $60/月（$60 档模型） | glm-5.3 (#11) | 69.0 | 0.196 | 352.5 |
+| 13 | [Claude Max 20x](https://claude.com/pricing) | $200 | ¥1344 | 40× | 2.5% | ≈9亿 | claude-fable-5 (#1) | 77.9 | 0.227 | 343.3 |
+| 14 | [MiMo Token Plan Max](https://mimo.mi.com/docs/zh-CN/price/token-plan) | $100 | ¥672 | 1.3× | 79.0% | ≈4.5亿/月 | mimo-v2.5-pro (#35) | 57.1 | 0.221 | 258.1 |
+| 15 | [MiMo Token Plan Lite](https://mimo.mi.com/docs/zh-CN/price/token-plan) | $6 | ¥40 | 1.1× | 94.0% | ≈2300万/月 | mimo-v2.5-pro (#35) | 57.1 | 0.263 | 216.9 |
+| 16 | [SuperGrok Heavy](https://x.ai/pricing) | $300 | ¥2015 | 5.3× | 19.0% | ≈9亿 | grok-4.6 (#6) | 71.2 | 0.336 | 211.6 |
+| 17 | [SuperGrok](https://x.ai/pricing) | $30 | ¥202 | 5.3× | 19.0% | ≈0.9亿 | grok-4.6 (#6) | 71.2 | 0.336 | 211.6 |
+| 18 | [Claude Max 5x](https://claude.com/pricing) | $100 | ¥672 | 20× | 5.0% | ≈2亿 | claude-fable-5 (#1) | 77.9 | 0.454 | 171.7 |
+| 19 | [Claude Pro](https://claude.com/pricing) | $20 | ¥134 | 20× | 5.0% | ≈0.4亿 | claude-fable-5 (#1) | 77.9 | 0.454 | 171.7 |
 | 20 | [Kimi 会员 Allegretto](https://www.kimi.com/membership/pricing) | $27.6 | ¥185 | 4.5× | 22.0% | ≈0.5亿 | kimi-k3 (#5) | 72.4 | 0.535 | 135.3 |
-| 21 | [Kimi Andante](https://www.kimi.com/membership/pricing) | $6.8 | ¥46 | 2.5× | 40.5% | 8400万/月（K2.5） | kimi-k3 (#5) | 72.4 | 0.985 | 73.5 |
-| 22 | [Factory Droid Pro](https://factory.ai) | $20 | ¥134 | 2.4× | 41.7% | 2000万标准token | claude-fable-5 (#1) | 77.9 | 3.785 | 20.6 |
-| 23 | [GitHub Copilot Max](https://github.com/features/copilot/plans) | $100 | ¥672 | 2× | 50.0% | ≈0.2亿 | claude-fable-5 (#1) | 77.9 | 4.538 | 17.2 |
-| 24 | [Trae Pro](https://www.trae.ai) | $10 | ¥67 | 2× | 50.0% | $20 基础用量 | claude-fable-5 (#1) | 77.9 | 4.538 | 17.2 |
-| 25 | [GitHub Copilot Pro+](https://github.com/features/copilot/plans) | $39 | ¥262 | 1.8× | 55.7% | ≈8M | claude-fable-5 (#1) | 77.9 | 5.055 | 15.4 |
-| 26 | [GitHub Copilot Pro](https://github.com/features/copilot/plans) | $10 | ¥67 | 1.5× | 66.7% | ≈2M | claude-fable-5 (#1) | 77.9 | 6.054 | 12.9 |
+| 21 | [Hy Token Plan Standard](https://cloud.tencent.com/act/pro/tokenplan) | $10.83 | ¥73 | 1.3× | 79.0% | 1亿/月 | deepseek-v4-pro (#19) | 65.2 | 0.602 | 108.3 |
+| 22 | [Kimi Andante](https://www.kimi.com/membership/pricing) | $6.8 | ¥46 | 2.5× | 40.5% | 8400万/月（K2.5） | kimi-k3 (#5) | 72.4 | 0.985 | 73.5 |
+| 23 | [Factory Droid Pro](https://factory.ai) | $20 | ¥134 | 2.4× | 41.7% | 2000万标准token | claude-fable-5 (#1) | 77.9 | 3.785 | 20.6 |
+| 24 | [GitHub Copilot Max](https://github.com/features/copilot/plans) | $100 | ¥672 | 2× | 50.0% | ≈0.2亿 | claude-fable-5 (#1) | 77.9 | 4.538 | 17.2 |
+| 25 | [Trae Pro](https://www.trae.ai) | $10 | ¥67 | 2× | 50.0% | $20 基础用量 | claude-fable-5 (#1) | 77.9 | 4.538 | 17.2 |
+| 26 | [GitHub Copilot Pro+](https://github.com/features/copilot/plans) | $39 | ¥262 | 1.8× | 55.7% | ≈8M | claude-fable-5 (#1) | 77.9 | 5.055 | 15.4 |
+| 27 | [GitHub Copilot Pro](https://github.com/features/copilot/plans) | $10 | ¥67 | 1.5× | 66.7% | ≈2M | claude-fable-5 (#1) | 77.9 | 6.054 | 12.9 |
 | | *—— 以下为积分/任务制套餐（官方未公布 Credits→token 换算，不参与倍率排序）——* | | | | | | | | | |
-| 27 | [Qwen Token Plan Lite](https://platform.qianwenai.com/pricing/token-plan) | $5.4 | ¥36 | - | - | 2,500 Credits/7天 | qwen3.8-max (#18) | 65.6 | 1.559 | 42.1 |
-| 28 | [WorkBuddy 标准版](https://www.workbuddy.cn/docs/workbuddy/Pricing) | $13.8 | ¥93 | - | - | ≈1600万/月 | hy3 (#38) | 55.3 | 0.134 | 412.7 |
-| 29 | [Qwen Token Plan Standard](https://platform.qianwenai.com/pricing/token-plan) | $19.3 | ¥130 | - | - | 10,000 Credits/7天 | qwen3.8-max (#18) | 65.6 | 1.559 | 42.1 |
-| 30 | [Cursor Pro](https://cursor.com/pricing) | $20 | ¥134 | - | - | $20 API 用量 | claude-fable-5 (#1) | 77.9 | 9.076 | 8.6 |
-| 31 | [WorkBuddy 高级版](https://www.workbuddy.cn/docs/workbuddy/Pricing) | $27.6 | ¥185 | - | - | ≈3700万/月 | hy3 (#38) | 55.3 | 0.134 | 412.7 |
-| 32 | [WorkBuddy 旗舰版](https://www.workbuddy.cn/docs/workbuddy/Pricing) | $138.8 | ¥932 | - | - | ≈2亿/月 | hy3 (#38) | 55.3 | 0.134 | 412.7 |
+| 28 | [Qwen Token Plan Lite](https://platform.qianwenai.com/pricing/token-plan) | $5.4 | ¥36 | - | - | 2,500 Credits/7天 | qwen3.8-max (#18) | 65.6 | 1.559 | 42.1 |
+| 29 | [WorkBuddy 标准版](https://www.workbuddy.cn/docs/workbuddy/Pricing) | $13.8 | ¥93 | - | - | ≈1600万/月 | hy3 (#38) | 55.3 | 0.134 | 412.7 |
+| 30 | [Qwen Token Plan Standard](https://platform.qianwenai.com/pricing/token-plan) | $19.3 | ¥130 | - | - | 10,000 Credits/7天 | qwen3.8-max (#18) | 65.6 | 1.559 | 42.1 |
+| 31 | [Cursor Pro](https://cursor.com/pricing) | $20 | ¥134 | - | - | $20 API 用量 | claude-fable-5 (#1) | 77.9 | 9.076 | 8.6 |
+| 32 | [WorkBuddy 高级版](https://www.workbuddy.cn/docs/workbuddy/Pricing) | $27.6 | ¥185 | - | - | ≈3700万/月 | hy3 (#38) | 55.3 | 0.134 | 412.7 |
+| 33 | [WorkBuddy 旗舰版](https://www.workbuddy.cn/docs/workbuddy/Pricing) | $138.8 | ¥932 | - | - | ≈2亿/月 | hy3 (#38) | 55.3 | 0.134 | 412.7 |
 <!--PLANS_GUIDE_END-->
 
 ---
