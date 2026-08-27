@@ -299,8 +299,20 @@
       "monthly": 200,
       "implied_value": 14000,
       "discount": 0.014,
-      "source": "SemiAnalysis 2026-06 实测",
+      "source": "SemiAnalysis 2026-06 实测；chatgpt.com/pricing 2026-08-27 浏览器复核（Pro 卡片起价 $100，标注 5× 或 20× 使用配额，$200/20× 仍可选）",
       "note": "用满额度上限：$200/月 ≈ $14,000 API 等价（70x）",
+      "url": "https://chatgpt.com/pricing"
+    },
+    {
+      "name": "ChatGPT Pro 5x",
+      "creator_match": [
+        "OpenAI"
+      ],
+      "monthly": 100,
+      "implied_value": 3500,
+      "discount": 0.029,
+      "source": "SemiAnalysis 2026-06 实测；chatgpt.com/pricing 2026-08-27 浏览器复核（Pro 起价 $100 对应 5× 配额档）",
+      "note": "用满额度上限：$100/月 ≈ $3,500 API 等价（35x）",
       "url": "https://chatgpt.com/pricing"
     },
     {
@@ -311,7 +323,7 @@
       "monthly": 20,
       "implied_value": 700,
       "discount": 0.029,
-      "source": "SemiAnalysis 2026-06 实测",
+      "source": "SemiAnalysis 2026-06 实测；2026-08 复核：官方该月度口径仍被多方引用，无更新版数据",
       "note": "用满额度上限：$20/月 ≈ $700 API 等价（35x）",
       "url": "https://chatgpt.com/pricing"
     },
@@ -323,7 +335,7 @@
       "monthly": 200,
       "implied_value": 8000,
       "discount": 0.025,
-      "source": "SemiAnalysis 2026-06 实测",
+      "source": "SemiAnalysis 2026-06 实测（处于 Anthropic 2026-05-06 提额公告后的新基线）；2026-08-28 起叠加周限额机制，官方称多数 Max 20x 用户不受影响",
       "note": "用满额度上限：$200/月 ≈ $8,000 API 等价（40x）",
       "url": "https://claude.com/pricing"
     },
@@ -335,7 +347,7 @@
       "monthly": 100,
       "implied_value": 2000,
       "discount": 0.05,
-      "source": "SemiAnalysis 2026-06 实测",
+      "source": "SemiAnalysis 2026-06 实测（处于 Anthropic 2026-05-06 提额公告后的新基线）；2026-08-28 起叠加周限额机制",
       "note": "用满额度上限：$100/月 ≈ $2,000 API 等价（20x）",
       "url": "https://claude.com/pricing"
     },
@@ -347,7 +359,7 @@
       "monthly": 20,
       "implied_value": 400,
       "discount": 0.05,
-      "source": "SemiAnalysis 2026-06 实测",
+      "source": "SemiAnalysis 2026-06 实测（处于 Anthropic 2026-05-06 提额公告后的新基线）；2026-08-28 起叠加周限额机制",
       "note": "用满额度上限：$20/月 ≈ $400 API 等价（20x）",
       "url": "https://claude.com/pricing"
     },
