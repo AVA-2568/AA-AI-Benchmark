@@ -190,8 +190,10 @@ def validate_config(cfg: Dict[str, Any]) -> bool:
             )
     for i, p in enumerate(cfg.get("plans") or []):
         name = p.get("name", f"plans[{i}]")
-        if not p.get("creator_match"):
-            raise ConfigError(f"plan '{name}' needs a non-empty creator_match")
+        if not p.get("creator_match") and not p.get("model_match"):
+            raise ConfigError(
+                f"plan '{name}' needs a non-empty creator_match or model_match"
+            )
         d = p.get("discount")
         if d is None or not 0 < float(d) <= 1:
             raise ConfigError(f"plan '{name}' discount must be in (0, 1]")
