@@ -2,14 +2,18 @@
   "new_models": {
     "livebench.csv": [
       "deepseek-v4-flash-vision-exp",
+      "glm-5.3",
       "ox-alpha-max",
+      "qwen3.8-flash-next",
       "smaug-agentic"
     ],
     "deepswe.csv": []
   },
   "missing_aliases": {
     "aa": [],
-    "eqbench": [],
+    "eqbench": [
+      "glm-5.3 -> glm-5.3"
+    ],
     "deepswe": [],
     "livebench": []
   },
@@ -25,8 +29,23 @@
       }
     },
     {
+      "name": "glm-5.3",
+      "slug": "glm-5.3",
+      "reason": "slug_exists"
+    },
+    {
       "name": "ox-alpha-max",
       "slug": "ox-alpha",
+      "reason": "insufficient_confirmation",
+      "sources": {
+        "livebench": true,
+        "deepswe": false,
+        "aa": false
+      }
+    },
+    {
+      "name": "qwen3.8-flash-next",
+      "slug": "qwen3.8-flash-next",
       "reason": "insufficient_confirmation",
       "sources": {
         "livebench": true,
