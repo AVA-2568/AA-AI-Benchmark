@@ -3,8 +3,8 @@
     "livebench.csv": [
       "deepseek-v4-flash-vision-exp",
       "glm-5.3",
+      "nemotron-3-ultra-550b-a55b",
       "ox-alpha-max",
-      "qwen3.8-flash-next",
       "smaug-agentic"
     ],
     "deepswe.csv": []
@@ -34,8 +34,8 @@
       "reason": "slug_exists"
     },
     {
-      "name": "ox-alpha-max",
-      "slug": "ox-alpha",
+      "name": "nemotron-3-ultra-550b-a55b",
+      "slug": "nemotron-3-ultra-550b-a55b",
       "reason": "insufficient_confirmation",
       "sources": {
         "livebench": true,
@@ -44,8 +44,8 @@
       }
     },
     {
-      "name": "qwen3.8-flash-next",
-      "slug": "qwen3.8-flash-next",
+      "name": "ox-alpha-max",
+      "slug": "ox-alpha",
       "reason": "insufficient_confirmation",
       "sources": {
         "livebench": true,
