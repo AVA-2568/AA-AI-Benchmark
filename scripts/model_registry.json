@@ -401,10 +401,10 @@
       "slug": "glm-5.3",
       "creator": "Z.AI",
       "aa": "glm-5-3",
-      "livebench": null,
+      "livebench": "glm-5.3",
       "deepswe": "glm-5.3",
       "swebench": null,
-      "eqbench": null
+      "eqbench": "GLM-5.3"
     },
     {
       "slug": "glm-5.3-flash",

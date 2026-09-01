@@ -141,6 +141,27 @@ def test_missing_aliases_no_false_positive(tmp_path):
                                      aa_csv=str(aa))
     assert got["aa"] == []  # a 已配、b 源里没有 → 都不报
 
+
+def test_missing_aliases_livebench_dotted_name(tmp_path):
+    """livebench=null 且源名带点号 → 必须报漏配。
+
+    回归：旧实现只试 slug.replace(".", "-")，glm-5.3 这类「源名带点」
+    的模型整类漏报，真实分数被静默丢弃走填补。
+    """
+    reg = [
+        {"slug": "glm-5.3", "aa": "glm-5-3", "livebench": None,
+         "deepswe": "glm-5.3", "swebench": None, "eqbench": None},
+    ]
+    cache = tmp_path / "cache"
+    cache.mkdir(exist_ok=True)
+    _write_cache(str(cache), "livebench.csv", ["glm-5.3"])
+    _write_cache(str(cache), "eqbench.csv", ["GLM-5.3"])
+
+    got = dnm.detect_missing_aliases(reg, cache_dir=str(cache),
+                                     aa_csv=str(tmp_path / "aa.csv"))
+    assert got["livebench"] == ["glm-5.3 -> glm-5.3"]
+    assert got["eqbench"] == ["glm-5.3 -> glm-5.3"]
+
 # ---- derive_slug ----
 
 def test_derive_slug_strips_effort_suffixes():

@@ -140,10 +140,16 @@ def detect_missing_aliases(registry=None, cache_dir=CACHE, aa_csv=AA_CSV):
                     if c in src[field]:
                         out[field].append(f"{slug} -> {c}")
                         break
-        # livebench：effort 后缀不固定，用前缀匹配（保守，只提示）
+        # livebench：effort 后缀不固定，用前缀匹配（保守，只提示）。
+        # 候选须与其它源一致地覆盖点/连字符两种写法——只用 replace(".", "-")
+        # 会让「源名带点号」的模型（glm-5.3）整类漏报。
         if m.get("livebench") is None:
-            n = slug.lower().replace(".", "-")
-            hit = next((x for x in src["livebench"] if x.startswith(n)), None)
+            hit = None
+            for c in _norm_candidates(slug):
+                hit = next((x for x in sorted(src["livebench"])
+                            if x.startswith(c)), None)
+                if hit:
+                    break
             if hit:
                 out["livebench"].append(f"{slug} -> {hit}")
     return out
