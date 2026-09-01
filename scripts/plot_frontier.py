@@ -134,7 +134,8 @@ def _label_frontier(ax, frontier):
                 boxes[m] = (boxes[m][0], boxes[m][1],
                             ys[m] - hs[m] / 2, ys[m] + hs[m] / 2)
 
-    # 3. 按算好的位置创建标注；被推离锚点较远的带引线和白底框
+    # 3. 按算好的位置创建标注；一律垫白底框（阶梯竖线常从锚点右侧
+    # 穿过，无白底时文字压线不可读），被推离锚点较远的另加引线
     texts = []
     for k, (price, score, name) in enumerate(frontier):
         tx, ty = inv_trans.transform((x0s[k], ys[k]))
@@ -146,20 +147,21 @@ def _label_frontier(ax, frontier):
             arrowprops=dict(arrowstyle="-", color="#888", lw=0.6,
                             shrinkA=2, shrinkB=4) if far else None,
             bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none",
-                      alpha=0.75) if far else None))
+                      alpha=0.8)))
     return texts
 
 
-def render(rows, out_path, fx_rate=None, ylabel="通用榜综合分"):
-    """渲染单面板（人民币）前沿图到 out_path（SVG）。
+def render(rows, out_path, fx_rate=None, ylabel="通用榜综合分", fmt="svg"):
+    """渲染单面板（人民币）前沿图到 out_path。
 
     rows 为 *_scored.csv 的行（各榜同构）；fx_rate（USD→CNY）必需；
-    ylabel 为纵轴名称（如「通用榜综合分」「文本榜综合分」）。
+    ylabel 为纵轴名称（如「通用榜综合分」「文本榜综合分」）；fmt 为
+    输出格式（默认 svg 供 README 内嵌；本地校对可传 png）。
     画幅与字号按 GitHub README ~780px 的显示宽度校准：字号相对放大、
     x 轴用手动刻度直标 ¥ 数值（不出现 10^n 或 USD 字样）。
-    y 轴范围按数据自适应：下界 floor(min/5)*5，上界 ceil(max/5)*5+2
-    （顶部余量给最高点的标签），刻度间隔 5——通用榜数据下与历史
-    硬编码 (45, 82) / [50..80] 完全一致。
+    轴范围按数据自适应：x 下界给最便宜点留呼吸空间、上界保证延长线
+    有去处；y 下界 floor(min/5)*5，上界 ceil(max/5)*5+2（顶部余量给
+    最高点的标签）。
     """
     if not fx_rate:
         raise ValueError("fx_rate is required: the chart is priced in CNY")
@@ -177,34 +179,62 @@ def render(rows, out_path, fx_rate=None, ylabel="通用榜综合分"):
         raise ValueError("no plottable models: empty frontier")
 
     fig, ax = plt.subplots(figsize=(8.4, 5.2))
-    ax.scatter([p for p, _, _ in points], [s for _, s, _ in points],
-               s=24, color="#c3c7cc", alpha=0.75, zorder=1,
-               label="全部模型 all models")
-    fx_p = [p for p, _, _ in frontier]
-    scores = [s for _, s, _ in frontier]
-    ax.step(fx_p + [fx_p[-1] * 1.8], scores + [scores[-1]],
-            where="post", color="#d62728", linewidth=2.4, zorder=2,
-            label="最优选择前沿 best choice")
-    ax.scatter(fx_p, scores, s=55, color="#d62728", zorder=3)
-    ax.set_xscale("log")
-    ticks = [0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50]
-    ax.set_xticks(ticks)
-    ax.set_xticklabels([f"¥{t:g}" for t in ticks], fontsize=10.5)
-    ax.set_xlim(0.015, 60)
+
+    # x 范围随数据自适应：下界给最便宜点留呼吸空间；上界由「最后一个
+    # ¥ 刻度 ×1.25」兜底，保证末位刻度不贴边被裁（¥50 案例），并让
+    # 延长线有去处（预算再高也是前沿最后一个模型）
+    min_p = min(p for p, _, _ in points)
+    max_p = max(p for p, _, _ in points)
+    x_lo = max(min_p * 0.68, 0.012)
+    all_ticks = [0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100]
+    x_hi_raw = max(max_p * 1.3, 30.0)
+    ticks = [t for t in all_ticks if x_lo <= t <= x_hi_raw]
+    x_hi = max(ticks[-1] * 1.25, max_p * 1.15)
+    ticks = [t for t in all_ticks if x_lo <= t <= x_hi]
     all_scores = [s for _, s, _ in points]
     y_lo = math.floor(min(all_scores) / 5) * 5
     y_hi = math.ceil(max(all_scores) / 5) * 5 + 2
+
+    # 非前沿点弱化：小、淡、无描边 —— 只提供分布背景，不与前沿争注意力
+    ax.scatter([p for p, _, _ in points], [s for _, s, _ in points],
+               s=20, color="#b9bfc8", alpha=0.45, linewidths=0, zorder=1,
+               label="全部模型 all models")
+
+    # 前沿阶梯：线下淡填充标记「被支配区」，延长到 x 上界（预算再高
+    # 也是最后一个模型）；线上加深红点 + 白描边提升质感
+    fx_p = [p for p, _, _ in frontier]
+    scores = [s for _, s, _ in frontier]
+    step_x = fx_p + [x_hi]
+    step_y = scores + [scores[-1]]
+    ax.fill_between(step_x, step_y, y_lo, step="post",
+                    color="#d62728", alpha=0.045, linewidths=0, zorder=1.5)
+    ax.step(step_x, step_y, where="post", color="#d62728",
+            linewidth=2.4, zorder=2, label="最优选择前沿 best choice")
+    ax.scatter(fx_p, scores, s=60, color="#d62728",
+               edgecolor="white", linewidth=0.9, zorder=3)
+
+    ax.set_xscale("log")
+    ax.set_xticks(ticks)
+    ax.set_xticklabels([f"¥{t:g}" for t in ticks], fontsize=10.5)
+    ax.set_xlim(x_lo, x_hi)
     ax.set_ylim(y_lo, y_hi)
     ax.set_yticks(range(math.ceil(min(all_scores) / 5) * 5,
                         math.ceil(max(all_scores) / 5) * 5 + 1, 5))
     ax.set_xlabel("实际等效价 / 1M tokens（¥，对数刻度）", fontsize=12)
     ax.set_ylabel(ylabel, fontsize=12)
     ax.grid(True, which="major", alpha=0.25)
+    # 对数轴的 minor 网格帮助读 2~5 之间的档位；仅 x 轴（y 为线性）
+    ax.xaxis.grid(True, which="minor", alpha=0.12, linewidth=0.5)
     ax.tick_params(axis="y", labelsize=10.5)
-    ax.legend(fontsize=10, loc="lower right", framealpha=0.9)
+    ax.legend(fontsize=10, loc="lower right", frameon=False)
+    # 左上角轻引导：不占图例位，浅灰斜体随数据而不喧宾
+    ax.annotate("← 越靠左上，每 1 元换到的能力越高",
+                xy=(0.015, 0.975), xycoords="axes fraction",
+                fontsize=9, style="italic", color="#8a9099",
+                ha="left", va="top", zorder=4)
     # 标注布局依赖最终坐标变换，必须在所有轴设置与 tight_layout 之后
     fig.tight_layout()
     _label_frontier(ax, frontier)
-    fig.savefig(out_path, format="svg")
+    fig.savefig(out_path, format=fmt)
     plt.close(fig)
     return frontier
