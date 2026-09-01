@@ -1,0 +1,58 @@
+name: Plan audit
+
+# 套餐数据自动核验：算术自洽 + 档位单调性 + 核验日期时效 + 官方页可达性。
+# 硬伤（FAIL）开 issue；WARN（超龄/无日期/页面不可达）只写进审计 JSON。
+# 官方调价无法纯靠抓页面发现（多为 JS 渲染），本管道的作用是强制暴露
+# 「数据多久没核了」+ 拦截内部不一致，语义级变化仍需模型/维护者复核。
+
+on:
+  schedule:
+    - cron: "0 2 * * 1" # 每周一 02:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # FAIL 时 exit 1 -> 跳过 commit、触发 alert；WARN 正常通过
+      - name: Run plan audit
+        run: python scripts/verify_plans.py
+
+      - name: Commit audit report
+        if: success()
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: plan audit report"
+          file_pattern: "results/plan_audit.json"
+          commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+
+      # 同 update.yml：v3 在本仓库解析失败，用 v2；run_attempt==1 防重试重复开 issue
+      - name: Alert on failure
+        if: failure() && github.run_attempt == 1
+        uses: dacbd/create-issue-action@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: "[plan-audit] 套餐数据一致性检查失败"
+          body: |
+            每周套餐审计发现硬伤（算术不自洽 / 档位额度反降 / 必填字段缺失）。
+
+            查看详情：[Actions 运行日志](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            处理方式：本地运行 `python scripts/verify_plans.py --offline` 复现，
+            逐条修复 config.json 后重跑，确认输出 0 fail。
+          labels: "data-audit"

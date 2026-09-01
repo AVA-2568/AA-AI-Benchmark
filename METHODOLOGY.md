@@ -40,7 +40,7 @@
 - **倍率 `multiplier` = value ÷ monthly**：每 1 元月费换到的 API 等价额度（如 ChatGPT Pro 20x = 70×）。从 value/monthly 直接计算而非 1/discount，避免 3 位小数折扣反算的舍入误差（0.014 → 71×，实际 70×）
 - **`Blended $/1M`**：无折扣的 per-creator 缓存混合价（`Effective $/1M` = Blended × discount 的基准），用于在任意套餐下重算等效价
 
-**≈Token/月（套餐购买指南列）**：优先用官方公布的 token 池（`plans[].tokens`，如 MiniMax 6 亿/18 亿/55 亿）；其余按 `API 等价价值 ÷ 最强模型官方混合价（Blended $/1M）` 折算——即把额度全部用于该最强模型时的 token 量级，实际使用便宜模型可换到更多。
+**≈Token/月（套餐购买指南列）**：优先用官方公布的 token 池（`plans[].tokens`，如 MiniMax 6 亿/18 亿/71 亿）；其余按 `API 等价价值 ÷ 最强模型官方混合价（Blended $/1M）` 折算——即把额度全部用于该最强模型时的 token 量级，实际使用便宜模型可换到更多。
 
 **三类套餐**（`plans` 表）：
 
@@ -52,7 +52,17 @@
 
 **倍率按用满额度上限估算**——轻量用户实际折扣更少；无订阅套餐的厂商（DeepSeek / Qwen / GLM 等）按 API 按量计费（倍率 1×）。`url` 为官方购买直链（展示用，构建不请求）。
 
-**分模型成本修正 `model_cost_scale`**：积分/Credits 制套餐对不同模型的抵扣密度可能不同——套餐折扣以旗舰锚点折出，对积分系数不同的衍生模型会系统性偏差。典型案例：智谱 GLM Coding Plan 的积分以 GLM-5.3 标准版标定（In 690/Cached 170/Out 2400 积分每 M token），而 glm-5.3-flash 的积分系数恰为标准版 1/3（230/56/800），但 flash 的 API 牌价约为标准版 1/9~1/10，导致直接沿用标准版折扣时 flash 的 effective 价格系统性虚低约 3 倍。config 在 plan 上以 `model_cost_scale` 给出经官方积分系数核实的乘数（如 `{"glm-5.3-flash": 3.0}`），`_cost_terms` 将 `discount = min(discount × scale, 1.0)` 后用于 effective 计算，**只影响 cost 侧展示，不影响 plan 选择**。其他厂商（OpenAI / Anthropic / xAI / Copilot）未公布分模型配额，属不可修黑盒，维持锚点折扣。
+**分模型成本修正 `model_cost_scale`**：积分/Credits 制套餐对不同模型的抵扣密度可能不同——套餐折扣以旗舰锚点折出，对积分系数不同的衍生模型会系统性偏差。典型案例：智谱 GLM Coding Plan 的积分以 GLM-5.3 标准版标定（In 690/Cached 170/Out 2400 积分每 M token），而 glm-5.3-flash 的积分系数恰为标准版 1/3（230/56/800），但 flash 的 API 牌价约为标准版 1/9~1/10，导致直接沿用标准版折扣时 flash 的 effective 价格系统性虚低约 3 倍。config 在 plan 上以 `model_cost_scale` 给出经官方积分系数核实的乘数（如 `{"glm-5.3-flash": 3.0}`）。**乘数在套餐选择之前应用**：`_plan_for` 按修正后的实付折扣比较、选出对「这个模型」实付最优的套餐并返回带修正折扣的副本——不存在「选择用名义、实付用修正」的分离（旧语义会让 kimi-k3 选中名义 6× 但 $15 档实付 1.5× 的 OpenCode Go，比固定 4.5× 的 Kimi 会员贵 3 倍）。其他厂商（OpenAI / Anthropic / xAI / Copilot）未公布分模型配额，属不可修黑盒，维持锚点折扣。
+
+### 套餐数据自动核验
+
+套餐是性价比榜的地基，且口径随官方调价漂移。`scripts/verify_plans.py` 做三层检查，人只在告警时介入：
+
+1. **一致性（离线，确定性）**：必填字段与 discount 取值域；`discount` 与 `monthly/implied_value`（或 `credit_value`）算术自洽（偏差 ≤1% 通过、1~5% WARN 历史舍入、>5% FAIL）；同产品线（按名称首词分组）月费升档时额度（implied_value/credit_value/tokens）必须非降。
+2. **时效（离线）**：`source` 距最近一次核验超过 21 天、或从未写核验日期 → WARN。每次人工/模型复核后应把复核日期写回 `source`。
+3. **可达性（联网，best-effort）**：官方购买页 URL 状态码；定价页多为 JS 渲染，只查可达性不做内容匹配。
+
+FAIL（算术硬伤 / 档位额度反降 / 字段缺失）使脚本 exit 1。离线层同时固化为 `tests/test_plans_consistency.py`，随 pytest 在每次 push/PR 运行；联网全量由 `.github/workflows/plan-audit.yml` 每周一跑，产出 `results/plan_audit.json`，FAIL 时开 issue。语义级变化（官方调价、额度口径改动）无法纯靠脚本发现——审计 WARN 是「该复核了」的信号，不是「数据错误」的证明。
 
 ### 跨源模型名对齐
 

@@ -44,7 +44,7 @@ def _cache_rate_for(cost, creator):
 
 
 def _plan_for(plans, creator, model=None):
-    """Best (lowest-discount) matching subscription plan, else None.
+    """Best (lowest-effective-discount) matching subscription plan, else None.
 
     A plan matches when the row's Creator is in its ``creator_match``
     OR the model slug is in its ``model_match`` (per-model override —
@@ -56,8 +56,17 @@ def _plan_for(plans, creator, model=None):
     cost math; when no real discount plan matches, the cheapest
     credit-metered one is still returned as the *nominal* plan so the
     leaderboard can show it exists (discount 1.0 = list price).
+
+    ``model_cost_scale`` is applied *before* the comparison: the chosen
+    plan must be the cheapest by what this model actually pays. Picking
+    on the nominal discount instead would select plans that look
+    cheaper but bill this model at a denser rate (kimi-k3 case:
+    OpenCode Go's nominal 6x vs its $15-tier real 1.5x — 3x more
+    expensive than Kimi 会员 Allegretto's flat 4.5x). The returned plan
+    carries the scaled discount, so callers must not rescale again.
     """
     best = None
+    best_d = None
     nominal = None
     for p in plans or []:
         matched = creator in (p.get("creator_match") or [])
@@ -71,8 +80,11 @@ def _plan_for(plans, creator, model=None):
                     float(nominal.get("monthly") or 0):
                 nominal = p
             continue
-        if best is None or d < float(best.get("discount") or 1.0):
-            best = p
+        m_scale = (p.get("model_cost_scale") or {}).get(model) if model else None
+        if m_scale:
+            d = min(d * float(m_scale), 1.0)
+        if best is None or d < best_d:
+            best, best_d = {**p, "discount": round(d, 6)}, d
     return best or nominal
 
 
@@ -119,16 +131,9 @@ def _cost_terms(r, cost, cache_multiplier, cache_price_fallback, plans):
     eff_hit = _cache_rate_for(cost, creator)
     plan = _plan_for(plans, creator, r.get("Model"))
     discount = float(plan["discount"]) if plan else 1.0
-    # 分模型成本标定：积分/Credits 制套餐对不同模型的抵扣密度可能不同
-    # （如智谱 glm-5.3-flash 的积分系数恰为 GLM-5.3 标准版的 1/3，
-    # 而其 API 牌价差近一个数量级），旗舰锚点折出的折扣对这类模型
-    # 会系统性虚低。config 在 plan 上以 model_cost_scale 给出经官方
-    # 系数核实的乘数，只影响 cost 侧展示（计划选择仍按基础折扣）。
-    if plan and discount < 1.0:
-        m_scale = (plan.get("model_cost_scale") or {}).get(r.get("Model"))
-        if m_scale:
-            discount = min(discount * float(m_scale), 1.0)
-            plan = {**plan, "discount": round(discount, 4)}
+    # model_cost_scale 已在 _plan_for 内于比较前应用（选中的 plan 即为
+    # 本模型实付最优），discount 就是分模型标定后的实付折扣，此处不再
+    # 重复相乘。
 
     standard = (in_share * (1 - glob_hit) * pin
                 + in_share * glob_hit * pcache_eff

@@ -347,6 +347,28 @@ def test_plan_for_model_level_match():
         "OpenCode Go"
 
 
+def test_plan_for_compares_scaled_discount():
+    """套餐选择必须按 model_cost_scale 修正后的实付折扣比较。
+
+    回归：kimi-k3 在 OpenCode Go 名义 6×（0.167）但 $15 档实付 1.5×
+    （0.668），劣于 Kimi 会员的固定 4.5×（0.22）。按名义折扣比较会
+    选中实付贵 3 倍的 OpenCode Go。
+    """
+    from pipeline.scoring import _plan_for
+    plans = [
+        {"name": "OpenCode Go", "model_match": ["kimi-k3", "kimi-k2.6"],
+         "discount": 0.167, "monthly": 10,
+         "model_cost_scale": {"kimi-k3": 4.0}},
+        {"name": "Kimi 会员 Allegretto", "creator_match": ["Moonshot AI"],
+         "discount": 0.22, "monthly": 27.6},
+    ]
+    chosen = _plan_for(plans, "Moonshot AI", "kimi-k3")
+    assert chosen["name"] == "Kimi 会员 Allegretto"
+    # $60 档模型（无 scale）名义折扣仍直接参与比较
+    assert _plan_for(plans, "Moonshot AI", "kimi-k2.6")["name"] == \
+        "OpenCode Go"
+
+
 def test_effective_cost_model_cost_scale():
     """model_cost_scale：积分制套餐对特定模型的抵扣密度差异按 config
     乘数修正有效折扣（如 glm-5.3-flash 系数为标准版 1/3 → ×3.0），
