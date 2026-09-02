@@ -13,5 +13,47 @@
     "eqbench": [],
     "deepswe": [],
     "livebench": []
-  }
+  },
+  "deferred": [
+    {
+      "name": "deepseek-v4-flash-vision-exp",
+      "slug": "deepseek-v4-flash-vision-exp",
+      "reason": "insufficient_confirmation",
+      "sources": {
+        "livebench": true,
+        "deepswe": false,
+        "aa": false
+      }
+    },
+    {
+      "name": "nemotron-3-ultra-550b-a55b",
+      "slug": "nemotron-3-ultra-550b-a55b",
+      "reason": "insufficient_confirmation",
+      "sources": {
+        "livebench": true,
+        "deepswe": false,
+        "aa": false
+      }
+    },
+    {
+      "name": "ox-alpha-max",
+      "slug": "ox-alpha",
+      "reason": "insufficient_confirmation",
+      "sources": {
+        "livebench": true,
+        "deepswe": false,
+        "aa": false
+      }
+    },
+    {
+      "name": "smaug-agentic",
+      "slug": "smaug-agentic",
+      "reason": "insufficient_confirmation",
+      "sources": {
+        "livebench": true,
+        "deepswe": false,
+        "aa": false
+      }
+    }
+  ]
 }
