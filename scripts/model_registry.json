@@ -415,6 +415,26 @@
       "swebench": null,
       "eqbench": null,
       "auto_added": "2026-08-27"
+    },
+    {
+      "slug": "claude-fable-5.1",
+      "creator": "Anthropic",
+      "aa": "claude-fable-5-1",
+      "livebench": "claude-fable-5-1-max-effort",
+      "deepswe": null,
+      "swebench": null,
+      "eqbench": null,
+      "auto_added": "2026-09-02"
+    },
+    {
+      "slug": "qwen3.8-flash-next",
+      "creator": "Alibaba",
+      "aa": "qwen3-8-flash-next",
+      "livebench": "qwen3.8-flash-next",
+      "deepswe": null,
+      "swebench": null,
+      "eqbench": null,
+      "auto_added": "2026-09-02"
     }
   ]
 }

@@ -1,37 +1,37 @@
 {
   "EQ-Bench Creative Writing": {
-    "mae": 105.144,
+    "mae": 105.4206,
     "pct_over10": 19.4,
     "n": 31
   },
   "LiveBench Language": {
-    "mae": 3.0827,
-    "pct_over10": 2.3,
-    "n": 43
+    "mae": 3.024,
+    "pct_over10": 2.2,
+    "n": 45
   },
   "Omniscience Index": {
-    "mae": 8.6799,
-    "pct_over10": 91.1,
-    "n": 45
+    "mae": 8.4858,
+    "pct_over10": 91.5,
+    "n": 47
   },
   "LiveBench Instruction Following": {
-    "mae": 4.6126,
-    "pct_over10": 20.9,
-    "n": 43
+    "mae": 4.6174,
+    "pct_over10": 20.0,
+    "n": 45
   },
   "GPQA Diamond": {
-    "mae": 0.0118,
+    "mae": 0.0115,
     "pct_over10": 0.0,
-    "n": 45
+    "n": 47
   },
   "HLE": {
-    "mae": 0.0314,
-    "pct_over10": 26.7,
-    "n": 45
+    "mae": 0.0328,
+    "pct_over10": 27.7,
+    "n": 47
   },
   "LCR": {
-    "mae": 0.0253,
-    "pct_over10": 4.4,
-    "n": 45
+    "mae": 0.024,
+    "pct_over10": 4.3,
+    "n": 47
   }
 }
