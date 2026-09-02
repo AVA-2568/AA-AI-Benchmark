@@ -23,8 +23,10 @@ merge.py 以 registry 为白名单，registry 维护不当会静默丢数据。�
 - **双源确认**：候选需在 ≥2 个独立信号出现才自动入池（livebench /
   deepswe / aa 三者任二）。单源孤立条目（LiveBench 特评项、内部实验名等）
   只留在候选清单并标注原因，不入池——避免错误模型污染榜单。
-- **确定性 slug/别名**：slug 由源名剥离 effort 后缀派生；各源别名只取
-  源数据里真实存在的名字，不做模糊猜测。
+- **确定性 slug/别名**：slug 由源名剥离 effort 后缀、再规范化版本分隔符
+  派生（``claude-fable-5-1`` → ``claude-fable-5.1``）；各源别名只取源数据
+  里真实存在的名字，不做模糊猜测。同一模型的点/连字符两种写法按规范化
+  slug 归为一组，不会出现「一个模型两条目」或「别名落空」。
 - **审计与回滚**：入池条目带 ``auto_added`` 日期标记；registry 顶层可选
   ``auto_add_exclude``（fnmatch 通配）永久排除指定模式；未入池候选连同
   原因写入候选 JSON，全程可追溯。
@@ -196,11 +198,26 @@ PREFIX_CREATORS = {
 }
 
 
+# 版本号分隔符：源间不统一（LiveBench 写 claude-fable-5-1，DeepSWE/registry
+# 写 claude-fable-5.1）。只取最左侧一对「数字-数字」，避免把日期后缀
+# （...-20251101）或多级版本号一起吃掉。
+_VERSION_DASH = re.compile(r"(?<=\d)-(?=\d+(?:[-.]|$))")
+
+# LiveBench 常把发布日拼进名字（claude-opus-4-5-20251101、gpt-5.2-2025-12-11），
+# registry slug 一律去掉（见 gpt-5.2 / claude-opus-4.5 现有条目）。
+_DATE_COMPACT = re.compile(r"-\d{8}")
+_DATE_ISO = re.compile(r"-\d{4}-\d{2}-\d{2}")
+
+
 def derive_slug(name):
-    """源模型名 -> registry slug：小写 + 剥离 effort 后缀。
+    """源模型名 -> registry slug：小写 + 剥离 effort 后缀 + 版本点号规范化。
 
     裸 ``-max`` 有歧义（qwen3.8-max 的 max 是型号名，gpt-5.6-luna-max 的
     max 是档位），仅当前面不是版本数字时才剥离。
+
+    版本号一律收敛为点号（slug 规范见 registry note）：``claude-fable-5-1``
+    -> ``claude-fable-5.1``，``qwen3-8-max`` -> ``qwen3.8-max``。非纯数字
+    分量不参与（``llama-3-70b`` 保持原样），发布日分量先剥离。
     """
     s = name.strip().lower()
     changed = True
@@ -213,7 +230,9 @@ def derive_slug(name):
                 break
     if s.endswith("-max") and not re.search(r"\d+(\.\d+)?-max$", s):
         s = s[:-len("-max")]
-    return s
+    s = _DATE_ISO.sub("", s)
+    s = _DATE_COMPACT.sub("", s)
+    return _VERSION_DASH.sub(".", s, count=1)
 
 
 def _prefix_creator(slug):
@@ -245,6 +264,35 @@ def _load_source_names(cache_dir=CACHE, aa_csv=AA_CSV):
     }
 
 
+def _pick_alias(names, slug):
+    """同组内选别名：优先与 slug 完全一致的写法，否则取字典序首个。
+
+    ``names`` 已排序，结果确定。
+    """
+    if not names:
+        return None
+    return next((n for n in names if n.lower() == slug), names[0])
+
+
+def _group_by_slug(cands):
+    """候选名按规范化 slug 归组：{slug: {"livebench": [...], "deepswe": [...]}}。
+
+    同一模型在不同源的分隔符可能不同（LiveBench ``claude-fable-5-1-max-effort``
+    vs DeepSWE ``claude-fable-5.1``），按 slug 归组才不会拆成两个条目，也
+    不会因「slug 写了点号、源里是连字符」而把别名落空。
+    """
+    groups = {}
+    for fname, key in NEW_MODEL_SOURCES.items():
+        for name in cands.get(fname, []):
+            g = groups.setdefault(derive_slug(name),
+                                  {k: [] for k in NEW_MODEL_SOURCES.values()})
+            g[key].append(name)
+    for g in groups.values():
+        for key in g:
+            g[key] = sorted(set(g[key]))
+    return groups
+
+
 def auto_add_candidates(registry_path=REGISTRY, cache_dir=CACHE,
                         aa_csv=AA_CSV, today=None):
     """把双源确认的新模型候选写入 registry，返回 (added, deferred)。
@@ -262,16 +310,19 @@ def auto_add_candidates(registry_path=REGISTRY, cache_dir=CACHE,
     slugs = {m["slug"].lower() for m in models}
 
     cands = detect_new_models(load_whitelists(registry_path), cache_dir)
-    names = sorted({n for v in cands.values() for n in v})
+    groups = _group_by_slug(cands)
     src = _load_source_names(cache_dir, aa_csv)
 
     today = today or datetime.date.today().isoformat()
     added, deferred = [], []
-    for name in names:
-        slug = derive_slug(name)
-        rec = {"name": name, "slug": slug}
+    for slug in sorted(groups):
+        group = groups[slug]
+        lb_names, ds_names = group["livebench"], group["deepswe"]
+        names = sorted(set(lb_names) | set(ds_names))
+        rec = {"name": names[0], "slug": slug}
         pat = next((p for p in exclude
-                    if fnmatch(name, p) or fnmatch(slug, p)), None)
+                    if fnmatch(slug, p)
+                    or any(fnmatch(n, p) for n in names)), None)
         if pat:
             deferred.append({**rec, "reason": f"excluded_by_pattern:{pat}"})
             continue
@@ -279,9 +330,10 @@ def auto_add_candidates(registry_path=REGISTRY, cache_dir=CACHE,
             deferred.append({**rec, "reason": "slug_exists"})
             continue
 
-        in_lb = name.lower() in src["livebench"]
-        ds_alias = next((c for c in _norm_candidates(slug)
-                         if c in src["deepswe"]), None)
+        in_lb = bool(lb_names)
+        ds_alias = (_pick_alias(ds_names, slug)
+                    or next((c for c in _norm_candidates(slug)
+                             if c in src["deepswe"]), None))
         aa_alias = next((c for c in _norm_candidates(slug)
                          if c in src["aa"]), None)
         eq_alias = next((c for c in _norm_candidates(slug)
@@ -306,7 +358,9 @@ def auto_add_candidates(registry_path=REGISTRY, cache_dir=CACHE,
             "slug": slug,
             "creator": creator or _prefix_creator(slug) or "Unknown",
             "aa": aa_alias,
-            "livebench": name if in_lb else None,
+            # 保留源内真实名字（含 effort 后缀），否则 merge 按别名查不到数据
+            "livebench": (lb_names[0] if len(lb_names) == 1
+                          else (lb_names or None)),
             "deepswe": ds_alias,
             "swebench": None,
             "eqbench": eq_alias,

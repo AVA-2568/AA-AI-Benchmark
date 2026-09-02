@@ -177,6 +177,32 @@ def test_derive_slug_ambiguous_max():
     assert dnm.derive_slug("qwen3.8-max") == "qwen3.8-max"
 
 
+def test_derive_slug_dotted_version():
+    """版本分隔符一律收敛为点号（registry slug 规范）。
+
+    回归：LiveBench 用连字符写版本（claude-fable-5-1-max-effort），旧实现
+    直接拿源名当 slug，产出 claude-fable-5-1 这种错名并带上 (reg) 填补分。
+    """
+    assert dnm.derive_slug("claude-fable-5-1-max-effort") == "claude-fable-5.1"
+    assert dnm.derive_slug("claude-opus-4-7-xhigh-effort") == "claude-opus-4.7"
+    assert dnm.derive_slug("qwen3-8-max") == "qwen3.8-max"
+    assert dnm.derive_slug("grok-4-3") == "grok-4.3"
+
+
+def test_derive_slug_keeps_non_version_dash():
+    """非纯数字分量不参与点号化，避免 llama-3-70b 之类被改坏。"""
+    assert dnm.derive_slug("llama-3-70b") == "llama-3-70b"
+    assert dnm.derive_slug("nemotron-3-ultra-550b-a55b") == \
+        "nemotron-3-ultra-550b-a55b"
+
+
+def test_derive_slug_strips_release_date():
+    """LiveBench 的发布日分量不是版本号，slug 里去掉。"""
+    assert dnm.derive_slug("gpt-5.2-2025-12-11-high") == "gpt-5.2"
+    assert dnm.derive_slug("claude-opus-4-5-20251101-thinking-64k") == \
+        "claude-opus-4.5-thinking-64k"
+
+
 # ---- auto_add_candidates ----
 
 def _run_auto_add(tmp_path, registry_doc, lb, ds, aa_rows=(), eq=()):
@@ -291,3 +317,39 @@ def test_auto_add_livebench_alias_keeps_suffix(tmp_path):
     assert added[0]["slug"] == "ox-alpha"
     assert added[0]["livebench"] == "ox-alpha-max"
     assert added[0]["deepswe"] == "ox-alpha"
+
+
+def test_auto_add_dotted_version_from_dashed_source(tmp_path):
+    """源名用连字符写版本 → slug 用点号，且别名回填源内真实名字。
+
+    回归：claude-fable-5-1 曾被当作 slug 直接入池（错名 + 与 claude-fable-5
+    混淆），正确结果是 slug=claude-fable-5.1、livebench 别名仍为源内原名。
+    """
+    reg, added, deferred = _run_auto_add(
+        tmp_path, {"models": []},
+        lb=["claude-fable-5-1-max-effort"], ds=[],
+        aa_rows=[("claude-fable-5-1", "Anthropic")])
+    assert deferred == []
+    assert len(added) == 1
+    e = added[0]
+    assert e["slug"] == "claude-fable-5.1"
+    assert e["livebench"] == "claude-fable-5-1-max-effort"
+    assert e["aa"] == "claude-fable-5-1"
+    assert e["creator"] == "Anthropic"
+    assert e["deepswe"] is None
+
+
+def test_auto_add_groups_dash_and_dot_variants(tmp_path):
+    """同一模型的连字符/点号两种写法归为一组，不产生两个条目。"""
+    reg, added, deferred = _run_auto_add(
+        tmp_path, {"models": []},
+        lb=["glm-5-4-max-effort"], ds=["glm-5.4"],
+        aa_rows=[("glm-5-4", "Z AI")])
+    assert deferred == []
+    assert len(added) == 1
+    e = added[0]
+    assert e["slug"] == "glm-5.4"
+    assert e["livebench"] == "glm-5-4-max-effort"
+    assert e["deepswe"] == "glm-5.4"  # 优先取与 slug 一致的写法
+    assert e["aa"] == "glm-5-4"
+    assert e["eqbench"] is None

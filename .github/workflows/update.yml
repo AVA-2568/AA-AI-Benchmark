@@ -34,7 +34,9 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: auto-update leaderboard ranking"
-          file_pattern: "results/*.csv results/*.json results/manifest.json results/*.svg README.md"
+          # model_registry.json 必须一起提交：--apply 自动入池的新模型只存在
+          # 于 runner 的临时工作区，不落盘就无法审计，下轮还会重复入池。
+          file_pattern: "results/*.csv results/*.json results/manifest.json results/*.svg README.md scripts/model_registry.json"
           commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
 
       # Revert to dacbd/create-issue-action@v2. peter-evans/create-or-update-
