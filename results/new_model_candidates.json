@@ -2,6 +2,7 @@
   "new_models": {
     "livebench.csv": [
       "deepseek-v4-flash-vision-exp",
+      "muse-spark-1.3-xhigh",
       "nemotron-3-ultra-550b-a55b",
       "ox-alpha-max",
       "smaug-agentic"
@@ -18,6 +19,16 @@
     {
       "name": "deepseek-v4-flash-vision-exp",
       "slug": "deepseek-v4-flash-vision-exp",
+      "reason": "insufficient_confirmation",
+      "sources": {
+        "livebench": true,
+        "deepswe": false,
+        "aa": false
+      }
+    },
+    {
+      "name": "muse-spark-1.3-xhigh",
+      "slug": "muse-spark-1.3",
       "reason": "insufficient_confirmation",
       "sources": {
         "livebench": true,

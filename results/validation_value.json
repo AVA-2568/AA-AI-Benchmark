@@ -1,42 +1,42 @@
 {
   "LiveBench Coding": {
-    "mae": 2.588,
+    "mae": 2.9564,
     "pct_over10": 2.2,
-    "n": 45
+    "n": 46
   },
   "DeepSWE": {
-    "mae": 9.3998,
-    "pct_over10": 57.7,
-    "n": 26
+    "mae": 9.9944,
+    "pct_over10": 59.3,
+    "n": 27
   },
   "LiveBench Agentic Coding": {
-    "mae": 3.6537,
-    "pct_over10": 20.0,
-    "n": 45
+    "mae": 3.9101,
+    "pct_over10": 23.9,
+    "n": 46
   },
   "LiveBench Instruction Following": {
-    "mae": 4.6174,
-    "pct_over10": 20.0,
-    "n": 45
+    "mae": 4.6233,
+    "pct_over10": 17.4,
+    "n": 46
   },
   "LCR": {
-    "mae": 0.024,
-    "pct_over10": 4.3,
-    "n": 47
+    "mae": 0.0264,
+    "pct_over10": 4.2,
+    "n": 48
   },
   "Omniscience Index": {
-    "mae": 8.4858,
-    "pct_over10": 91.5,
-    "n": 47
+    "mae": 8.6612,
+    "pct_over10": 91.7,
+    "n": 48
   },
   "GPQA Diamond": {
     "mae": 0.0115,
     "pct_over10": 0.0,
-    "n": 47
+    "n": 48
   },
   "HLE": {
-    "mae": 0.0328,
-    "pct_over10": 27.7,
-    "n": 47
+    "mae": 0.0321,
+    "pct_over10": 27.1,
+    "n": 48
   }
 }

@@ -435,6 +435,16 @@
       "swebench": null,
       "eqbench": null,
       "auto_added": "2026-09-02"
+    },
+    {
+      "slug": "gemini-3.8-flash",
+      "creator": "Google",
+      "aa": "gemini-3-8-flash",
+      "livebench": "gemini-3.8-flash-high",
+      "deepswe": "gemini-3.8-flash",
+      "swebench": null,
+      "eqbench": null,
+      "auto_added": "2026-09-03"
     }
   ]
 }
