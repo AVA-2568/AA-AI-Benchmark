@@ -1,17 +1,17 @@
 {
   "Terminal-Bench 4.0": {
-    "mae": 9.8223,
-    "pct_over10": 90.0,
-    "n": 10
+    "mae": null,
+    "pct_over10": null,
+    "n": 8
   },
   "DeepSWE": {
-    "mae": 7.2592,
-    "pct_over10": 46.4,
+    "mae": 12.2021,
+    "pct_over10": 71.4,
     "n": 28
   },
   "LiveBench Coding": {
-    "mae": 3.1168,
-    "pct_over10": 2.2,
+    "mae": 3.6192,
+    "pct_over10": 10.9,
     "n": 46
   },
   "AutomationBench": {
@@ -25,12 +25,12 @@
     "n": 5
   },
   "LiveBench Agentic Coding": {
-    "mae": 5.0783,
+    "mae": 5.079,
     "pct_over10": 34.8,
     "n": 46
   },
   "LiveBench Instruction Following": {
-    "mae": 5.3917,
+    "mae": 5.3914,
     "pct_over10": 32.6,
     "n": 46
   },
@@ -60,7 +60,7 @@
     "n": 46
   },
   "Omniscience Index": {
-    "mae": 9.2687,
+    "mae": 9.2689,
     "pct_over10": 87.8,
     "n": 49
   }

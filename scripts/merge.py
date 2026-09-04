@@ -75,6 +75,7 @@ def build_merged():
     ds = _alias_index(_read_csv(os.path.join(CACHE, "deepswe.csv")), "model")
     eq = _alias_index(_read_csv(os.path.join(CACHE, "eqbench.csv")), "model")
     tb = _alias_index(_read_csv(os.path.join(CACHE, "terminalbench.csv")), "model")
+    tb_slug = _alias_index(_read_csv(os.path.join(CACHE, "terminalbench.csv")), "slug")
     bc = _alias_index(_read_csv(os.path.join(CACHE, "browsecomp.csv")), "model")
     bc_slug = _alias_index(_read_csv(os.path.join(CACHE, "browsecomp.csv")), "slug")
 
@@ -110,6 +111,8 @@ def build_merged():
 
         # Terminal-Bench 4.0
         tb_row, _ = _pick_max(tb, m.get("terminalbench") or slug)
+        if not tb_row:
+            tb_row, _ = _pick_max(tb_slug, m.get("terminalbench") or slug)
         if tb_row:
             row["Terminal-Bench 4.0"] = _num(tb_row.get("Terminal-Bench 4.0"))
 

@@ -209,7 +209,11 @@
       "deepswe": "gemini-3.7-flash",
       "swebench": null,
       "eqbench": "gemini-3.7-flash",
-      "vision": true
+      "vision": true,
+      "terminalbench": [
+        "gemini-3-7-flash",
+        "Gemini 3.7 Flash"
+      ]
     },
     {
       "slug": "gemini-3.5-flash-lite",
@@ -492,7 +496,11 @@
       "swebench": null,
       "eqbench": null,
       "vision": true,
-      "auto_added": "2026-09-03"
+      "auto_added": "2026-09-03",
+      "terminalbench": [
+        "gemini-3-8-flash",
+        "Gemini 3.8 Flash"
+      ]
     },
     {
       "slug": "gpt-6-astra",
