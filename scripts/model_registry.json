@@ -445,6 +445,16 @@
       "swebench": null,
       "eqbench": null,
       "auto_added": "2026-09-03"
+    },
+    {
+      "slug": "gpt-6-astra",
+      "creator": "OpenAI",
+      "aa": "gpt-6-astra",
+      "livebench": null,
+      "deepswe": "gpt-6-astra",
+      "swebench": null,
+      "eqbench": null,
+      "auto_added": "2026-09-04"
     }
   ]
 }
