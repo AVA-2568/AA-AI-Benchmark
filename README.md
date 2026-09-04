@@ -41,7 +41,7 @@
 | 8 | gpt-5.5 | OpenAI | 👁️ | 59.2 | Terminal-Bench 4.0(reg), BrowseComp(reg) |
 | 9 | gemini-3.7-flash | Google | 👁️ | 59.1 | BrowseComp(reg), IFBench(reg) |
 | 10 | glm-5.3 | Z.AI | - | 57.9 | Terminal-Bench 4.0(reg), AutomationBench(reg), BrowseComp(reg), IFBench(reg) |
-| 11 | gpt-5.2-codex | OpenAI | - | 57.6 | Terminal-Bench 4.0(reg), DeepSWE(reg), AutomationBench(reg), BrowseComp(reg) |
+| 11 | gpt-5.2-codex | OpenAI | 👁️ | 57.6 | Terminal-Bench 4.0(reg), DeepSWE(reg), AutomationBench(reg), BrowseComp(reg) |
 | 12 | grok-4.6 | xAI | 👁️ | 57.4 | Terminal-Bench 4.0(reg), AutomationBench(reg), BrowseComp(reg), IFBench(reg) |
 | 13 | claude-opus-4.8 | Anthropic | 👁️ | 56.5 | Terminal-Bench 4.0(reg), BrowseComp(reg) |
 | 14 | muse-spark-1.2 | Meta | 👁️ | 55.9 | Terminal-Bench 4.0(reg), AutomationBench(reg), BrowseComp(reg), IFBench(reg) |
@@ -80,7 +80,7 @@
 | 12 | gpt-6-astra | OpenAI | 👁️ | 68.0 | EQ-Bench 4(reg), LiveBench StoryGen(reg), LiveBench Language(reg), LiveBench Summarize(reg), IFBench(reg), LiveBench Instruction Following(reg), LiveBench Simplify(reg), BullshitBench v2(reg), LiveBench Theory of Mind(reg), Harvey LAB(reg), DeepSearchQA(reg) |
 | 13 | muse-spark-1.2 | Meta | 👁️ | 67.2 | EQ-Bench 4(reg), AA Briefcase(reg), IFBench(reg), Harvey LAB(reg), DeepSearchQA(reg) |
 | 14 | grok-4.5 | xAI | 👁️ | 66.9 | EQ-Bench 4(reg), AA Briefcase(reg), IFBench(reg), DeepSearchQA(reg) |
-| 15 | qwen3.8-flash-next | Alibaba | - | 66.9 | EQ-Bench 4(reg), AA Briefcase(reg), IFBench(reg), BullshitBench v2(reg), Harvey LAB(reg), DeepSearchQA(reg) |
+| 15 | qwen3.8-flash-next | Alibaba | 👁️ | 66.9 | EQ-Bench 4(reg), AA Briefcase(reg), IFBench(reg), BullshitBench v2(reg), Harvey LAB(reg), DeepSearchQA(reg) |
 <!--TOP15_TEXT_END-->
 
 [完整排名 CSV](results/text_scored.csv)
@@ -107,7 +107,7 @@
 | 8 | gpt-5.5 | OpenAI | 👁️ | 59.2 | 5.69 | [ChatGPT Pro 20x](https://chatgpt.com/pricing) | $200 | 70× | 0.081 | 0.544 | 731.24 |
 | 9 | gemini-3.7-flash | Google | 👁️ | 59.1 | 0.741 | [GitHub Copilot Max](https://github.com/features/copilot/plans) | $100 | 2× | 0.37 | 2.485 | 159.69 |
 | 10 | glm-5.3 | Z.AI | - | 57.9 | 1.65 | [GLM Coding Plan Max](https://bigmodel.cn/glm-coding) | $149.7 | 34.4× | 0.048 | 0.322 | 1206.1 |
-| 11 | gpt-5.2-codex | OpenAI | - | 57.6 | 2.517 | [ChatGPT Pro 20x](https://chatgpt.com/pricing) | $200 | 70× | 0.036 | 0.242 | 1599.64 |
+| 11 | gpt-5.2-codex | OpenAI | 👁️ | 57.6 | 2.517 | [ChatGPT Pro 20x](https://chatgpt.com/pricing) | $200 | 70× | 0.036 | 0.242 | 1599.64 |
 | 12 | grok-4.6 | xAI | 👁️ | 57.4 | 1.771 | [SuperGrok Heavy](https://x.ai/pricing) | $300 | 5.3× | 0.332 | 2.23 | 172.84 |
 | 13 | claude-opus-4.8 | Anthropic | 👁️ | 56.5 | 4.749 | [Claude Max 20x](https://claude.com/pricing) | $200 | 40× | 0.119 | 0.799 | 474.86 |
 | 14 | muse-spark-1.2 | Meta | 👁️ | 55.9 | 1.139 | API 按量 | - | 1× | 1.139 | 7.649 | 49.12 |
