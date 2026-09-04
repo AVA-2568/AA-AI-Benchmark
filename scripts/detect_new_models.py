@@ -364,6 +364,7 @@ def auto_add_candidates(registry_path=REGISTRY, cache_dir=CACHE,
             "deepswe": ds_alias,
             "swebench": None,
             "eqbench": eq_alias,
+            "vision": True,
             "auto_added": today,
         }
         models.append(entry)

@@ -1,8 +1,10 @@
 {
   "imputation_pool": [
+    "Terminal-Bench 4.0",
     "LiveBench Coding",
     "DeepSWE",
     "LiveBench Agentic Coding",
+    "AutomationBench",
     "LiveBench Instruction Following",
     "LCR",
     "Omniscience Index",
@@ -12,6 +14,14 @@
     "LiveBench Language"
   ],
   "metric_scales": {
+    "Terminal-Bench 4.0": [
+      0,
+      100
+    ],
+    "AutomationBench": [
+      0,
+      1
+    ],
     "LiveBench Coding": [
       0,
       100
@@ -58,72 +68,69 @@
       "title": "通用榜 General",
       "output_csv": "general_scored.csv",
       "validation_json": "validation_general.json",
+      "feature_bonuses": {
+        "vision": 2.0
+      },
       "categories": [
         {
-          "name": "编码 Coding",
-          "weight": 0.25,
+          "name": "代码与 Agent",
+          "weight": 0.35,
           "metrics": [
             {
-              "name": "LiveBench Coding",
-              "sub_weight": 1.0
-            }
-          ]
-        },
-        {
-          "name": "Agent 能力",
-          "weight": 0.25,
-          "metrics": [
-            {
-              "name": "DeepSWE",
-              "sub_weight": 0.6
+              "name": "Terminal-Bench 4.0",
+              "sub_weight": 0.45
             },
             {
-              "name": "LiveBench Agentic Coding",
-              "sub_weight": 0.4
+              "name": "DeepSWE",
+              "sub_weight": 0.35
+            },
+            {
+              "name": "LiveBench Coding",
+              "sub_weight": 0.20
             }
           ]
         },
         {
-          "name": "指令遵循",
+          "name": "业务与工作流自动化",
           "weight": 0.15,
           "metrics": [
             {
-              "name": "LiveBench Instruction Following",
+              "name": "AutomationBench",
               "sub_weight": 1.0
             }
           ]
         },
         {
-          "name": "长上下文",
-          "weight": 0.1,
+          "name": "指令遵循与长上下文",
+          "weight": 0.20,
           "metrics": [
             {
+              "name": "LiveBench Instruction Following",
+              "sub_weight": 0.5
+            },
+            {
               "name": "LCR",
+              "sub_weight": 0.5
+            }
+          ]
+        },
+        {
+          "name": "终极科学与推理",
+          "weight": 0.20,
+          "metrics": [
+            {
+              "name": "HLE",
               "sub_weight": 1.0
             }
           ]
         },
         {
           "name": "事实准确性",
-          "weight": 0.15,
+          "weight": 0.10,
           "metrics": [
             {
               "name": "Omniscience Index",
               "sub_weight": 1.0
-            }
-          ]
-        },
-        {
-          "name": "知识领域",
-          "weight": 0.1,
-          "metrics": [
-            {
-              "name": "GPQA Diamond",
-              "sub_weight": 0.3
-            },
-            {
-              "name": "HLE",
-              "sub_weight": 0.7
             }
           ]
         }
@@ -199,72 +206,69 @@
       "output_csv": "value_scored.csv",
       "validation_json": "validation_value.json",
       "rank_by": "score",
+      "feature_bonuses": {
+        "vision": 2.0
+      },
       "categories": [
         {
-          "name": "编码 Coding",
-          "weight": 0.25,
+          "name": "代码与 Agent",
+          "weight": 0.35,
           "metrics": [
             {
-              "name": "LiveBench Coding",
-              "sub_weight": 1.0
-            }
-          ]
-        },
-        {
-          "name": "Agent 能力",
-          "weight": 0.25,
-          "metrics": [
-            {
-              "name": "DeepSWE",
-              "sub_weight": 0.6
+              "name": "Terminal-Bench 4.0",
+              "sub_weight": 0.45
             },
             {
-              "name": "LiveBench Agentic Coding",
-              "sub_weight": 0.4
+              "name": "DeepSWE",
+              "sub_weight": 0.35
+            },
+            {
+              "name": "LiveBench Coding",
+              "sub_weight": 0.20
             }
           ]
         },
         {
-          "name": "指令遵循",
+          "name": "业务与工作流自动化",
           "weight": 0.15,
           "metrics": [
             {
-              "name": "LiveBench Instruction Following",
+              "name": "AutomationBench",
               "sub_weight": 1.0
             }
           ]
         },
         {
-          "name": "长上下文",
-          "weight": 0.1,
+          "name": "指令遵循与长上下文",
+          "weight": 0.20,
           "metrics": [
             {
+              "name": "LiveBench Instruction Following",
+              "sub_weight": 0.5
+            },
+            {
               "name": "LCR",
+              "sub_weight": 0.5
+            }
+          ]
+        },
+        {
+          "name": "终极科学与推理",
+          "weight": 0.20,
+          "metrics": [
+            {
+              "name": "HLE",
               "sub_weight": 1.0
             }
           ]
         },
         {
           "name": "事实准确性",
-          "weight": 0.15,
+          "weight": 0.10,
           "metrics": [
             {
               "name": "Omniscience Index",
               "sub_weight": 1.0
-            }
-          ]
-        },
-        {
-          "name": "知识领域",
-          "weight": 0.1,
-          "metrics": [
-            {
-              "name": "GPQA Diamond",
-              "sub_weight": 0.3
-            },
-            {
-              "name": "HLE",
-              "sub_weight": 0.7
             }
           ]
         }

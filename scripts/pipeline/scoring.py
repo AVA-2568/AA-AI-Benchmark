@@ -204,6 +204,11 @@ def score_board(rows, board, engine, cost, cache_multiplier, score_threshold,
         imputed_set = {m.split("(low)")[0] for m in imputed}
         total = _weighted_total(glob, nrm, imputed_set,
                                 imputed_weight_discount)
+        feature_bonuses = board.get("feature_bonuses") or {}
+        v_raw = r.get("Vision")
+        has_vision = v_raw is True or (isinstance(v_raw, str) and v_raw.strip().lower() in ("true", "1", "yes"))
+        if has_vision and "vision" in feature_bonuses:
+            total = min(100.0, total + float(feature_bonuses["vision"]))
 
         std_cost, eff_cost, blended, cache_rate, plan, pin, pout, \
             pcache_eff = _cost_terms(r, cost, cache_multiplier,
@@ -223,6 +228,7 @@ def score_board(rows, board, engine, cost, cache_multiplier, score_threshold,
         out.append({
             "Model": r.get("Model"),
             "Creator": r.get("Creator"),
+            "Vision": "Yes" if has_vision else "No",
             "Reasoning": r.get("Reasoning Model"),
             "Orig Intelligence Index": to_float(r.get("Intelligence Index")),
             **{m: fmt_val(eff[m], m in imputed_set, m in low_set)
@@ -271,7 +277,7 @@ def score_board(rows, board, engine, cost, cache_multiplier, score_threshold,
     for idx, row in enumerate(out, 1):
         row["Rank"] = idx
 
-    headers = ["Rank", "Model", "Weighted Total", "Total $/1M",
+    headers = ["Rank", "Model", "Vision", "Weighted Total", "Total $/1M",
                "Blended $/1M", "Effective $/1M", "Total ¥/1M",
                "Effective ¥/1M", "Value Score", "Cache Hit Rate",
                "Plan", "Plan Monthly", "Plan Multiplier",

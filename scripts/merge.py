@@ -74,11 +74,20 @@ def build_merged():
     lb = _alias_index(_read_csv(os.path.join(CACHE, "livebench.csv")), "model")
     ds = _alias_index(_read_csv(os.path.join(CACHE, "deepswe.csv")), "model")
     eq = _alias_index(_read_csv(os.path.join(CACHE, "eqbench.csv")), "model")
+    tb = _alias_index(_read_csv(os.path.join(CACHE, "terminalbench.csv")), "model")
+
+    # 官方发布技术报告核定的权威指标补充（声明式配置，便于自动化及模型维护）
+    evals_path = os.path.join(os.path.dirname(__file__), "official_evals.json")
+    official_evals = {}
+    if os.path.exists(evals_path):
+        with open(evals_path, "r", encoding="utf-8") as ef:
+            official_evals = json.load(ef).get("models", {})
 
     # 指标名（与 config.json imputation_pool 一致）
     cols = [
-        "LiveBench Coding", "DeepSWE",
-        "LiveBench Agentic Coding", "LiveBench Instruction Following",
+        "Terminal-Bench 4.0", "LiveBench Coding", "DeepSWE",
+        "LiveBench Agentic Coding", "AutomationBench",
+        "LiveBench Instruction Following",
         "LCR", "Omniscience Index", "GPQA Diamond", "HLE",
         "EQ-Bench Creative Writing", "LiveBench Language",
     ]
@@ -86,7 +95,7 @@ def build_merged():
     out_rows = []
     for m in registry:
         slug = m["slug"]
-        row = {"Model": slug, "Creator": m["creator"]}
+        row = {"Model": slug, "Creator": m["creator"], "Vision": m.get("vision", False)}
 
         # LiveBench（别名可为列表，取最高 Overall 近似 —— 这里按 Coding 最高者）
         lb_row, lb_name = _pick_max(lb, m.get("livebench"))
@@ -95,6 +104,11 @@ def build_merged():
             row["LiveBench Agentic Coding"] = _num(lb_row.get("Agentic Coding"))
             row["LiveBench Instruction Following"] = _num(lb_row.get("IF"))
             row["LiveBench Language"] = _num(lb_row.get("Language"))
+
+        # Terminal-Bench 4.0
+        tb_row, _ = _pick_max(tb, m.get("terminalbench") or slug)
+        if tb_row:
+            row["Terminal-Bench 4.0"] = _num(tb_row.get("Terminal-Bench 4.0"))
 
         # DeepSWE
         ds_row, _ = _pick_max(ds, m.get("deepswe"))
@@ -113,6 +127,8 @@ def build_merged():
             row["Omniscience Index"] = _num(aa_row.get("Omniscience Index"))
             row["GPQA Diamond"] = _num(aa_row.get("GPQA Diamond"))
             row["HLE"] = _num(aa_row.get("HLE"))
+            if aa_row.get("AutomationBench"):
+                row["AutomationBench"] = _num(aa_row.get("AutomationBench"))
             # 成本列（性价比榜用）
             row["Price 1M Input"] = _num(aa_row.get("Price 1M Input"))
             row["Price 1M Output"] = _num(aa_row.get("Price 1M Output"))
@@ -120,12 +136,20 @@ def build_merged():
             row["Cache Write Price"] = _num(aa_row.get("Cache Write Price"))
             row["Cost Per Task"] = _num(aa_row.get("Cost Per Task"))
 
+        # 官方技术报告公布的指标覆盖
+        if slug in official_evals:
+            for b_name, b_val in official_evals[slug].items():
+                if b_name.startswith("_") or b_name == "source":
+                    continue
+                if row.get(b_name) is None:
+                    row[b_name] = _num(b_val)
+
         out_rows.append(row)
 
     # 写 merged.csv（列序：Model, Creator, 指标, 成本列）
     price_cols = ["Price 1M Input", "Price 1M Output", "Cache Hit Price",
                   "Cache Write Price", "Cost Per Task"]
-    header = ["Model", "Creator"] + cols + price_cols
+    header = ["Model", "Creator", "Vision"] + cols + price_cols
     os.makedirs(os.path.join(REPO_ROOT, "results"), exist_ok=True)
     out_path = os.path.join(BASE, "merged.csv")
     tmp = out_path + ".tmp"

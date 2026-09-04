@@ -1,42 +1,42 @@
 {
+  "Terminal-Bench 4.0": {
+    "mae": 16.8788,
+    "pct_over10": 70.0,
+    "n": 10
+  },
+  "DeepSWE": {
+    "mae": 6.8658,
+    "pct_over10": 46.4,
+    "n": 28
+  },
   "LiveBench Coding": {
-    "mae": 2.9637,
+    "mae": 2.549,
     "pct_over10": 2.2,
     "n": 46
   },
-  "DeepSWE": {
-    "mae": 9.4889,
-    "pct_over10": 60.7,
-    "n": 28
-  },
-  "LiveBench Agentic Coding": {
-    "mae": 3.9396,
-    "pct_over10": 26.1,
-    "n": 46
+  "AutomationBench": {
+    "mae": 0.044,
+    "pct_over10": 48.1,
+    "n": 27
   },
   "LiveBench Instruction Following": {
-    "mae": 4.6334,
-    "pct_over10": 17.4,
+    "mae": 2.5279,
+    "pct_over10": 4.3,
     "n": 46
   },
   "LCR": {
-    "mae": 0.0261,
-    "pct_over10": 4.1,
-    "n": 49
-  },
-  "Omniscience Index": {
-    "mae": 8.5765,
-    "pct_over10": 89.8,
-    "n": 49
-  },
-  "GPQA Diamond": {
-    "mae": 0.0116,
+    "mae": 0.0247,
     "pct_over10": 0.0,
     "n": 49
   },
   "HLE": {
-    "mae": 0.0309,
-    "pct_over10": 26.5,
+    "mae": 0.025,
+    "pct_over10": 16.3,
+    "n": 49
+  },
+  "Omniscience Index": {
+    "mae": 9.4348,
+    "pct_over10": 93.9,
     "n": 49
   }
 }

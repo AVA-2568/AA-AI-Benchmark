@@ -21,17 +21,19 @@ import matplotlib.text as mtext  # noqa: E402
 
 
 def pareto_frontier(points):
-    """[(price, score, label)] -> 价格升序中能力递增的最优点序列。
+    """[(price, score, label, ...)] -> 价格升序中能力递增的最优点序列。
 
     剔除无价格/无分数的点；同价取先到者（分数必须严格更高才入前沿）。
+    保留原元组的所有元素（兼容 vision 等附加字段）。
     """
     pts = sorted((p for p in points if p[0] and p[1] is not None),
                  key=lambda p: p[0])
     out = []
     best = float("-inf")
-    for price, score, label in pts:
+    for pt in pts:
+        price, score = pt[0], pt[1]
         if score > best:
-            out.append((price, score, label))
+            out.append(pt)
             best = score
     return out
 
@@ -64,14 +66,15 @@ def _label_frontier(ax, frontier):
     meas = mtext.Text(0, 0, "", fontsize=FS)
     meas.set_figure(fig)
     sizes = []
-    for _, _, name in frontier:
+    for pt in frontier:
+        name = pt[2]
         meas.set_text(name)
         b = meas.get_window_extent(renderer)
         sizes.append((b.width, b.height))
     del meas
 
     n = len(frontier)
-    anchors = [trans.transform((p, s)) for p, s, _ in frontier]
+    anchors = [trans.transform((pt[0], pt[1])) for pt in frontier]
     ws = [w for w, _ in sizes]
     hs = [h for _, h in sizes]
     x0s = [anchors[k][0] + init_dx for k in range(n)]
@@ -137,7 +140,8 @@ def _label_frontier(ax, frontier):
     # 3. 按算好的位置创建标注；一律垫白底框（阶梯竖线常从锚点右侧
     # 穿过，无白底时文字压线不可读），被推离锚点较远的另加引线
     texts = []
-    for k, (price, score, name) in enumerate(frontier):
+    for k, pt in enumerate(frontier):
+        price, score, name = pt[0], pt[1], pt[2]
         tx, ty = inv_trans.transform((x0s[k], ys[k]))
         far = math.hypot(x0s[k] - anchors[k][0],
                          ys[k] - anchors[k][1]) > leader_thresh
@@ -172,8 +176,10 @@ def render(rows, out_path, fx_rate=None, ylabel="通用榜综合分", fmt="svg")
             score = float(r.get("Weighted Total") or 0)
         except ValueError:
             continue
+        v_raw = r.get("Vision")
+        has_v = (v_raw is True or str(v_raw).strip().lower() in ("yes", "true", "1"))
         if price > 0 and score > 0:
-            points.append((price, score, r.get("Model") or "?"))
+            points.append((price, score, r.get("Model") or "?", has_v))
     frontier = pareto_frontier(points)
     if not frontier:
         raise ValueError("no plottable models: empty frontier")
@@ -183,35 +189,53 @@ def render(rows, out_path, fx_rate=None, ylabel="通用榜综合分", fmt="svg")
     # x 范围随数据自适应：下界给最便宜点留呼吸空间；上界由「最后一个
     # ¥ 刻度 ×1.25」兜底，保证末位刻度不贴边被裁（¥50 案例），并让
     # 延长线有去处（预算再高也是前沿最后一个模型）
-    min_p = min(p for p, _, _ in points)
-    max_p = max(p for p, _, _ in points)
+    min_p = min(pt[0] for pt in points)
+    max_p = max(pt[0] for pt in points)
     x_lo = max(min_p * 0.68, 0.012)
     all_ticks = [0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100]
     x_hi_raw = max(max_p * 1.3, 30.0)
     ticks = [t for t in all_ticks if x_lo <= t <= x_hi_raw]
     x_hi = max(ticks[-1] * 1.25, max_p * 1.15)
     ticks = [t for t in all_ticks if x_lo <= t <= x_hi]
-    all_scores = [s for _, s, _ in points]
+    all_scores = [pt[1] for pt in points]
     y_lo = math.floor(min(all_scores) / 5) * 5
     y_hi = math.ceil(max(all_scores) / 5) * 5 + 2
 
-    # 非前沿点弱化：小、淡、无描边 —— 只提供分布背景，不与前沿争注意力
-    ax.scatter([p for p, _, _ in points], [s for _, s, _ in points],
-               s=20, color="#b9bfc8", alpha=0.45, linewidths=0, zorder=1,
-               label="全部模型 all models")
+    # 非前沿点：按是否具备 Vision 区分形状（实心圆点 vs 纯文本三角）
+    v_pts = [pt for pt in points if pt[3]]
+    t_pts = [pt for pt in points if not pt[3]]
+    if v_pts:
+        ax.scatter([pt[0] for pt in v_pts], [pt[1] for pt in v_pts],
+                   s=22, color="#b9bfc8", marker="o", alpha=0.45, linewidths=0, zorder=1,
+                   label="支持视觉 all (vision)")
+    if t_pts:
+        ax.scatter([pt[0] for pt in t_pts], [pt[1] for pt in t_pts],
+                   s=22, color="#9ea6b3", marker="^", alpha=0.55, linewidths=0, zorder=1,
+                   label="纯文本 all (text-only)")
 
     # 前沿阶梯：线下淡填充标记「被支配区」，延长到 x 上界（预算再高
     # 也是最后一个模型）；线上加深红点 + 白描边提升质感
-    fx_p = [p for p, _, _ in frontier]
-    scores = [s for _, s, _ in frontier]
+    fx_p = [pt[0] for pt in frontier]
+    scores = [pt[1] for pt in frontier]
     step_x = fx_p + [x_hi]
     step_y = scores + [scores[-1]]
     ax.fill_between(step_x, step_y, y_lo, step="post",
                     color="#d62728", alpha=0.045, linewidths=0, zorder=1.5)
     ax.step(step_x, step_y, where="post", color="#d62728",
             linewidth=2.4, zorder=2, label="最优选择前沿 best choice")
-    ax.scatter(fx_p, scores, s=60, color="#d62728",
-               edgecolor="white", linewidth=0.9, zorder=3)
+
+    # 前沿点散点：按视觉能力区分圆点与三角
+    f_v = [pt for pt in frontier if len(pt) > 3 and pt[3]]
+    f_t = [pt for pt in frontier if len(pt) > 3 and not pt[3]]
+    if f_v:
+        ax.scatter([pt[0] for pt in f_v], [pt[1] for pt in f_v], s=65, color="#d62728",
+                   marker="o", edgecolor="white", linewidth=0.9, zorder=3)
+    if f_t:
+        ax.scatter([pt[0] for pt in f_t], [pt[1] for pt in f_t], s=75, color="#d62728",
+                   marker="^", edgecolor="white", linewidth=0.9, zorder=3)
+    if not f_v and not f_t:
+        ax.scatter(fx_p, scores, s=60, color="#d62728",
+                   edgecolor="white", linewidth=0.9, zorder=3)
 
     ax.set_xscale("log")
     ax.set_xticks(ticks)
@@ -237,4 +261,4 @@ def render(rows, out_path, fx_rate=None, ylabel="通用榜综合分", fmt="svg")
     _label_frontier(ax, frontier)
     fig.savefig(out_path, format=fmt)
     plt.close(fig)
-    return frontier
+    return [(pt[0], pt[1], pt[2]) for pt in frontier]

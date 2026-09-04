@@ -451,3 +451,26 @@ def test_value_board_follows_general_ranking():
     # cheapest plan wins for OpenAI rows
     assert out[0]["Plan"] == "GitHub Copilot Max"
 
+
+def test_score_board_feature_bonuses():
+    """feature_bonuses adds to Weighted Total if vision is True, up to 100 max."""
+    board = dict(_BOARD)
+    board["feature_bonuses"] = {"vision": 3.0}
+    eng = FakeEngine()
+    rows = [
+        {"Model": "WithVision", "Vision": True, "Price 1M Input": "1.0",
+         "Price 1M Output": "2.0"},
+        {"Model": "TextOnly", "Vision": False, "Price 1M Input": "1.0",
+         "Price 1M Output": "2.0"},
+    ]
+    out, headers = score_board(rows, board, eng, _COST, 0.1, 0.0)
+    assert "Vision" in headers
+    wv = next(r for r in out if r["Model"] == "WithVision")
+    to = next(r for r in out if r["Model"] == "TextOnly")
+    assert wv["Vision"] == "Yes"
+    assert to["Vision"] == "No"
+    # Base score is 80.0, WithVision gets +3.0 -> 83.0; TextOnly base is 20.0
+    assert wv["Weighted Total"] == 83.0
+    assert to["Weighted Total"] == 20.0
+
+

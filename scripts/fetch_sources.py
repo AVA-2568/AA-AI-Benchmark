@@ -217,6 +217,19 @@ def fetch_eqbench():
     return path
 
 
+# ---------- Terminal-Bench 4.0 ----------
+
+def fetch_terminalbench():
+    """Terminal-Bench 4.0 官方与厂商实测成绩。"""
+    path = os.path.join(CACHE, "terminalbench.csv")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8-sig", newline="") as f:
+            n = sum(1 for _ in csv.DictReader(f))
+        print(f"terminalbench: {n} 模型 -> {os.path.basename(path)}")
+        return path
+    return _write_csv("terminalbench.csv", ["model", "Terminal-Bench 4.0"], [])
+
+
 # ---------- 汇率 ----------
 
 def fetch_fx():
@@ -255,6 +268,7 @@ FETCHERS = {
     "deepswe": fetch_deepswe,
     "swebench": fetch_swebench,
     "eqbench": fetch_eqbench,
+    "terminalbench": fetch_terminalbench,
     "fx": fetch_fx,
 }
 

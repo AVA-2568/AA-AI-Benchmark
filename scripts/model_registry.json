@@ -8,7 +8,8 @@
       "livebench": "claude-fable-5-max-effort",
       "deepswe": "claude-fable-5",
       "swebench": null,
-      "eqbench": "claude-fable-5"
+      "eqbench": "claude-fable-5",
+      "vision": true
     },
     {
       "slug": "claude-opus-5",
@@ -17,7 +18,8 @@
       "livebench": "claude-opus-5-max-effort",
       "deepswe": "claude-opus-5",
       "swebench": null,
-      "eqbench": "claude-opus-5"
+      "eqbench": "claude-opus-5",
+      "vision": true
     },
     {
       "slug": "claude-opus-4.8",
@@ -26,7 +28,8 @@
       "livebench": "claude-opus-4-8-max-effort",
       "deepswe": "claude-opus-4.8",
       "swebench": null,
-      "eqbench": "claude-opus-4-8"
+      "eqbench": "claude-opus-4-8",
+      "vision": true
     },
     {
       "slug": "claude-opus-4.7",
@@ -35,7 +38,8 @@
       "livebench": "claude-opus-4-7-xhigh-effort",
       "deepswe": null,
       "swebench": null,
-      "eqbench": "claude-opus-4-7"
+      "eqbench": "claude-opus-4-7",
+      "vision": true
     },
     {
       "slug": "claude-opus-4.6",
@@ -44,7 +48,8 @@
       "livebench": "claude-opus-4-6-thinking-auto-high-effort",
       "deepswe": null,
       "swebench": "Claude 4.6 Opus",
-      "eqbench": "claude-opus-4-6"
+      "eqbench": "claude-opus-4-6",
+      "vision": true
     },
     {
       "slug": "claude-opus-4.5",
@@ -53,7 +58,8 @@
       "livebench": "claude-opus-4-5-20251101-thinking-64k-high-effort",
       "deepswe": null,
       "swebench": "Claude 4.5 Opus high",
-      "eqbench": "claude-opus-4-5-20251101"
+      "eqbench": "claude-opus-4-5-20251101",
+      "vision": true
     },
     {
       "slug": "claude-sonnet-5",
@@ -62,7 +68,8 @@
       "livebench": "claude-sonnet-5-xhigh-effort",
       "deepswe": "claude-sonnet-5",
       "swebench": null,
-      "eqbench": "claude-sonnet-5"
+      "eqbench": "claude-sonnet-5",
+      "vision": true
     },
     {
       "slug": "claude-sonnet-4.6",
@@ -71,7 +78,8 @@
       "livebench": "claude-sonnet-4-6-thinking-auto-medium-effort",
       "deepswe": "claude-sonnet-4.6",
       "swebench": null,
-      "eqbench": "claude-sonnet-4-6"
+      "eqbench": "claude-sonnet-4-6",
+      "vision": true
     },
     {
       "slug": "gpt-5.6-sol",
@@ -80,7 +88,8 @@
       "livebench": "gpt-5.6-sol-max",
       "deepswe": "gpt-5.6-sol",
       "swebench": null,
-      "eqbench": "gpt-5.6-sol"
+      "eqbench": "gpt-5.6-sol",
+      "vision": true
     },
     {
       "slug": "gpt-5.6-terra",
@@ -89,7 +98,8 @@
       "livebench": "gpt-5.6-terra-max",
       "deepswe": "gpt-5.6-terra",
       "swebench": null,
-      "eqbench": "gpt-5.6-terra"
+      "eqbench": "gpt-5.6-terra",
+      "vision": true
     },
     {
       "slug": "gpt-5.6-luna",
@@ -98,7 +108,8 @@
       "livebench": "gpt-5.6-luna-max",
       "deepswe": "gpt-5.6-luna",
       "swebench": null,
-      "eqbench": "gpt-5.6-luna"
+      "eqbench": "gpt-5.6-luna",
+      "vision": true
     },
     {
       "slug": "gpt-5.5",
@@ -107,7 +118,8 @@
       "livebench": "gpt-5.5-xhigh",
       "deepswe": "gpt-5.5",
       "swebench": null,
-      "eqbench": "gpt-5.5"
+      "eqbench": "gpt-5.5",
+      "vision": true
     },
     {
       "slug": "gpt-5.4",
@@ -116,7 +128,8 @@
       "livebench": "gpt-5.4-xhigh",
       "deepswe": "gpt-5.4",
       "swebench": null,
-      "eqbench": "gpt-5.4"
+      "eqbench": "gpt-5.4",
+      "vision": true
     },
     {
       "slug": "gpt-5.4-mini",
@@ -125,7 +138,8 @@
       "livebench": "gpt-5.4-mini-xhigh",
       "deepswe": null,
       "swebench": null,
-      "eqbench": "gpt-5.4-mini"
+      "eqbench": "gpt-5.4-mini",
+      "vision": true
     },
     {
       "slug": "gpt-5.4-nano",
@@ -134,7 +148,8 @@
       "livebench": "gpt-5.4-nano-xhigh",
       "deepswe": null,
       "swebench": null,
-      "eqbench": "gpt-5.4-nano"
+      "eqbench": "gpt-5.4-nano",
+      "vision": true
     },
     {
       "slug": "gpt-5.2",
@@ -143,7 +158,8 @@
       "livebench": "gpt-5.2-2025-12-11-high",
       "deepswe": null,
       "swebench": "GPT 5.2 high",
-      "eqbench": "gpt-5.2"
+      "eqbench": "gpt-5.2",
+      "vision": true
     },
     {
       "slug": "gpt-5.2-codex",
@@ -152,7 +168,8 @@
       "livebench": "gpt-5.2-codex",
       "deepswe": null,
       "swebench": "GPT 5.2 Codex",
-      "eqbench": "gpt-5.2-codex"
+      "eqbench": "gpt-5.2-codex",
+      "vision": false
     },
     {
       "slug": "gemini-3.1-pro",
@@ -161,7 +178,8 @@
       "livebench": "gemini-3.1-pro-preview-high",
       "deepswe": "gemini-3.1-pro-preview",
       "swebench": null,
-      "eqbench": "gemini-3.1-pro-preview"
+      "eqbench": "gemini-3.1-pro-preview",
+      "vision": true
     },
     {
       "slug": "gemini-3.5-flash",
@@ -170,7 +188,8 @@
       "livebench": "gemini-3.5-flash-high",
       "deepswe": "gemini-3.5-flash",
       "swebench": null,
-      "eqbench": "gemini-3.5-flash"
+      "eqbench": "gemini-3.5-flash",
+      "vision": true
     },
     {
       "slug": "gemini-3.6-flash",
@@ -179,7 +198,8 @@
       "livebench": "gemini-3.6-flash-high",
       "deepswe": "gemini-3.6-flash",
       "swebench": null,
-      "eqbench": "gemini-3.6-flash"
+      "eqbench": "gemini-3.6-flash",
+      "vision": true
     },
     {
       "slug": "gemini-3.7-flash",
@@ -188,7 +208,8 @@
       "livebench": "gemini-3.7-flash-high",
       "deepswe": "gemini-3.7-flash",
       "swebench": null,
-      "eqbench": "gemini-3.7-flash"
+      "eqbench": "gemini-3.7-flash",
+      "vision": true
     },
     {
       "slug": "gemini-3.5-flash-lite",
@@ -197,7 +218,8 @@
       "livebench": "gemini-3.5-flash-lite-high",
       "deepswe": null,
       "swebench": null,
-      "eqbench": "gemini-3.5-flash-lite"
+      "eqbench": "gemini-3.5-flash-lite",
+      "vision": true
     },
     {
       "slug": "grok-4.6",
@@ -209,7 +231,8 @@
       ],
       "deepswe": "grok-4.6",
       "swebench": null,
-      "eqbench": "grok-4.6"
+      "eqbench": "grok-4.6",
+      "vision": true
     },
     {
       "slug": "grok-4.5",
@@ -218,7 +241,8 @@
       "livebench": "grok-4.5",
       "deepswe": "grok-4.5",
       "swebench": null,
-      "eqbench": "grok-4.5"
+      "eqbench": "grok-4.5",
+      "vision": true
     },
     {
       "slug": "grok-4.3",
@@ -227,7 +251,8 @@
       "livebench": "grok-4.3",
       "deepswe": null,
       "swebench": null,
-      "eqbench": "grok-4.3"
+      "eqbench": "grok-4.3",
+      "vision": true
     },
     {
       "slug": "grok-build-0.1",
@@ -236,7 +261,8 @@
       "livebench": "grok-build-0.1",
       "deepswe": null,
       "swebench": null,
-      "eqbench": null
+      "eqbench": null,
+      "vision": false
     },
     {
       "slug": "muse-spark-1.2",
@@ -245,7 +271,8 @@
       "livebench": "muse-spark-1.2-xhigh",
       "deepswe": "muse-spark-1.2",
       "swebench": null,
-      "eqbench": "muse-spark-1.2"
+      "eqbench": "muse-spark-1.2",
+      "vision": true
     },
     {
       "slug": "muse-spark-1.1",
@@ -254,7 +281,8 @@
       "livebench": "muse-spark-1.1-xhigh",
       "deepswe": "muse-spark-1.1",
       "swebench": null,
-      "eqbench": "muse-spark-1.1"
+      "eqbench": "muse-spark-1.1",
+      "vision": true
     },
     {
       "slug": "inkling",
@@ -263,7 +291,8 @@
       "livebench": "inkling-xhigh",
       "deepswe": null,
       "swebench": null,
-      "eqbench": "thinkingmachines/Inkling"
+      "eqbench": "thinkingmachines/Inkling",
+      "vision": true
     },
     {
       "slug": "deepseek-v4-pro",
@@ -275,7 +304,8 @@
       ],
       "deepswe": "deepseek-v4-pro",
       "swebench": null,
-      "eqbench": "deepseek-ai/DeepSeek-V4-Pro"
+      "eqbench": "deepseek-ai/DeepSeek-V4-Pro",
+      "vision": false
     },
     {
       "slug": "deepseek-v4-flash",
@@ -287,7 +317,8 @@
       ],
       "deepswe": "deepseek-v4-flash",
       "swebench": null,
-      "eqbench": "deepseek-ai/DeepSeek-V4-Flash-0731"
+      "eqbench": "deepseek-ai/DeepSeek-V4-Flash-0731",
+      "vision": false
     },
     {
       "slug": "kimi-k3",
@@ -296,7 +327,8 @@
       "livebench": "kimi-k3",
       "deepswe": "kimi-k3",
       "swebench": null,
-      "eqbench": "kimi-k3"
+      "eqbench": "kimi-k3",
+      "vision": true
     },
     {
       "slug": "kimi-k2.6",
@@ -305,7 +337,8 @@
       "livebench": "kimi-k2.6-thinking",
       "deepswe": null,
       "swebench": "Kimi K2.5 high",
-      "eqbench": "moonshotai/Kimi-K2.6"
+      "eqbench": "moonshotai/Kimi-K2.6",
+      "vision": true
     },
     {
       "slug": "kimi-k2.7-code",
@@ -314,7 +347,8 @@
       "livebench": "kimi-k2.7-code",
       "deepswe": "kimi-k2.7-code",
       "swebench": null,
-      "eqbench": "kimi-k2.7-code"
+      "eqbench": "kimi-k2.7-code",
+      "vision": false
     },
     {
       "slug": "qwen3.8-max",
@@ -323,7 +357,8 @@
       "livebench": "qwen3.8-max",
       "deepswe": "qwen3.8-max",
       "swebench": null,
-      "eqbench": "Qwen/Qwen3.8-2.4T-A95B"
+      "eqbench": "Qwen/Qwen3.8-2.4T-A95B",
+      "vision": true
     },
     {
       "slug": "qwen3.7-max",
@@ -332,7 +367,8 @@
       "livebench": "qwen3.7-max",
       "deepswe": null,
       "swebench": null,
-      "eqbench": "qwen3.7-max"
+      "eqbench": "qwen3.7-max",
+      "vision": true
     },
     {
       "slug": "qwen3.6-plus",
@@ -341,7 +377,8 @@
       "livebench": "qwen3.6-plus",
       "deepswe": null,
       "swebench": null,
-      "eqbench": null
+      "eqbench": null,
+      "vision": true
     },
     {
       "slug": "qwen3.6-27b",
@@ -350,7 +387,8 @@
       "livebench": "qwen3.6-27b",
       "deepswe": null,
       "swebench": null,
-      "eqbench": null
+      "eqbench": null,
+      "vision": false
     },
     {
       "slug": "glm-5.2",
@@ -359,7 +397,8 @@
       "livebench": "glm-5.2",
       "deepswe": "glm-5.2",
       "swebench": null,
-      "eqbench": "zai-org/GLM-5.2"
+      "eqbench": "zai-org/GLM-5.2",
+      "vision": false
     },
     {
       "slug": "minimax-m3",
@@ -368,7 +407,8 @@
       "livebench": "minimax-m3",
       "deepswe": null,
       "swebench": null,
-      "eqbench": null
+      "eqbench": null,
+      "vision": true
     },
     {
       "slug": "mimo-v2.5-pro",
@@ -377,7 +417,8 @@
       "livebench": null,
       "deepswe": null,
       "swebench": null,
-      "eqbench": "XiaomiMiMo/MiMo-V2.5-Pro"
+      "eqbench": "XiaomiMiMo/MiMo-V2.5-Pro",
+      "vision": true
     },
     {
       "slug": "hy3",
@@ -386,7 +427,8 @@
       "livebench": null,
       "deepswe": null,
       "swebench": null,
-      "eqbench": null
+      "eqbench": null,
+      "vision": true
     },
     {
       "slug": "qwen3.8-27b",
@@ -395,7 +437,8 @@
       "livebench": "qwen3.8-27b",
       "deepswe": null,
       "swebench": null,
-      "eqbench": null
+      "eqbench": null,
+      "vision": false
     },
     {
       "slug": "glm-5.3",
@@ -404,7 +447,8 @@
       "livebench": "glm-5.3",
       "deepswe": "glm-5.3",
       "swebench": null,
-      "eqbench": "GLM-5.3"
+      "eqbench": "GLM-5.3",
+      "vision": false
     },
     {
       "slug": "glm-5.3-flash",
@@ -414,7 +458,8 @@
       "deepswe": "glm-5.3-flash",
       "swebench": null,
       "eqbench": null,
-      "auto_added": "2026-08-27"
+      "auto_added": "2026-08-27",
+      "vision": false
     },
     {
       "slug": "claude-fable-5.1",
@@ -424,7 +469,8 @@
       "deepswe": null,
       "swebench": null,
       "eqbench": null,
-      "auto_added": "2026-09-02"
+      "auto_added": "2026-09-02",
+      "vision": true
     },
     {
       "slug": "qwen3.8-flash-next",
@@ -434,7 +480,8 @@
       "deepswe": null,
       "swebench": null,
       "eqbench": null,
-      "auto_added": "2026-09-02"
+      "auto_added": "2026-09-02",
+      "vision": false
     },
     {
       "slug": "gemini-3.8-flash",
@@ -444,6 +491,7 @@
       "deepswe": "gemini-3.8-flash",
       "swebench": null,
       "eqbench": null,
+      "vision": true,
       "auto_added": "2026-09-03"
     },
     {
@@ -454,6 +502,7 @@
       "deepswe": "gpt-6-astra",
       "swebench": null,
       "eqbench": null,
+      "vision": true,
       "auto_added": "2026-09-04"
     }
   ]

@@ -151,8 +151,8 @@ def _board_blocks(bkey, board, n_models, today):
     if bkey == "value":
         # 性价比榜：跟随通用榜名次，展示官方订阅套餐折算成本与购买链接
         lines = [
-            "| # | Model | Creator | Score | API $/1M | 套餐 | 月费 | 倍率 | 套餐内 $/1M | 套餐内 ¥/1M | Value |",
-            "|---|---|---|---|---|---|---|---|---|---|---|",
+            "| # | Model | Creator | Vision | Score | API $/1M | 套餐 | 月费 | 倍率 | 套餐内 $/1M | 套餐内 ¥/1M | Value |",
+            "|---|---|---|---|---|---|---|---|---|---|---|---|",
         ]
         for r in top:
             name = (r.get("Plan") or "").strip()
@@ -174,10 +174,13 @@ def _board_blocks(bkey, board, n_models, today):
                 mult_cell = f"{float(mult):g}×"
             else:
                 mult_cell = "-"
+            v_val = r.get("Vision")
+            has_v = (v_val is True or str(v_val).strip().lower() in ("yes", "true", "1"))
+            v_cell = "👁️" if has_v else "-"
             lines.append(
-                "| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |"
+                "| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |"
                 .format(
-                    r["Rank"], r["Model"], r["Creator"],
+                    r["Rank"], r["Model"], r["Creator"], v_cell,
                     r.get("Weighted Total") or "",
                     r.get("Blended $/1M") or "",
                     plan_cell,
@@ -189,13 +192,16 @@ def _board_blocks(bkey, board, n_models, today):
                 ))
     else:
         lines = [
-            "| # | Model | Creator | Score | Imputed |",
-            "|---|---|---|---|---|",
+            "| # | Model | Creator | Vision | Score | Imputed |",
+            "|---|---|---|---|---|---|",
         ]
         for r in top:
             imp = (r["Imputed"] or "").strip()
-            lines.append("| {} | {} | {} | {} | {} |".format(
-                r["Rank"], r["Model"], r["Creator"],
+            v_val = r.get("Vision")
+            has_v = (v_val is True or str(v_val).strip().lower() in ("yes", "true", "1"))
+            v_cell = "👁️" if has_v else "-"
+            lines.append("| {} | {} | {} | {} | {} | {} |".format(
+                r["Rank"], r["Model"], r["Creator"], v_cell,
                 r.get("Weighted Total") or "",
                 imp or "-",
             ))
