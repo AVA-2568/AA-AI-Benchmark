@@ -110,9 +110,6 @@
       "title": "通用榜 General",
       "output_csv": "general_scored.csv",
       "validation_json": "validation_general.json",
-      "feature_bonuses": {
-        "vision": 2.0
-      },
       "categories": [
         {
           "name": "代码与 Agent",
@@ -270,9 +267,6 @@
       "output_csv": "value_scored.csv",
       "validation_json": "validation_value.json",
       "rank_by": "score",
-      "feature_bonuses": {
-        "vision": 2.0
-      },
       "categories": [
         {
           "name": "代码与 Agent",
