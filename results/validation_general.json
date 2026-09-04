@@ -5,18 +5,18 @@
     "n": 8
   },
   "DeepSWE": {
-    "mae": 12.2021,
-    "pct_over10": 71.4,
+    "mae": 8.5208,
+    "pct_over10": 50.0,
     "n": 28
   },
   "LiveBench Coding": {
-    "mae": 3.6192,
-    "pct_over10": 10.9,
+    "mae": 3.0838,
+    "pct_over10": 6.5,
     "n": 46
   },
   "AutomationBench": {
-    "mae": 0.0955,
-    "pct_over10": 77.8,
+    "mae": 0.0891,
+    "pct_over10": 74.1,
     "n": 27
   },
   "BrowseComp": {
@@ -25,22 +25,22 @@
     "n": 5
   },
   "LiveBench Agentic Coding": {
-    "mae": 5.079,
-    "pct_over10": 34.8,
+    "mae": 3.2575,
+    "pct_over10": 17.4,
     "n": 46
   },
   "LiveBench Instruction Following": {
-    "mae": 5.3914,
-    "pct_over10": 32.6,
+    "mae": 5.2045,
+    "pct_over10": 34.8,
     "n": 46
   },
   "LCR": {
-    "mae": 0.0243,
+    "mae": 0.0254,
     "pct_over10": 2.0,
     "n": 49
   },
   "IFBench": {
-    "mae": 0.0785,
+    "mae": 0.0783,
     "pct_over10": 44.0,
     "n": 25
   },
@@ -60,7 +60,7 @@
     "n": 46
   },
   "Omniscience Index": {
-    "mae": 9.2689,
+    "mae": 9.2687,
     "pct_over10": 87.8,
     "n": 49
   }

@@ -45,6 +45,8 @@ class ImputationEngine:
         self.standardize = cfg_params["standardize_features"]
         self.damping = cfg_params["damping"]
         self.domain_groups = cfg_params.get("domain_groups") or {}
+        self.domain_hierarchies = cfg_params.get("domain_hierarchies") or {}
+        self.metric_scales = cfg_params.get("metric_scales") or {}
         
         # 构建 metric -> domain metrics 映射
         self.metric_domains = {}
@@ -102,8 +104,50 @@ class ImputationEngine:
             return np.ones((len(arr_domain), 1))
         return np.hstack([np.ones((len(arr_domain), 1)), arr_domain[:, keep]])
 
+    def _apply_hierarchy_bounds(self, m, pred_val, i):
+        """物理层级单调性与防刷分天花板约束。
+        
+        对于高层级前沿指标（如 L3 Terminal-Bench 4.0），其得分能力不应脱离基础层级（如 L1 LiveBench Coding）。
+        依据固定锚点归一化空间映射，防止未公布高阶指标的模型被机械回归盲目抬高。
+        """
+        if not self.domain_hierarchies or not self.metric_scales:
+            return pred_val
+        
+        # 寻找 m 所属的层级链
+        target_chain = None
+        for d_name, chain in self.domain_hierarchies.items():
+            if m in chain:
+                target_chain = chain
+                break
+        if not target_chain or m not in target_chain:
+            return pred_val
+        
+        m_idx = target_chain.index(m)
+        if m_idx == 0:
+            return pred_val  # 最基础指标无需下层天花板
+        
+        # 查找下层基础指标当前值
+        lo_m, hi_m = self.metric_scales.get(m, (0, 100))
+        pred_nrm = (pred_val - lo_m) / ((hi_m - lo_m) or 1.0) * 100.0
+        
+        # 逐级检查基础指标约束（高层能力分通常 ≤ 基础能力分 * 1.05）
+        max_allowed_nrm = 100.0
+        for lower_m in target_chain[:m_idx]:
+            if lower_m in self.cur:
+                lo_l, hi_l = self.metric_scales.get(lower_m, (0, 100))
+                l_val = self.cur[lower_m][i]
+                l_nrm = (l_val - lo_l) / ((hi_l - lo_l) or 1.0) * 100.0
+                # 高难指标不应大幅超越基础指标能力
+                max_allowed_nrm = min(max_allowed_nrm, l_nrm * 1.05)
+        
+        if pred_nrm > max_allowed_nrm:
+            # 压制回物理包络天花板
+            clamped_val = lo_m + (max_allowed_nrm / 100.0) * (hi_m - lo_m)
+            return clamped_val
+        return pred_val
+
     def run(self, max_iters, rel_tol, stable_rounds):
-        """Iterative domain-scoped imputation. Returns (converged_iter, max_delta)."""
+        """Iterative domain-scoped imputation with hierarchy envelope constraints."""
         n = len(self.rows)
         prev = {m: list(self.cur[m]) for m in self.pool}
         stable_count = 0
@@ -132,6 +176,8 @@ class ImputationEngine:
                     if self.raw[m][i] is None and n_train >= self.min_samples:
                         xi = self.to_X(np.array([self.domain_feat_row(i, m)], dtype=float), m)[0]
                         pred = max(lo, min(clip, float(xi @ beta)))
+                        # 物理层级单调性与防刷分天花板约束
+                        pred = self._apply_hierarchy_bounds(m, pred, i)
                         self.cur[m][i] = (1 - self.damping) * self.cur[m][i] + self.damping * pred
             max_delta = 0.0
             for m in self.pool:

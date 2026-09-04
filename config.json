@@ -128,7 +128,7 @@
             },
             {
               "name": "LiveBench Coding",
-              "sub_weight": 0.20
+              "sub_weight": 0.2
             }
           ]
         },
@@ -138,21 +138,21 @@
           "metrics": [
             {
               "name": "AutomationBench",
-              "sub_weight": 0.50
+              "sub_weight": 0.5
             },
             {
               "name": "BrowseComp",
-              "sub_weight": 0.30
+              "sub_weight": 0.3
             },
             {
               "name": "LiveBench Agentic Coding",
-              "sub_weight": 0.20
+              "sub_weight": 0.2
             }
           ]
         },
         {
           "name": "指令遵循与长上下文",
-          "weight": 0.20,
+          "weight": 0.2,
           "metrics": [
             {
               "name": "LiveBench Instruction Following",
@@ -164,17 +164,17 @@
             },
             {
               "name": "IFBench",
-              "sub_weight": 0.20
+              "sub_weight": 0.2
             }
           ]
         },
         {
           "name": "终极科学与推理",
-          "weight": 0.20,
+          "weight": 0.2,
           "metrics": [
             {
               "name": "HLE",
-              "sub_weight": 0.60
+              "sub_weight": 0.6
             },
             {
               "name": "SciCode",
@@ -188,7 +188,7 @@
         },
         {
           "name": "事实准确性",
-          "weight": 0.10,
+          "weight": 0.1,
           "metrics": [
             {
               "name": "Omniscience Index",
@@ -205,21 +205,21 @@
       "categories": [
         {
           "name": "创意写作与语言",
-          "weight": 0.30,
+          "weight": 0.3,
           "metrics": [
             {
               "name": "EQ-Bench Creative Writing",
-              "sub_weight": 0.60
+              "sub_weight": 0.6
             },
             {
               "name": "LiveBench Language",
-              "sub_weight": 0.40
+              "sub_weight": 0.4
             }
           ]
         },
         {
           "name": "事实准确性",
-          "weight": 0.20,
+          "weight": 0.2,
           "metrics": [
             {
               "name": "Omniscience Index",
@@ -241,7 +241,7 @@
             },
             {
               "name": "IFBench",
-              "sub_weight": 0.20
+              "sub_weight": 0.2
             }
           ]
         },
@@ -251,7 +251,7 @@
           "metrics": [
             {
               "name": "HLE",
-              "sub_weight": 0.60
+              "sub_weight": 0.6
             },
             {
               "name": "SciCode",
@@ -288,7 +288,7 @@
             },
             {
               "name": "LiveBench Coding",
-              "sub_weight": 0.20
+              "sub_weight": 0.2
             }
           ]
         },
@@ -298,21 +298,21 @@
           "metrics": [
             {
               "name": "AutomationBench",
-              "sub_weight": 0.50
+              "sub_weight": 0.5
             },
             {
               "name": "BrowseComp",
-              "sub_weight": 0.30
+              "sub_weight": 0.3
             },
             {
               "name": "LiveBench Agentic Coding",
-              "sub_weight": 0.20
+              "sub_weight": 0.2
             }
           ]
         },
         {
           "name": "指令遵循与长上下文",
-          "weight": 0.20,
+          "weight": 0.2,
           "metrics": [
             {
               "name": "LiveBench Instruction Following",
@@ -324,17 +324,17 @@
             },
             {
               "name": "IFBench",
-              "sub_weight": 0.20
+              "sub_weight": 0.2
             }
           ]
         },
         {
           "name": "终极科学与推理",
-          "weight": 0.20,
+          "weight": 0.2,
           "metrics": [
             {
               "name": "HLE",
-              "sub_weight": 0.60
+              "sub_weight": 0.6
             },
             {
               "name": "SciCode",
@@ -348,7 +348,7 @@
         },
         {
           "name": "事实准确性",
-          "weight": 0.10,
+          "weight": 0.1,
           "metrics": [
             {
               "name": "Omniscience Index",
@@ -860,7 +860,7 @@
   ],
   "score_threshold": 0,
   "ridge_alpha": 0.1,
-  "imputation_min_samples": 10,
+  "imputation_min_samples": 4,
   "standardize_features": true,
   "imputation": {
     "max_iters": 100,
@@ -871,5 +871,31 @@
   },
   "cost_fallback": {
     "cache_hit_multiplier": 0.1
+  },
+  "domain_hierarchies": {
+    "code_agent": [
+      "LiveBench Coding",
+      "DeepSWE",
+      "Terminal-Bench 4.0"
+    ],
+    "automation_web": [
+      "LiveBench Agentic Coding",
+      "BrowseComp",
+      "AutomationBench"
+    ],
+    "instruction_context": [
+      "LCR",
+      "LiveBench Instruction Following",
+      "IFBench"
+    ],
+    "reasoning": [
+      "LiveBench Reasoning",
+      "SciCode",
+      "HLE"
+    ],
+    "language_writing": [
+      "LiveBench Language",
+      "EQ-Bench Creative Writing"
+    ]
   }
 }
