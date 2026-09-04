@@ -410,6 +410,19 @@ def fetch_fx():
     return fx
 
 
+# ---------- OpenRouter (Modalities / Vision) ----------
+
+def fetch_openrouter():
+    """抓取 OpenRouter models 架构与模态元数据，写 .cache/openrouter_models.json。"""
+    raw = _get("https://openrouter.ai/api/v1/models")
+    data = json.loads(raw.decode("utf-8"))
+    models = data.get("data", [])
+    path = _save("openrouter_models.json",
+                 json.dumps(models, ensure_ascii=False, indent=2))
+    print(f"openrouter: cached {len(models)} models ({path})")
+    return models
+
+
 FETCHERS = {
     "livebench": fetch_livebench,
     "deepswe": fetch_deepswe,
@@ -422,6 +435,7 @@ FETCHERS = {
     "bullshitbench": fetch_bullshitbench,
     "deepsearchqa": fetch_deepsearchqa,
     "fx": fetch_fx,
+    "openrouter": fetch_openrouter,
 }
 
 

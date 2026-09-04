@@ -169,7 +169,7 @@
       "deepswe": null,
       "swebench": "GPT 5.2 Codex",
       "eqbench": "gpt-5.2-codex",
-      "vision": false
+      "vision": true
     },
     {
       "slug": "gemini-3.1-pro",
@@ -266,7 +266,7 @@
       "deepswe": null,
       "swebench": null,
       "eqbench": null,
-      "vision": false
+      "vision": true
     },
     {
       "slug": "muse-spark-1.2",
@@ -352,7 +352,7 @@
       "deepswe": "kimi-k2.7-code",
       "swebench": null,
       "eqbench": "kimi-k2.7-code",
-      "vision": false
+      "vision": true
     },
     {
       "slug": "qwen3.8-max",
@@ -372,7 +372,7 @@
       "deepswe": null,
       "swebench": null,
       "eqbench": "qwen3.7-max",
-      "vision": true
+      "vision": false
     },
     {
       "slug": "qwen3.6-plus",
@@ -392,7 +392,7 @@
       "deepswe": null,
       "swebench": null,
       "eqbench": null,
-      "vision": false
+      "vision": true
     },
     {
       "slug": "glm-5.2",
@@ -422,7 +422,7 @@
       "deepswe": null,
       "swebench": null,
       "eqbench": "XiaomiMiMo/MiMo-V2.5-Pro",
-      "vision": true
+      "vision": false
     },
     {
       "slug": "hy3",
@@ -432,7 +432,7 @@
       "deepswe": null,
       "swebench": null,
       "eqbench": null,
-      "vision": true
+      "vision": false
     },
     {
       "slug": "qwen3.8-27b",
@@ -442,7 +442,7 @@
       "deepswe": null,
       "swebench": null,
       "eqbench": null,
-      "vision": false
+      "vision": true
     },
     {
       "slug": "glm-5.3",
@@ -463,7 +463,7 @@
       "swebench": null,
       "eqbench": null,
       "auto_added": "2026-08-27",
-      "vision": false
+      "vision": true
     },
     {
       "slug": "claude-fable-5.1",
@@ -485,7 +485,7 @@
       "swebench": null,
       "eqbench": null,
       "auto_added": "2026-09-02",
-      "vision": false
+      "vision": true
     },
     {
       "slug": "gemini-3.8-flash",

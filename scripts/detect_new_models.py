@@ -364,9 +364,19 @@ def auto_add_candidates(registry_path=REGISTRY, cache_dir=CACHE,
             "deepswe": ds_alias,
             "swebench": None,
             "eqbench": eq_alias,
-            "vision": True,
+            "vision": False,
             "auto_added": today,
         }
+        try:
+            from openrouter_modalities import resolve_model_vision, load_openrouter_models
+            or_models = load_openrouter_models()
+            has_vision, or_id, _ = resolve_model_vision(entry, or_models)
+            entry["vision"] = has_vision
+            if or_id:
+                entry["openrouter"] = or_id
+        except Exception:
+            pass
+
         models.append(entry)
         slugs.add(slug.lower())
         added.append(entry)
