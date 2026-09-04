@@ -1,20 +1,58 @@
 {
+  "domain_groups": {
+    "code_agent": [
+      "Terminal-Bench 4.0",
+      "DeepSWE",
+      "LiveBench Coding"
+    ],
+    "automation_web": [
+      "AutomationBench",
+      "BrowseComp",
+      "LiveBench Agentic Coding"
+    ],
+    "instruction_context": [
+      "LiveBench Instruction Following",
+      "LCR",
+      "IFBench"
+    ],
+    "reasoning": [
+      "HLE",
+      "SciCode",
+      "LiveBench Reasoning"
+    ],
+    "language_writing": [
+      "EQ-Bench Creative Writing",
+      "LiveBench Language",
+      "Omniscience Index"
+    ]
+  },
   "imputation_pool": [
     "Terminal-Bench 4.0",
-    "LiveBench Coding",
     "DeepSWE",
-    "LiveBench Agentic Coding",
+    "LiveBench Coding",
     "AutomationBench",
+    "BrowseComp",
+    "LiveBench Agentic Coding",
     "LiveBench Instruction Following",
     "LCR",
-    "Omniscience Index",
-    "GPQA Diamond",
+    "IFBench",
     "HLE",
+    "SciCode",
+    "LiveBench Reasoning",
     "EQ-Bench Creative Writing",
-    "LiveBench Language"
+    "LiveBench Language",
+    "Omniscience Index"
   ],
   "metric_scales": {
     "Terminal-Bench 4.0": [
+      0,
+      100
+    ],
+    "DeepSWE": [
+      0,
+      100
+    ],
+    "LiveBench Coding": [
       0,
       100
     ],
@@ -22,11 +60,7 @@
       0,
       1
     ],
-    "LiveBench Coding": [
-      0,
-      100
-    ],
-    "DeepSWE": [
+    "BrowseComp": [
       0,
       100
     ],
@@ -38,19 +72,11 @@
       0,
       100
     ],
-    "LiveBench Language": [
-      0,
-      100
-    ],
     "LCR": [
       0,
       1
     ],
-    "Omniscience Index": [
-      -50,
-      50
-    ],
-    "GPQA Diamond": [
+    "IFBench": [
       0,
       1
     ],
@@ -58,9 +84,25 @@
       0,
       1
     ],
+    "SciCode": [
+      0,
+      1
+    ],
+    "LiveBench Reasoning": [
+      0,
+      100
+    ],
     "EQ-Bench Creative Writing": [
       1400,
       2200
+    ],
+    "LiveBench Language": [
+      0,
+      100
+    ],
+    "Omniscience Index": [
+      -50,
+      50
     ]
   },
   "leaderboards": {
@@ -91,12 +133,20 @@
           ]
         },
         {
-          "name": "业务与工作流自动化",
+          "name": "业务自动化与 Web",
           "weight": 0.15,
           "metrics": [
             {
               "name": "AutomationBench",
-              "sub_weight": 1.0
+              "sub_weight": 0.50
+            },
+            {
+              "name": "BrowseComp",
+              "sub_weight": 0.30
+            },
+            {
+              "name": "LiveBench Agentic Coding",
+              "sub_weight": 0.20
             }
           ]
         },
@@ -106,11 +156,15 @@
           "metrics": [
             {
               "name": "LiveBench Instruction Following",
-              "sub_weight": 0.5
+              "sub_weight": 0.45
             },
             {
               "name": "LCR",
-              "sub_weight": 0.5
+              "sub_weight": 0.35
+            },
+            {
+              "name": "IFBench",
+              "sub_weight": 0.20
             }
           ]
         },
@@ -120,7 +174,15 @@
           "metrics": [
             {
               "name": "HLE",
-              "sub_weight": 1.0
+              "sub_weight": 0.60
+            },
+            {
+              "name": "SciCode",
+              "sub_weight": 0.25
+            },
+            {
+              "name": "LiveBench Reasoning",
+              "sub_weight": 0.15
             }
           ]
         },
@@ -142,22 +204,22 @@
       "validation_json": "validation_text.json",
       "categories": [
         {
-          "name": "创意写作",
-          "weight": 0.25,
+          "name": "创意写作与语言",
+          "weight": 0.30,
           "metrics": [
             {
               "name": "EQ-Bench Creative Writing",
-              "sub_weight": 0.7
+              "sub_weight": 0.60
             },
             {
               "name": "LiveBench Language",
-              "sub_weight": 0.3
+              "sub_weight": 0.40
             }
           ]
         },
         {
           "name": "事实准确性",
-          "weight": 0.2,
+          "weight": 0.20,
           "metrics": [
             {
               "name": "Omniscience Index",
@@ -166,36 +228,38 @@
           ]
         },
         {
-          "name": "指令遵循",
-          "weight": 0.2,
+          "name": "指令遵循与长上下文",
+          "weight": 0.25,
           "metrics": [
             {
               "name": "LiveBench Instruction Following",
-              "sub_weight": 1.0
-            }
-          ]
-        },
-        {
-          "name": "知识领域",
-          "weight": 0.2,
-          "metrics": [
-            {
-              "name": "GPQA Diamond",
-              "sub_weight": 0.3
+              "sub_weight": 0.45
             },
             {
-              "name": "HLE",
-              "sub_weight": 0.7
+              "name": "LCR",
+              "sub_weight": 0.35
+            },
+            {
+              "name": "IFBench",
+              "sub_weight": 0.20
             }
           ]
         },
         {
-          "name": "长上下文",
-          "weight": 0.15,
+          "name": "终极科学与推理",
+          "weight": 0.25,
           "metrics": [
             {
-              "name": "LCR",
-              "sub_weight": 1.0
+              "name": "HLE",
+              "sub_weight": 0.60
+            },
+            {
+              "name": "SciCode",
+              "sub_weight": 0.25
+            },
+            {
+              "name": "LiveBench Reasoning",
+              "sub_weight": 0.15
             }
           ]
         }
@@ -229,12 +293,20 @@
           ]
         },
         {
-          "name": "业务与工作流自动化",
+          "name": "业务自动化与 Web",
           "weight": 0.15,
           "metrics": [
             {
               "name": "AutomationBench",
-              "sub_weight": 1.0
+              "sub_weight": 0.50
+            },
+            {
+              "name": "BrowseComp",
+              "sub_weight": 0.30
+            },
+            {
+              "name": "LiveBench Agentic Coding",
+              "sub_weight": 0.20
             }
           ]
         },
@@ -244,11 +316,15 @@
           "metrics": [
             {
               "name": "LiveBench Instruction Following",
-              "sub_weight": 0.5
+              "sub_weight": 0.45
             },
             {
               "name": "LCR",
-              "sub_weight": 0.5
+              "sub_weight": 0.35
+            },
+            {
+              "name": "IFBench",
+              "sub_weight": 0.20
             }
           ]
         },
@@ -258,7 +334,15 @@
           "metrics": [
             {
               "name": "HLE",
-              "sub_weight": 1.0
+              "sub_weight": 0.60
+            },
+            {
+              "name": "SciCode",
+              "sub_weight": 0.25
+            },
+            {
+              "name": "LiveBench Reasoning",
+              "sub_weight": 0.15
             }
           ]
         },

@@ -75,6 +75,8 @@ def build_merged():
     ds = _alias_index(_read_csv(os.path.join(CACHE, "deepswe.csv")), "model")
     eq = _alias_index(_read_csv(os.path.join(CACHE, "eqbench.csv")), "model")
     tb = _alias_index(_read_csv(os.path.join(CACHE, "terminalbench.csv")), "model")
+    bc = _alias_index(_read_csv(os.path.join(CACHE, "browsecomp.csv")), "model")
+    bc_slug = _alias_index(_read_csv(os.path.join(CACHE, "browsecomp.csv")), "slug")
 
     # 官方发布技术报告核定的权威指标补充（声明式配置，便于自动化及模型维护）
     evals_path = os.path.join(os.path.dirname(__file__), "official_evals.json")
@@ -85,11 +87,11 @@ def build_merged():
 
     # 指标名（与 config.json imputation_pool 一致）
     cols = [
-        "Terminal-Bench 4.0", "LiveBench Coding", "DeepSWE",
-        "LiveBench Agentic Coding", "AutomationBench",
-        "LiveBench Instruction Following",
-        "LCR", "Omniscience Index", "GPQA Diamond", "HLE",
-        "EQ-Bench Creative Writing", "LiveBench Language",
+        "Terminal-Bench 4.0", "DeepSWE", "LiveBench Coding",
+        "AutomationBench", "BrowseComp", "LiveBench Agentic Coding",
+        "LiveBench Instruction Following", "LCR", "IFBench",
+        "HLE", "SciCode", "LiveBench Reasoning",
+        "EQ-Bench Creative Writing", "LiveBench Language", "Omniscience Index",
     ]
 
     out_rows = []
@@ -97,18 +99,26 @@ def build_merged():
         slug = m["slug"]
         row = {"Model": slug, "Creator": m["creator"], "Vision": m.get("vision", False)}
 
-        # LiveBench（别名可为列表，取最高 Overall 近似 —— 这里按 Coding 最高者）
+        # LiveBench
         lb_row, lb_name = _pick_max(lb, m.get("livebench"))
         if lb_row:
             row["LiveBench Coding"] = _num(lb_row.get("Coding"))
             row["LiveBench Agentic Coding"] = _num(lb_row.get("Agentic Coding"))
             row["LiveBench Instruction Following"] = _num(lb_row.get("IF"))
             row["LiveBench Language"] = _num(lb_row.get("Language"))
+            row["LiveBench Reasoning"] = _num(lb_row.get("Reasoning"))
 
         # Terminal-Bench 4.0
         tb_row, _ = _pick_max(tb, m.get("terminalbench") or slug)
         if tb_row:
             row["Terminal-Bench 4.0"] = _num(tb_row.get("Terminal-Bench 4.0"))
+
+        # BrowseComp
+        bc_row, _ = _pick_max(bc, m.get("browsecomp") or slug)
+        if not bc_row:
+            bc_row, _ = _pick_max(bc_slug, m.get("browsecomp") or slug)
+        if bc_row:
+            row["BrowseComp"] = _num(bc_row.get("BrowseComp"))
 
         # DeepSWE
         ds_row, _ = _pick_max(ds, m.get("deepswe"))
@@ -125,8 +135,9 @@ def build_merged():
         if aa_row:
             row["LCR"] = _num(aa_row.get("LCR"))
             row["Omniscience Index"] = _num(aa_row.get("Omniscience Index"))
-            row["GPQA Diamond"] = _num(aa_row.get("GPQA Diamond"))
             row["HLE"] = _num(aa_row.get("HLE"))
+            row["IFBench"] = _num(aa_row.get("IFBench"))
+            row["SciCode"] = _num(aa_row.get("SciCode"))
             if aa_row.get("AutomationBench"):
                 row["AutomationBench"] = _num(aa_row.get("AutomationBench"))
             # 成本列（性价比榜用）

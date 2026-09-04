@@ -1,10 +1,9 @@
 """Shared ridge-regression imputation + leave-one-out validation.
 
-The imputation pool is the 11 metrics shared by both leaderboards.
-Imputation uses cross-feature ridge regression (no Intelligence Index
-in the features) with z-score standardization and damped updates.
-The same engine is reused by the P99 experiment — the only
-parameter that differs there is ``clip_quantile``.
+The imputation pool is partitioned into domain groups (1 major + 2 minors)
+so that missing metrics are predicted strictly within their own domain features.
+Imputation uses cross-feature ridge regression with z-score standardization
+and damped updates.
 """
 from __future__ import annotations
 
@@ -35,7 +34,7 @@ def compute_stats(rows, pool, clip_quantile=0.95):
 
 
 class ImputationEngine:
-    """Holds the shared pool state and runs iterative imputation + LOO."""
+    """Holds the shared pool state and runs domain-scoped ridge imputation + LOO."""
 
     def __init__(self, rows, pool, cfg_params):
         self.rows = rows
@@ -45,6 +44,18 @@ class ImputationEngine:
         self.min_samples = cfg_params["imputation_min_samples"]
         self.standardize = cfg_params["standardize_features"]
         self.damping = cfg_params["damping"]
+        self.domain_groups = cfg_params.get("domain_groups") or {}
+        
+        # 构建 metric -> domain metrics 映射
+        self.metric_domains = {}
+        for m in pool:
+            assigned = None
+            for d_name, d_metrics in self.domain_groups.items():
+                if m in d_metrics:
+                    assigned = [x for x in d_metrics if x in pool]
+                    break
+            self.metric_domains[m] = assigned or pool
+
         n = len(rows)
         self.raw = {m: [to_float(r.get(m)) for r in rows] for m in pool}
         self.stats = compute_stats(rows, pool, cfg_params["clip_quantile"])
@@ -56,31 +67,43 @@ class ImputationEngine:
             m: {"n_train": sum(1 for i in range(n) if self.raw[m][i] is not None)}
             for m in pool
         }
+        
+        # 分域 Scaler
+        self.scalers = {}
         if self.standardize:
-            x_raw_real = np.array([
-                [self.raw[m][i] if self.raw[m][i] is not None else self.stats[m][2]
-                 for i in range(n)]
-                for m in pool
-            ], dtype=float)  # N_POOL x n
-            self.scaler = StandardScaler()
-            self.scaler.fit(x_raw_real.T)  # fit on n x N_POOL
+            for m in pool:
+                d_metrics = self.metric_domains[m]
+                x_raw_real = np.array([
+                    [self.raw[mm][i] if self.raw[mm][i] is not None else self.stats[mm][2]
+                     for i in range(n)]
+                    for mm in d_metrics
+                ], dtype=float)  # N_DOMAIN x n
+                scaler = StandardScaler()
+                scaler.fit(x_raw_real.T)
+                self.scalers[m] = scaler
         else:
-            self.scaler = None
+            self.scalers = {m: None for m in pool}
 
-    def all_feat_row(self, i):
-        """Full pool feature row for model i (all pool metrics)."""
-        return [self.cur[mm][i] for mm in self.pool]
+    def domain_feat_row(self, i, target_m):
+        """Feature row for model i scoped to target_m's domain."""
+        d_metrics = self.metric_domains[target_m]
+        return [self.cur[mm][i] for mm in d_metrics]
 
-    def to_X(self, arr_pool, target_m):
-        """arr_pool: n x N_POOL. Returns [1, std N_POOL-1 excluding target]."""
-        if self.scaler is not None:
-            arr_pool = self.scaler.transform(arr_pool)
-        target_idx = self.pool.index(target_m)
-        keep = np.r_[:target_idx, target_idx + 1:self.n_pool]
-        return np.hstack([np.ones((len(arr_pool), 1)), arr_pool[:, keep]])
+    def to_X(self, arr_domain, target_m):
+        """arr_domain: n x N_DOMAIN. Returns [1, std N_DOMAIN-1 excluding target]."""
+        d_metrics = self.metric_domains[target_m]
+        scaler = self.scalers[target_m]
+        if scaler is not None:
+            arr_domain = scaler.transform(arr_domain)
+        target_idx = d_metrics.index(target_m)
+        n_dim = len(d_metrics)
+        keep = np.r_[:target_idx, target_idx + 1:n_dim]
+        if len(keep) == 0:
+            return np.ones((len(arr_domain), 1))
+        return np.hstack([np.ones((len(arr_domain), 1)), arr_domain[:, keep]])
 
     def run(self, max_iters, rel_tol, stable_rounds):
-        """Iterative imputation. Returns (converged_iter, max_delta)."""
+        """Iterative domain-scoped imputation. Returns (converged_iter, max_delta)."""
         n = len(self.rows)
         prev = {m: list(self.cur[m]) for m in self.pool}
         stable_count = 0
@@ -91,7 +114,7 @@ class ImputationEngine:
                 xtr, ytr = [], []
                 for i in range(n):
                     if self.raw[m][i] is not None:
-                        xtr.append(self.all_feat_row(i))
+                        xtr.append(self.domain_feat_row(i, m))
                         ytr.append(self.raw[m][i])
                 if len(xtr) < 3:
                     continue
@@ -107,10 +130,8 @@ class ImputationEngine:
                 n_train = self.imputation_quality[m]["n_train"]
                 for i in range(n):
                     if self.raw[m][i] is None and n_train >= self.min_samples:
-                        xi = self.to_X(np.array([self.all_feat_row(i)], dtype=float), m)[0]
+                        xi = self.to_X(np.array([self.domain_feat_row(i, m)], dtype=float), m)[0]
                         pred = max(lo, min(clip, float(xi @ beta)))
-                        # Damped update: suppress oscillation from strongly
-                        # correlated columns (e.g. Omniscience trio).
                         self.cur[m][i] = (1 - self.damping) * self.cur[m][i] + self.damping * pred
             max_delta = 0.0
             for m in self.pool:
@@ -131,12 +152,7 @@ class ImputationEngine:
         return converged_iter, max_delta
 
     def loo_validation(self):
-        """Leave-one-out validation over the whole observed set (no subsample).
-
-        Note: features come from ``all_feat_row`` after imputation fills
-        ``cur``, so LOO is slightly optimistic vs raw-only (documented
-        in METHODOLOGY). The clipping quantile uses ``stats``.
-        """
+        """Leave-one-out validation within each metric's domain group."""
         n = len(self.rows)
         validation = {}
         for target_m in self.pool:
@@ -152,7 +168,7 @@ class ImputationEngine:
                 xtr, ytr = [], []
                 for j in range(n):
                     if j != skip_i and self.raw[target_m][j] is not None:
-                        xtr.append(self.all_feat_row(j))
+                        xtr.append(self.domain_feat_row(j, target_m))
                         ytr.append(self.raw[target_m][j])
                 if len(xtr) < 3:
                     continue
@@ -164,7 +180,7 @@ class ImputationEngine:
                     beta = np.linalg.solve(a, x1.T @ ytr_arr)
                 except np.linalg.LinAlgError:
                     beta = np.linalg.lstsq(x1, ytr_arr, rcond=None)[0]
-                xi = self.to_X(np.array([self.all_feat_row(skip_i)], dtype=float), target_m)[0]
+                xi = self.to_X(np.array([self.domain_feat_row(skip_i, target_m)], dtype=float), target_m)[0]
                 pred = float(xi @ beta)
                 lo, hi, _, _, clip = self.stats[target_m]
                 pred = max(lo, min(clip, pred))
@@ -186,14 +202,14 @@ class ImputationEngine:
         return validation
 
     def r2_log(self):
-        """Training R2 per metric (z-score space, cross-predict only)."""
+        """Training R2 per metric (domain-scoped cross-predict)."""
         n = len(self.rows)
         out = {}
         for m in self.pool:
             xtr, ytr = [], []
             for i in range(n):
                 if self.raw[m][i] is not None:
-                    xtr.append(self.all_feat_row(i))
+                    xtr.append(self.domain_feat_row(i, m))
                     ytr.append(self.raw[m][i])
             if len(xtr) < 3:
                 continue

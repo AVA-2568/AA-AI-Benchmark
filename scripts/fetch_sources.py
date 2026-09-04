@@ -230,6 +230,30 @@ def fetch_terminalbench():
     return _write_csv("terminalbench.csv", ["model", "Terminal-Bench 4.0"], [])
 
 
+# ---------- BrowseComp ----------
+
+def fetch_browsecomp():
+    """BrowseComp 网页自主浏览与搜索智能体评测。"""
+    path = os.path.join(CACHE, "browsecomp.csv")
+    try:
+        html = _get("https://benchlm.ai/benchmarks/browsecomp").decode("utf-8", errors="replace")
+        matches = re.findall(r'\"model\":\"(.*?)\",\"slug\":(\"[^\"]+\"|null).*?\"score\":([0-9.]+)', html)
+        rows = []
+        for m_name, slug_raw, score in matches:
+            slug = json.loads(slug_raw) if slug_raw != "null" else ""
+            rows.append([m_name, slug or "", score])
+        if rows:
+            return _write_csv("browsecomp.csv", ["model", "slug", "BrowseComp"], rows)
+    except Exception as e:
+        print(f"  browsecomp remote fetch error: {e}, fallback cache")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8-sig", newline="") as f:
+            n = sum(1 for _ in csv.DictReader(f))
+        print(f"browsecomp: {n} 模型 -> {os.path.basename(path)}")
+        return path
+    return _write_csv("browsecomp.csv", ["model", "slug", "BrowseComp"], [])
+
+
 # ---------- 汇率 ----------
 
 def fetch_fx():
@@ -269,6 +293,7 @@ FETCHERS = {
     "swebench": fetch_swebench,
     "eqbench": fetch_eqbench,
     "terminalbench": fetch_terminalbench,
+    "browsecomp": fetch_browsecomp,
     "fx": fetch_fx,
 }
 

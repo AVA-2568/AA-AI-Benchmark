@@ -107,6 +107,7 @@ def run_pipeline(rows, cfg, results_dir, fx_rate=None):
         "standardize_features": cfg.get("standardize_features", True),
         "clip_quantile": ip["clip_quantile"],
         "damping": ip["damping"],
+        "domain_groups": cfg.get("domain_groups"),
     }
     engine = ImputationEngine(rows, pool, params)
 
