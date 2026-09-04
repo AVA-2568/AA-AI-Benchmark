@@ -24,6 +24,26 @@
       "EQ-Bench Creative Writing",
       "LiveBench Language",
       "Omniscience Index"
+    ],
+    "creative_literature": [
+      "EQ-Bench 4",
+      "LiveBench StoryGen"
+    ],
+    "professional_work": [
+      "GDPval-AA",
+      "AA Briefcase",
+      "LiveBench Summarize"
+    ],
+    "text_instruction": [
+      "LiveBench Simplify"
+    ],
+    "factuality_longtext": [
+      "BullshitBench v2"
+    ],
+    "humanities_mind": [
+      "LiveBench Theory of Mind",
+      "Harvey LAB",
+      "DeepSearchQA"
     ]
   },
   "imputation_pool": [
@@ -41,7 +61,17 @@
     "LiveBench Reasoning",
     "EQ-Bench Creative Writing",
     "LiveBench Language",
-    "Omniscience Index"
+    "Omniscience Index",
+    "EQ-Bench 4",
+    "LiveBench StoryGen",
+    "GDPval-AA",
+    "AA Briefcase",
+    "LiveBench Summarize",
+    "LiveBench Simplify",
+    "BullshitBench v2",
+    "LiveBench Theory of Mind",
+    "Harvey LAB",
+    "DeepSearchQA"
   ],
   "metric_scales": {
     "Terminal-Bench 4.0": [
@@ -103,6 +133,46 @@
     "Omniscience Index": [
       -50,
       50
+    ],
+    "EQ-Bench 4": [
+      1000,
+      1400
+    ],
+    "LiveBench StoryGen": [
+      0,
+      100
+    ],
+    "GDPval-AA": [
+      0,
+      1
+    ],
+    "AA Briefcase": [
+      1200,
+      1800
+    ],
+    "LiveBench Summarize": [
+      0,
+      100
+    ],
+    "LiveBench Simplify": [
+      0,
+      100
+    ],
+    "BullshitBench v2": [
+      0,
+      100
+    ],
+    "LiveBench Theory of Mind": [
+      0,
+      100
+    ],
+    "Harvey LAB": [
+      0,
+      1
+    ],
+    "DeepSearchQA": [
+      0,
+      100
     ]
   },
   "leaderboards": {
@@ -201,62 +271,92 @@
       "validation_json": "validation_text.json",
       "categories": [
         {
-          "name": "创意写作与语言",
-          "weight": 0.3,
-          "metrics": [
-            {
-              "name": "EQ-Bench Creative Writing",
-              "sub_weight": 0.6
-            },
-            {
-              "name": "LiveBench Language",
-              "sub_weight": 0.4
-            }
-          ]
-        },
-        {
-          "name": "事实准确性",
-          "weight": 0.2,
-          "metrics": [
-            {
-              "name": "Omniscience Index",
-              "sub_weight": 1.0
-            }
-          ]
-        },
-        {
-          "name": "指令遵循与长上下文",
+          "name": "创意文学与小说创作",
           "weight": 0.25,
           "metrics": [
             {
-              "name": "LiveBench Instruction Following",
-              "sub_weight": 0.45
+              "name": "EQ-Bench 4",
+              "sub_weight": 0.5
             },
             {
-              "name": "LCR",
-              "sub_weight": 0.35
+              "name": "LiveBench StoryGen",
+              "sub_weight": 0.3
             },
             {
-              "name": "IFBench",
+              "name": "LiveBench Language",
               "sub_weight": 0.2
             }
           ]
         },
         {
-          "name": "终极科学与推理",
-          "weight": 0.25,
+          "name": "专业案头与深度研究",
+          "weight": 0.2,
           "metrics": [
             {
-              "name": "HLE",
-              "sub_weight": 0.6
+              "name": "GDPval-AA",
+              "sub_weight": 0.5
             },
             {
-              "name": "SciCode",
-              "sub_weight": 0.25
+              "name": "AA Briefcase",
+              "sub_weight": 0.3
             },
             {
-              "name": "LiveBench Reasoning",
-              "sub_weight": 0.15
+              "name": "LiveBench Summarize",
+              "sub_weight": 0.2
+            }
+          ]
+        },
+        {
+          "name": "严格指令与格式约束",
+          "weight": 0.2,
+          "metrics": [
+            {
+              "name": "IFBench",
+              "sub_weight": 0.5
+            },
+            {
+              "name": "LiveBench Instruction Following",
+              "sub_weight": 0.3
+            },
+            {
+              "name": "LiveBench Simplify",
+              "sub_weight": 0.2
+            }
+          ]
+        },
+        {
+          "name": "事实抗伪与超长文本",
+          "weight": 0.2,
+          "metrics": [
+            {
+              "name": "Omniscience Index",
+              "sub_weight": 0.5
+            },
+            {
+              "name": "LCR",
+              "sub_weight": 0.3
+            },
+            {
+              "name": "BullshitBench v2",
+              "sub_weight": 0.2
+            }
+          ]
+        },
+        {
+          "name": "人际心智与人文社科",
+          "weight": 0.15,
+          "metrics": [
+            {
+              "name": "LiveBench Theory of Mind",
+              "sub_weight": 0.5
+            },
+            {
+              "name": "Harvey LAB",
+              "sub_weight": 0.3
+            },
+            {
+              "name": "DeepSearchQA",
+              "sub_weight": 0.2
             }
           ]
         }
@@ -890,6 +990,20 @@
     "language_writing": [
       "LiveBench Language",
       "EQ-Bench Creative Writing"
+    ],
+    "creative_literature": [
+      "LiveBench StoryGen",
+      "EQ-Bench 4"
+    ],
+    "professional_work": [
+      "LiveBench Summarize",
+      "AA Briefcase",
+      "GDPval-AA"
+    ],
+    "humanities_mind": [
+      "DeepSearchQA",
+      "Harvey LAB",
+      "LiveBench Theory of Mind"
     ]
   }
 }

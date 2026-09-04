@@ -79,6 +79,29 @@ def build_merged():
     bc = _alias_index(_read_csv(os.path.join(CACHE, "browsecomp.csv")), "model")
     bc_slug = _alias_index(_read_csv(os.path.join(CACHE, "browsecomp.csv")), "slug")
 
+    eq4 = _alias_index(_read_csv(os.path.join(CACHE, "eqbench4.csv")), "model")
+    eq4_slug = _alias_index(_read_csv(os.path.join(CACHE, "eqbench4.csv")), "slug")
+    briefcase = _alias_index(_read_csv(os.path.join(CACHE, "aabriefcase.csv")), "model")
+    briefcase_slug = _alias_index(_read_csv(os.path.join(CACHE, "aabriefcase.csv")), "slug")
+    bullshit = _alias_index(_read_csv(os.path.join(CACHE, "bullshitbench.csv")), "model")
+    bullshit_slug = _alias_index(_read_csv(os.path.join(CACHE, "bullshitbench.csv")), "slug")
+    deepsearch = _alias_index(_read_csv(os.path.join(CACHE, "deepsearchqa.csv")), "model")
+    deepsearch_slug = _alias_index(_read_csv(os.path.join(CACHE, "deepsearchqa.csv")), "slug")
+
+    def _pick_benchlm(im, islug, slug):
+        if slug in islug:
+            return islug[slug]
+        norm_s = slug.replace(".", "-")
+        if norm_s in islug:
+            return islug[norm_s]
+        if slug in im:
+            return im[slug]
+        s_clean = slug.replace("-", "").replace(".", "").lower()
+        for k in im:
+            if s_clean in k.replace("-", "").replace(".", "").lower():
+                return im[k]
+        return None
+
     # 官方发布技术报告核定的权威指标补充（声明式配置，便于自动化及模型维护）
     evals_path = os.path.join(os.path.dirname(__file__), "official_evals.json")
     official_evals = {}
@@ -93,6 +116,12 @@ def build_merged():
         "LiveBench Instruction Following", "LCR", "IFBench",
         "HLE", "SciCode", "LiveBench Reasoning",
         "EQ-Bench Creative Writing", "LiveBench Language", "Omniscience Index",
+        # 文本榜五维新增指标
+        "EQ-Bench 4", "LiveBench StoryGen",
+        "GDPval-AA", "AA Briefcase", "LiveBench Summarize",
+        "LiveBench Simplify",
+        "BullshitBench v2",
+        "LiveBench Theory of Mind", "Harvey LAB", "DeepSearchQA",
     ]
 
     out_rows = []
@@ -108,6 +137,11 @@ def build_merged():
             row["LiveBench Instruction Following"] = _num(lb_row.get("IF"))
             row["LiveBench Language"] = _num(lb_row.get("Language"))
             row["LiveBench Reasoning"] = _num(lb_row.get("Reasoning"))
+            # 细分任务列
+            row["LiveBench StoryGen"] = _num(lb_row.get("LiveBench StoryGen"))
+            row["LiveBench Summarize"] = _num(lb_row.get("LiveBench Summarize"))
+            row["LiveBench Simplify"] = _num(lb_row.get("LiveBench Simplify"))
+            row["LiveBench Theory of Mind"] = _num(lb_row.get("LiveBench Theory of Mind"))
 
         # Terminal-Bench 4.0
         tb_row, _ = _pick_max(tb, m.get("terminalbench") or slug)
@@ -133,6 +167,23 @@ def build_merged():
         if eq_row:
             row["EQ-Bench Creative Writing"] = _num(eq_row.get("Elo"))
 
+        # benchlm.ai 新增文本指标
+        eq4_row = _pick_benchlm(eq4, eq4_slug, slug)
+        if eq4_row and eq4_row.get("EQ-Bench 4"):
+            row["EQ-Bench 4"] = _num(eq4_row.get("EQ-Bench 4"))
+
+        bc_brief_row = _pick_benchlm(briefcase, briefcase_slug, slug)
+        if bc_brief_row and bc_brief_row.get("AA Briefcase"):
+            row["AA Briefcase"] = _num(bc_brief_row.get("AA Briefcase"))
+
+        bullshit_row = _pick_benchlm(bullshit, bullshit_slug, slug)
+        if bullshit_row and bullshit_row.get("BullshitBench v2"):
+            row["BullshitBench v2"] = _num(bullshit_row.get("BullshitBench v2"))
+
+        deepsearch_row = _pick_benchlm(deepsearch, deepsearch_slug, slug)
+        if deepsearch_row and deepsearch_row.get("DeepSearchQA"):
+            row["DeepSearchQA"] = _num(deepsearch_row.get("DeepSearchQA"))
+
         # AA
         aa_row, _ = _pick_max(aa, m.get("aa"))
         if aa_row:
@@ -143,6 +194,10 @@ def build_merged():
             row["SciCode"] = _num(aa_row.get("SciCode"))
             if aa_row.get("AutomationBench"):
                 row["AutomationBench"] = _num(aa_row.get("AutomationBench"))
+            if aa_row.get("GDPval-AA"):
+                row["GDPval-AA"] = _num(aa_row.get("GDPval-AA"))
+            if aa_row.get("Harvey LAB"):
+                row["Harvey LAB"] = _num(aa_row.get("Harvey LAB"))
             # 成本列（性价比榜用）
             row["Price 1M Input"] = _num(aa_row.get("Price 1M Input"))
             row["Price 1M Output"] = _num(aa_row.get("Price 1M Output"))

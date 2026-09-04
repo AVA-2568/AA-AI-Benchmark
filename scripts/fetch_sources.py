@@ -35,6 +35,14 @@ LB_CATEGORIES = {
     "Data Analysis": ["consecutive_events", "tablejoin", "tablereformat"],
 }
 
+# LiveBench 单项解耦任务列定义（针对文本榜专业能力）
+LB_TASK_COLUMNS = {
+    "LiveBench StoryGen": "story_generation",
+    "LiveBench Summarize": "summarize",
+    "LiveBench Simplify": "simplify",
+    "LiveBench Theory of Mind": "theory_of_mind",
+}
+
 
 def _get(url):
     """GET 返回 bytes；失败抛异常。"""
@@ -99,7 +107,7 @@ def fetch_livebench():
     col_idx = {c: i for i, c in enumerate(header)}
     model_idx = col_idx.get("model", 0)
 
-    out_header = ["model"] + list(LB_CATEGORIES.keys())
+    out_header = ["model"] + list(LB_CATEGORIES.keys()) + list(LB_TASK_COLUMNS.keys())
     out_rows = []
     for r in rows[1:]:
         if not r or not r[0]:
@@ -115,6 +123,14 @@ def fetch_livebench():
                     except (ValueError, IndexError):
                         pass
             scores.append(round(sum(vals) / len(vals), 1) if vals else "")
+        for col_name, task_key in LB_TASK_COLUMNS.items():
+            val = ""
+            if task_key in col_idx:
+                try:
+                    val = round(float(r[col_idx[task_key]]), 1)
+                except (ValueError, IndexError):
+                    pass
+            scores.append(val)
         out_rows.append([model] + scores)
 
     path = _write_csv("livebench.csv", out_header, out_rows)
@@ -265,6 +281,102 @@ def fetch_browsecomp():
     return _write_csv("browsecomp.csv", ["model", "slug", "BrowseComp"], [])
 
 
+# ---------- EQ-Bench 4 ----------
+
+def fetch_eqbench4():
+    """EQ-Bench 4 多轮人设立体对话与情商评测。"""
+    path = os.path.join(CACHE, "eqbench4.csv")
+    try:
+        html = _get("https://benchlm.ai/benchmarks/eqbench4").decode("utf-8", errors="replace")
+        matches = re.findall(r'\"model\":\"(.*?)\",\"slug\":(\"[^\"]+\"|null).*?\"score\":([0-9.]+)', html)
+        rows = []
+        for m_name, slug_raw, score in matches:
+            slug = json.loads(slug_raw) if slug_raw != "null" else ""
+            rows.append([m_name, slug or "", score])
+        if rows:
+            return _write_csv("eqbench4.csv", ["model", "slug", "EQ-Bench 4"], rows)
+    except Exception as e:
+        print(f"  eqbench4 remote fetch error: {e}, fallback cache")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8-sig", newline="") as f:
+            n = sum(1 for _ in csv.DictReader(f))
+        print(f"eqbench4: {n} 模型 -> {os.path.basename(path)}")
+        return path
+    return _write_csv("eqbench4.csv", ["model", "slug", "EQ-Bench 4"], [])
+
+
+# ---------- AA Briefcase ----------
+
+def fetch_aabriefcase():
+    """Artificial Analysis Briefcase 专业白领知识工作评测。"""
+    path = os.path.join(CACHE, "aabriefcase.csv")
+    try:
+        html = _get("https://benchlm.ai/benchmarks/aabriefcaseelo").decode("utf-8", errors="replace")
+        matches = re.findall(r'\"model\":\"(.*?)\",\"slug\":(\"[^\"]+\"|null).*?\"score\":([0-9.]+)', html)
+        rows = []
+        for m_name, slug_raw, score in matches:
+            slug = json.loads(slug_raw) if slug_raw != "null" else ""
+            rows.append([m_name, slug or "", score])
+        if rows:
+            return _write_csv("aabriefcase.csv", ["model", "slug", "AA Briefcase"], rows)
+    except Exception as e:
+        print(f"  aabriefcase remote fetch error: {e}, fallback cache")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8-sig", newline="") as f:
+            n = sum(1 for _ in csv.DictReader(f))
+        print(f"aabriefcase: {n} 模型 -> {os.path.basename(path)}")
+        return path
+    return _write_csv("aabriefcase.csv", ["model", "slug", "AA Briefcase"], [])
+
+
+# ---------- BullshitBench v2 ----------
+
+def fetch_bullshitbench():
+    """BullshitBench v2 抗诱导胡扯与事实抗伪评测。"""
+    path = os.path.join(CACHE, "bullshitbench.csv")
+    try:
+        html = _get("https://benchlm.ai/benchmarks/bullshitbenchv2").decode("utf-8", errors="replace")
+        matches = re.findall(r'\"model\":\"(.*?)\",\"slug\":(\"[^\"]+\"|null).*?\"score\":([0-9.]+)', html)
+        rows = []
+        for m_name, slug_raw, score in matches:
+            slug = json.loads(slug_raw) if slug_raw != "null" else ""
+            rows.append([m_name, slug or "", score])
+        if rows:
+            return _write_csv("bullshitbench.csv", ["model", "slug", "BullshitBench v2"], rows)
+    except Exception as e:
+        print(f"  bullshitbench remote fetch error: {e}, fallback cache")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8-sig", newline="") as f:
+            n = sum(1 for _ in csv.DictReader(f))
+        print(f"bullshitbench: {n} 模型 -> {os.path.basename(path)}")
+        return path
+    return _write_csv("bullshitbench.csv", ["model", "slug", "BullshitBench v2"], [])
+
+
+# ---------- DeepSearchQA ----------
+
+def fetch_deepsearchqa():
+    """DeepSearchQA 长程深度信息检索与开放式问答评测。"""
+    path = os.path.join(CACHE, "deepsearchqa.csv")
+    try:
+        html = _get("https://benchlm.ai/benchmarks/deepsearchqa").decode("utf-8", errors="replace")
+        matches = re.findall(r'\"model\":\"(.*?)\",\"slug\":(\"[^\"]+\"|null).*?\"score\":([0-9.]+)', html)
+        rows = []
+        for m_name, slug_raw, score in matches:
+            slug = json.loads(slug_raw) if slug_raw != "null" else ""
+            rows.append([m_name, slug or "", score])
+        if rows:
+            return _write_csv("deepsearchqa.csv", ["model", "slug", "DeepSearchQA"], rows)
+    except Exception as e:
+        print(f"  deepsearchqa remote fetch error: {e}, fallback cache")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8-sig", newline="") as f:
+            n = sum(1 for _ in csv.DictReader(f))
+        print(f"deepsearchqa: {n} 模型 -> {os.path.basename(path)}")
+        return path
+    return _write_csv("deepsearchqa.csv", ["model", "slug", "DeepSearchQA"], [])
+
+
 # ---------- 汇率 ----------
 
 def fetch_fx():
@@ -305,6 +417,10 @@ FETCHERS = {
     "eqbench": fetch_eqbench,
     "terminalbench": fetch_terminalbench,
     "browsecomp": fetch_browsecomp,
+    "eqbench4": fetch_eqbench4,
+    "aabriefcase": fetch_aabriefcase,
+    "bullshitbench": fetch_bullshitbench,
+    "deepsearchqa": fetch_deepsearchqa,
     "fx": fetch_fx,
 }
 

@@ -52,7 +52,7 @@
 
 ## 文本榜 Top 15
 
-写小说、日常问答看这张。权重：创意写作 25%、事实 20%、指令遵循 20%、知识 20%、长上下文 15%。轴含义与顶部通用榜曲线相同，纵轴换为文本榜综合分——定位预算即可读出该预算下写作最强的模型。
+适用于文学创作、长篇阅读、专业案头分析与日常问答。评测覆盖 5 个维度：创意文学（25%）、专业案头（20%）、指令约束（20%）、事实与长文本（20%）、人际心智（15%），不包含代码生成与数理考试指标。图表纵轴为文本榜综合分，横轴为百万 token 成本，用于按预算选型。
 
 <!--TEXT_FRONTIER_START-->
 ![文本榜能力-成本前沿：给定每 1M token 预算时的最优写作模型](results/text_frontier.svg)
@@ -60,27 +60,27 @@
 
 <!--SNAPSHOT_TEXT_START-->
 > 2026-09-04 抓取（49 精选模型 -> 49 行）。
-> 填补验证：EQ-Bench Creative Writing MAE=136.15 (>10%: 35.5%/31) ; LiveBench Language MAE=3.59 (>10%: 6.5%/46) ; Omniscience Index MAE=9.27 (>10%: 87.8%/49) ; LiveBench Instruction Following MAE=5.20 (>10%: 34.8%/46) ; LCR MAE=0.03 (>10%: 2.0%/49) ; IFBench MAE=0.08 (>10%: 44.0%/25) ; HLE MAE=0.03 (>10%: 22.4%/49) ; SciCode MAE=0.02 (>10%: 10.2%/49) ; LiveBench Reasoning MAE=3.38 (>10%: 4.3%/46)
+> 填补验证：EQ-Bench 4 MAE=77.45 (>10%: 22.2%/18) ; LiveBench StoryGen MAE=4.75 (>10%: 26.1%/46) ; LiveBench Language MAE=3.59 (>10%: 6.5%/46) ; GDPval-AA MAE=0.04 (>10%: 35.6%/45) ; AA Briefcase MAE=63.37 (>10%: 25.0%/12) ; LiveBench Summarize MAE=6.50 (>10%: 34.8%/46) ; IFBench MAE=0.08 (>10%: 44.0%/25) ; LiveBench Instruction Following MAE=5.20 (>10%: 34.8%/46) ; LiveBench Simplify MAE=5.83 (>10%: 41.3%/46) ; Omniscience Index MAE=9.27 (>10%: 87.8%/49) ; LCR MAE=0.03 (>10%: 2.0%/49) ; BullshitBench v2 MAE=19.04 (>10%: 85.7%/35) ; LiveBench Theory of Mind MAE=2.36 (>10%: 8.7%/46) ; Harvey LAB MAE=0.03 (>10%: 11.5%/26)
 <!--SNAPSHOT_TEXT_END-->
 
 <!--TOP15_TEXT_START-->
 | # | Model | Creator | Vision | Score | Imputed |
 |---|---|---|---|---|---|
-| 1 | claude-opus-5 | Anthropic | 👁️ | 76.4 | IFBench(reg) |
-| 2 | claude-fable-5.1 | Anthropic | 👁️ | 76.3 | EQ-Bench Creative Writing(reg), IFBench(reg) |
-| 3 | claude-fable-5 | Anthropic | 👁️ | 75.4 | - |
-| 4 | gpt-6-astra | OpenAI | 👁️ | 73.2 | EQ-Bench Creative Writing(reg), LiveBench Language(reg), LiveBench Instruction Following(reg), IFBench(reg), LiveBench Reasoning(reg) |
-| 5 | kimi-k3 | Moonshot AI | 👁️ | 72.4 | IFBench(reg) |
-| 6 | gemini-3.8-flash | Google | 👁️ | 70.6 | EQ-Bench Creative Writing(reg), IFBench(reg) |
-| 7 | gpt-5.6-sol | OpenAI | 👁️ | 70.5 | - |
-| 8 | muse-spark-1.1 | Meta | 👁️ | 68.6 | IFBench(reg) |
-| 9 | glm-5.3 | Z.AI | - | 68.5 | IFBench(reg) |
-| 10 | muse-spark-1.2 | Meta | 👁️ | 67.8 | IFBench(reg) |
-| 11 | grok-4.6 | xAI | 👁️ | 67.6 | EQ-Bench Creative Writing(reg), IFBench(reg) |
-| 12 | gpt-5.5 | OpenAI | 👁️ | 67.0 | - |
-| 13 | claude-opus-4.8 | Anthropic | 👁️ | 66.7 | - |
-| 14 | gemini-3.7-flash | Google | 👁️ | 66.6 | IFBench(reg) |
-| 15 | claude-opus-4.7 | Anthropic | 👁️ | 66.2 | - |
+| 1 | claude-fable-5.1 | Anthropic | 👁️ | 76.2 | EQ-Bench 4(reg), IFBench(reg), BullshitBench v2(reg), DeepSearchQA(reg) |
+| 2 | kimi-k3 | Moonshot AI | 👁️ | 75.1 | IFBench(reg) |
+| 3 | grok-4.6 | xAI | 👁️ | 72.5 | EQ-Bench 4(reg), IFBench(reg), Harvey LAB(reg), DeepSearchQA(reg) |
+| 4 | claude-fable-5 | Anthropic | 👁️ | 72.2 | EQ-Bench 4(reg), AA Briefcase(reg), BullshitBench v2(reg), DeepSearchQA(reg) |
+| 5 | gpt-5.6-sol | OpenAI | 👁️ | 71.2 | DeepSearchQA(reg) |
+| 6 | claude-opus-4.8 | Anthropic | 👁️ | 71.0 | AA Briefcase(reg) |
+| 7 | claude-opus-5 | Anthropic | 👁️ | 70.7 | EQ-Bench 4(reg), IFBench(reg) |
+| 8 | glm-5.3 | Z.AI | - | 69.7 | EQ-Bench 4(reg), IFBench(reg), Harvey LAB(reg), DeepSearchQA(reg) |
+| 9 | gemini-3.7-flash | Google | 👁️ | 69.5 | EQ-Bench 4(reg), AA Briefcase(reg), IFBench(reg), DeepSearchQA(reg) |
+| 10 | gemini-3.8-flash | Google | 👁️ | 68.6 | EQ-Bench 4(reg), IFBench(reg), BullshitBench v2(reg), Harvey LAB(reg), DeepSearchQA(reg) |
+| 11 | gpt-5.5 | OpenAI | 👁️ | 68.6 | AA Briefcase(reg), DeepSearchQA(reg) |
+| 12 | gpt-6-astra | OpenAI | 👁️ | 68.0 | EQ-Bench 4(reg), LiveBench StoryGen(reg), LiveBench Language(reg), LiveBench Summarize(reg), IFBench(reg), LiveBench Instruction Following(reg), LiveBench Simplify(reg), BullshitBench v2(reg), LiveBench Theory of Mind(reg), Harvey LAB(reg), DeepSearchQA(reg) |
+| 13 | muse-spark-1.2 | Meta | 👁️ | 67.2 | EQ-Bench 4(reg), AA Briefcase(reg), IFBench(reg), Harvey LAB(reg), DeepSearchQA(reg) |
+| 14 | grok-4.5 | xAI | 👁️ | 66.9 | EQ-Bench 4(reg), AA Briefcase(reg), IFBench(reg), DeepSearchQA(reg) |
+| 15 | qwen3.8-flash-next | Alibaba | - | 66.9 | EQ-Bench 4(reg), AA Briefcase(reg), IFBench(reg), BullshitBench v2(reg), Harvey LAB(reg), DeepSearchQA(reg) |
 <!--TOP15_TEXT_END-->
 
 [完整排名 CSV](results/text_scored.csv)
@@ -107,7 +107,7 @@
 | 8 | gpt-5.5 | OpenAI | 👁️ | 59.2 | 5.69 | [ChatGPT Pro 20x](https://chatgpt.com/pricing) | $200 | 70× | 0.081 | 0.544 | 731.24 |
 | 9 | gemini-3.7-flash | Google | 👁️ | 59.1 | 0.741 | [GitHub Copilot Max](https://github.com/features/copilot/plans) | $100 | 2× | 0.37 | 2.485 | 159.69 |
 | 10 | glm-5.3 | Z.AI | - | 57.9 | 1.65 | [GLM Coding Plan Max](https://bigmodel.cn/glm-coding) | $149.7 | 34.4× | 0.048 | 0.322 | 1206.1 |
-| 11 | gpt-5.2-codex | OpenAI | - | 57.6 | 2.517 | [ChatGPT Pro 20x](https://chatgpt.com/pricing) | $200 | 70× | 0.036 | 0.242 | 1599.57 |
+| 11 | gpt-5.2-codex | OpenAI | - | 57.6 | 2.517 | [ChatGPT Pro 20x](https://chatgpt.com/pricing) | $200 | 70× | 0.036 | 0.242 | 1599.64 |
 | 12 | grok-4.6 | xAI | 👁️ | 57.4 | 1.771 | [SuperGrok Heavy](https://x.ai/pricing) | $300 | 5.3× | 0.332 | 2.23 | 172.84 |
 | 13 | claude-opus-4.8 | Anthropic | 👁️ | 56.5 | 4.749 | [Claude Max 20x](https://claude.com/pricing) | $200 | 40× | 0.119 | 0.799 | 474.86 |
 | 14 | muse-spark-1.2 | Meta | 👁️ | 55.9 | 1.139 | API 按量 | - | 1× | 1.139 | 7.649 | 49.12 |
